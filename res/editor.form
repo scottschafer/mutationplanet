@@ -1,0 +1,19 @@
+form biosphere
+{
+    theme = res/editor.theme
+    width = 320
+    height = 540
+    autoWidth = false
+    autoHeight = false
+    style = basic
+
+    container main
+    {
+        style = basic
+        layout = LAYOUT_VERTICAL
+        position = 0, 0
+        size = 300, 560
+
+
+    }
+}
