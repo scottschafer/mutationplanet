@@ -1,6 +1,6 @@
 /************************************************************************
  MutationPlanet
- Copyright (C) 2012, Scott Schafer
+ Copyright (C) 2012, Scott Schafer, scott.schafer@gmail.com
  
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -96,16 +96,6 @@ void SpherePointFinderSpaceDivision:: moveEntity(SphereEntity * pEntity, Vector3
     }
     
     pEntity->mLocation = newLoc;
-}
-
-// use the cheap "Manhattan distance" method....
-inline float calcDistance(Vector3 v1, Vector3 v2)
-{
-    float x = v1.x - v2.x;
-    float y = v1.y - v2.y;
-    float z = v1.z - v2.z;
-
-    return max(fabs(x),max(fabs(y),fabs(z)));
 }
 
 int SpherePointFinderSpaceDivision:: getNearbyEntities(SphereEntity * pNearEntity, float distance, SphereEntity **pResultArray, int maxResults /*= 16 */)

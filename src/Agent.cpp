@@ -1,6 +1,6 @@
 /************************************************************************
  MutationPlanet
- Copyright (C) 2012, Scott Schafer
+ Copyright (C) 2012, Scott Schafer, scott.schafer@gmail.com
  
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -56,10 +56,8 @@ void Agent::initialize(Vector3 pt, const char * pGenome, bool allowMutation)
     mSpawnLocation = pt;
     
     // moving
-    mAngle = 0;
     mWasBlocked = false;
-    mNumMoves = 0;
-
+    
     // establish initial move vector
     float moveDistance = Parameters::getMoveDistance();
 
@@ -80,18 +78,20 @@ void Agent::initialize(Vector3 pt, const char * pGenome, bool allowMutation)
     mNumSegments = strlen(mGenome);
     mLifespan = 1000 * mNumSegments + UtilsRandom::getRangeRandom(-500, 500);
     mActiveSegment = 0;
-    mCondition = 0;
     
     // conditional behavior
-    mConditionalBehavior = eSkipNextInstruction;
     
     float scaleLocation = 1;
     int i = 0;
+    mIsMotile = false;
     while (i < mNumSegments)
     {
         SphereEntity &segment = mSegments[i];
         
         segment.mType = *pGenome++;
+        if (segment.mType == eInstructionMove || segment.mType == eInstructionMoveAndEat)
+            mIsMotile = true;
+        
         segment.mSegmentIndex = i;
         segment.mLocation = pt * scaleLocation;
         segment.mAgent = this;
@@ -102,33 +102,40 @@ void Agent::initialize(Vector3 pt, const char * pGenome, bool allowMutation)
     turn(UtilsRandom::getRangeRandom(0, 359));
 }
 
-
+/**
+ Process the Agent's active segment
+ **/
 void Agent::step(SphereWorld * pWorld)
 {
-    int numSteps = 1;
+    int numSteps = 1; // for now, just process one segment at a time
     
     while (numSteps--)
     {
         if (mStatus != eAlive)
             return;
         
-        if (mSleep == -1)
+        if (mSleep == -1) // send me off to sleep forever more...
             return;
         
         --mLifespan;
         if (mLifespan <= 0)
         {
+            // death from age
             die(pWorld);
             return;
         }
         
         if (mSleep)
         {
+            // zzzz
             --mSleep;
             return;
         }
 
+        // lose some energy every turn
         mEnergy -= Parameters::cycleEnergyCost;
+        
+        // now process the active segment
         SphereEntity & s = mSegments[mActiveSegment];
         switch (s.mType)
         {                
@@ -164,19 +171,23 @@ void Agent::step(SphereWorld * pWorld)
                 break;
                 
             case eInstructionTestSeeFood:
-                handleConditional(testIsFacingFood(pWorld));
+                if (! testIsFacingFood(pWorld))
+                    ++mActiveSegment;
                 break;
                 
             case eInstructionTestNotSeeFood:
-                handleConditional(! testIsFacingFood(pWorld));
+                if (testIsFacingFood(pWorld))
+                    ++mActiveSegment;
                 break;
                 
             case eInstructionTestBlocked:
-                handleConditional(mWasBlocked);
+                if (! mWasBlocked)
+                    ++mActiveSegment;
                 break;
                 
             case eInstructionTestNotBlocked:
-                handleConditional(! mWasBlocked);
+                if (mWasBlocked)
+                    ++mActiveSegment;
                 break;
                 
             case eInstructionPhotosynthesize:
@@ -189,21 +200,16 @@ void Agent::step(SphereWorld * pWorld)
         }
         
         if (++mActiveSegment >= mNumSegments)
-        {
-            mCondition = 0;
             mActiveSegment = 0;
-        }
         
         if ((mStatus == eAlive) && mEnergy < 0)
-        {
             die(pWorld);
-            return;
-        }
     }
 }
 
 void Agent :: die(SphereWorld *pWorld)
 {
+    // after dying, turn into food
     vector<Vector3> foodPoints;
     for (int i = 0; i < mNumSegments; i += 1)
         if (! mSegments[i].mIsOccluded)
@@ -217,6 +223,11 @@ void Agent :: die(SphereWorld *pWorld)
         {
             pNewAgent->initialize(foodPoints[i], "*", mAllowMutate);
             pWorld->addAgentToWorld(pNewAgent);
+            
+            // The food left by a dead critter will be low energy Photosynthesize critters.
+            //
+            // They will initially be dormant, but will eventually spring to life
+            // if they aren't eaten.
             pNewAgent->mEnergy = pNewAgent->getSpawnEnergy() / 3;
             pNewAgent->mSleep = 1000;
         }
@@ -228,6 +239,9 @@ float Agent::getSpawnEnergy()
     return Parameters::baseSpawnEnergy + mNumSegments * Parameters::extraSpawnEnergyPerSegment;
 }
 
+/**
+ Move a critter and optionally eat if we can
+ */
 void Agent::move(SphereWorld * pWorld, bool andEat)
 {
     if (andEat)
@@ -244,7 +258,7 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
 
     SphereEntityPtr entities[16];
     float moveDistance = Parameters::getMoveDistance();
-    int numEntities = pWorld->getNearbyEntities(newLocation, moveDistance * 1.1, entities);
+    int numEntities = pWorld->getNearbyEntities(newLocation, moveDistance, entities);
 
     for (int i = 0; i < numEntities; i++)
     {
@@ -254,35 +268,42 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
         // check that the agent is alive, since we might have killed while looping over entities
         if (pAgent->mStatus == eNonExistent)
             continue;
-
-        bool bSegmentIsPhotosynthesize = (pEntity->mType == eInstructionPhotosynthesize);
         
         if (pAgent == this)
         {
-            if (Parameters::allowSelfOverlap)
-                continue;
+            // the segment we hit is our own
             
-            if (pEntity->mSegmentIndex > 1 && !pEntity->mIsOccluded)
+            // if we allow moving over ourself, or this is the head segment, or the segment is already occluded
+            // (which it will be if the segment has never moved), ignore it
+            if (Parameters::allowSelfOverlap || pEntity->mSegmentIndex == 0 || pEntity->mIsOccluded)
+                continue;
+
+            // otherwise, verify that we really hit it, and stop if so
+            float trueDistance = calcDistance(newLocation, pEntity->mLocation);
+            
+            if (trueDistance < moveDistance)
             {
                 mWasBlocked = true;
                 return;
             }
         }
-        
-        else if (bSegmentIsPhotosynthesize && andEat)
-        {
-            mEnergy += pAgent->mEnergy;
-            pWorld->killAgent(pAgent->mIndex);
-        }
         else
         {
-            mWasBlocked = true;
-            return; // can't move over other critter
+            if (andEat && pEntity->mType == eInstructionPhotosynthesize)
+            {
+                // we moved onto a photosynthesize segment through a move and eat instruction, so chomp!
+                mEnergy += pAgent->mEnergy;
+                pWorld->killAgent(pAgent->mIndex);
+            }
+            else
+            {
+                mWasBlocked = true;
+                return; // can't move over other critter
+            }
         }
     }
-    
-    ++mNumMoves;
 
+    // now move
     mSpawnLocation = mSegments[mNumSegments-1].mLocation; // old tail location
     Vector3 oldHeadLocation = mSegments[0].mLocation;
 
@@ -298,18 +319,22 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
             mSegments[i].mIsOccluded = false;
             pWorld->moveEntity(&mSegments[i], newLocations[i]);
         }
-        /*
-        if (Parameters::allowSelfOverlap && mSegments[i].mType == eInstructionPhotosynthesize)
+        
+        // if we allow self-overlap, mark any photosynthesize segments as occluded if they are overlapping.
+        // this prevents an exploit where a critter can protect a photosynthesize segment by curling another
+        // segment on top of it
+        if (Parameters::allowSelfOverlap && mSegments[i].mType == eInstructionPhotosynthesize && ! mSegments[i].mIsOccluded)
         {
-            int numEntities = pWorld->getNearbyEntities(newLocations[i], moveDistance / 10, entities);
+            int numEntities = pWorld->getNearbyEntities(newLocations[i], moveDistance / 2, entities);
             mSegments[i].mIsOccluded = (numEntities > 1);
         }
-         */
     }
 
+    // we might be able to spawn
     spawnIfAble(pWorld);
 }
 
+// turn by a degress by rotating the head's move vectore
 void Agent::turn(int a)
 {
     double r = double(a) / double(360) * MATH_PI * 2;
@@ -320,6 +345,9 @@ void Agent::turn(int a)
     rotMat.transformPoint(&mMoveVector);
 }
 
+// Test if we're facing food in the direction that the head is pointing.
+// This returns true if we find either a Photosynthesize segment or a FakePhotosynthesize segment
+// in the direct line of sight.
 bool Agent::testIsFacingFood(SphereWorld *pWorld)
 {
     int visionDistance = Parameters::lookDistance;
@@ -330,15 +358,14 @@ bool Agent::testIsFacingFood(SphereWorld *pWorld)
     
     for (int i = 0; i < visionDistance; i++)
     {
-        float spread = 1;// + i * 0.1f;
         Vector3 oldLocation = lookLocation;
-        lookLocation = oldLocation + lookVector * spread;
+        lookLocation = oldLocation + lookVector;
         lookLocation.normalize();
         lookVector = lookLocation - oldLocation;
     
         float moveDistance = Parameters::getMoveDistance();
         SphereEntityPtr entities[16];
-        int numEntities = pWorld->getNearbyEntities(lookLocation, lookRadius * spread, entities);
+        int numEntities = pWorld->getNearbyEntities(lookLocation, lookRadius, entities);
 
         for (int i = 0; i < numEntities; i++)
         {
@@ -368,28 +395,14 @@ bool Agent::testIsFacingFood(SphereWorld *pWorld)
     return false;
 }
 
-void Agent::handleConditional(bool condition)
-{
-    if (! condition)
-    {
-        switch (mConditionalBehavior)
-        {
-            case eSkipToEnd:
-                mActiveSegment = -1;
-                break;
-                
-            case eSkipNextInstruction:
-                ++mActiveSegment;
-                break;
-        }
-    }
-}
-
 void Agent::sleep()
 {
     mSleep += SLEEP_TIME;
 }
 
+/**
+ * If we have enough energy, spawn an offspring
+ */
 void Agent::spawnIfAble(SphereWorld * pWorld)
 {
     if (mEnergy < getSpawnEnergy())
@@ -398,6 +411,8 @@ void Agent::spawnIfAble(SphereWorld * pWorld)
     mEnergy = max(mEnergy, getSpawnEnergy());
     
     Vector3 ptLocation = mSpawnLocation;
+    
+    // if we've never moved, find a nearby spot for the new child. 
     if (ptLocation == mSegments[0].mLocation)
     {
         while (true)
@@ -415,15 +430,18 @@ void Agent::spawnIfAble(SphereWorld * pWorld)
         
         if (numEntities > 8)
         {
+            // if there are a lot of entities in the vicinity, then we are shaded and cannot
+            // reproduce right now...
+            
             for (int i = 0; i < mNumSegments; i++)
-                mSegments[i].mIsOccluded = true;
+                mSegments[i].mIsOccluded = true; // all segments are shaded until they move
 
-            mSleep = 100;
-            mEnergy = getSpawnEnergy() / 2;
+            mEnergy = getSpawnEnergy() - 1;
             return;
         }
     }
     
+    // the child might have a mutant genome...
     char mutantGenome[MAX_GENOME_LENGTH];
     char * genome = mGenome;
 
@@ -438,6 +456,7 @@ void Agent::spawnIfAble(SphereWorld * pWorld)
     if (pNewAgent)
     {
         pNewAgent->initialize(ptLocation, genome, mAllowMutate);
+        // split the energy with the offspring
         mEnergy = pNewAgent->mEnergy = getSpawnEnergy() / 2;
         pWorld->addAgentToWorld(pNewAgent);
     }

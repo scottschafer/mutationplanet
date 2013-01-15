@@ -47,7 +47,6 @@ public:
     int mNumAgents;
 
 private:
-//    SetEntityPtr mPointsInSubspace[NUM_SUBDIVISIONS][NUM_SUBDIVISIONS][NUM_SUBDIVISIONS];
     std::set<int> mFreeSlots;
     std::vector<SphereEntity*> mSortedEntities;
 };

@@ -52,7 +52,9 @@ protected:
      * @see Game::render
      */
     void render(float elapsedTime);
-
+    void renderInsertCritter();
+    void renderHelp();
+    
     /**
      * @see Control::controlEvent
      */
@@ -60,20 +62,38 @@ protected:
 
     void updateControlLabels();
     void setControlValues();
-    void createControlHeader(Form *form, std::string text);
     void createSpacer(Form *form, float height);
-    Slider * createSliderControl(Form *form, std::string id, std::string label, float minValue, float maxValue, float step = 0);
-    CheckBox * createCheckboxControl(Form *form, std::string label);
-    Button * createButton(Form *form, std::string label);
+    
+    void createControlHeader(Form *form, std::string text,
+                             Vector2 pos = Vector2(-1,-1),
+                             Vector2 size = Vector2(-1,-1));
 
+    Slider * createSliderControl(Form *form, std::string id, std::string label, float minValue, float maxValue, float step = 0);
+
+    CheckBox * createCheckboxControl(Form *form, std::string label,
+                                     Vector2 pos = Vector2(-1,-1),
+                                     Vector2 size = Vector2(-1,-1));
+
+    Button * createButton(Form *form, std::string label, const char * id = "",
+                          Vector2 pos = Vector2(-1,-1),
+                          Vector2 size = Vector2(-1,-1));
+
+    Container * createContainer(Form *form, bool border,
+                                Vector2 pos = Vector2(-1,-1),
+                                Vector2 size = Vector2(-1,-1));
+    
+    Form * createForm(float width, float height, bool isLayoutVertical = true);
+    
     void updateControlLabel(std::string parameterId, const char *pFormat, ...);
 
     void setBarriers(int type, bool bOn);
     
     void reset();
-
+    void insertCritter();
+    
 private:
     static void * threadFunction(void*);
+    void drawSplash(void* param);
 
 private:
     ArcBall _arcball;
@@ -86,18 +106,17 @@ private:
     float  mViewScale;
     Matrix mViewRotateMatrix;
 
-    /**
-     * Draws the scene each frame.
-     */
-    bool drawScene(Node* node);
-
-    Scene* _scene;
     Form* _formMain;
     Form* _formAdvanced;
     Form* _formHelp;
+    
+    bool    mShowingInsertCritter;
+    Form* _formInsertCritter;
+    
     Font* _font;
 
     Button * _resetButton;
+    Button * _insertButton;
     Button * _helpButton;
     
     CheckBox * _barriers1;
@@ -119,7 +138,21 @@ private:
 
     Slider* _lookDistanceSlider;
     CheckBox * _allowSelfOverlap;
-
+    
+    // insert form
+    std::vector<Button*> mInsertInstructionButtons;
+    Container * mInsertCritterGenome;
+    Button * mInsertClear;
+    Button * mInsertOK;
+    Button * mInsertCancel;
+    std::string mInsertGenome;
+    
+    // help
+    bool mIsShowingHelp;
+    int mHelpPageIndex;
+    Rectangle mHelpPageRect;
+    Rectangle mHelpCloseRect;
+    
     SpriteBatch * mSegmentBatch[255];
 };
 

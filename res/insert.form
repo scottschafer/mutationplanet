@@ -1,0 +1,68 @@
+form insert
+{
+    theme = res/editor.theme
+    width = 900
+    height = 540
+    autoWidth = false
+    autoHeight = false
+    style = basic
+
+    container main
+    {
+        style = basic
+        layout = LAYOUT_VERTICAL
+        position = 0, 0
+        size = 900, 540
+        color = #000000ff
+        skinColor = #000000ff
+
+        label
+        {
+            text = "Click on the instructions below to build your critter:"
+            size = 900, 50
+        }
+
+        container availableInstructions
+        {
+            size = 900, 50
+        }
+        
+        container
+        {
+            layout = LAYOUT_HORIZONTAL
+            style = noBorder
+
+            container critterGenome
+            {
+                size = 900, 50
+            }
+
+            button
+            {
+                text = "Clear"
+            }
+        }
+
+        container
+        {
+            layout = LAYOUT_HORIZONTAL
+            style = noBorder
+
+            container
+            {
+                style = noBorder
+                size = 200, 0
+            }
+            
+            button cancelInsert
+            {
+                text = "Cancel"
+            }
+
+            button okInsert
+            {
+                text = "Insert"
+            }
+        }
+    }
+}

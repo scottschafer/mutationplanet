@@ -16,11 +16,6 @@ using namespace gameplay;
 
 class SphereWorld;
 
-enum eConditionalBehavior {
-    eSkipToEnd,
-    eSkipNextInstruction
-    };
-
 enum eStatus {
     eAlive,
     eNonExistent,
@@ -45,7 +40,6 @@ public:
     void spawnIfAble(SphereWorld * pWorld);
     float  getSpawnEnergy();
     
-    void handleConditional(bool condition);
     int     mIndex;
     
     // life, energy etc
@@ -53,26 +47,22 @@ public:
     int     mLifespan;
     float   mEnergy;
     int     mSleep;
-    int     mNumMoves;
     
     // spawning
     bool    mAllowMutate;
     Vector3 mSpawnLocation;
 
     // moving
-    int     mAngle;
     Vector3 mMoveVector;
     bool    mWasBlocked;
+    bool    mIsMotile;
     
     // segments
     int     mNumSegments;
     int     mActiveSegment;
-    int     mCondition;
     SphereEntity *mSegments;
     char    mGenome[MAX_SEGMENTS + 1];
     
-    //logic
-    eConditionalBehavior mConditionalBehavior;
 };
 
 #endif

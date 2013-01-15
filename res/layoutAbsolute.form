@@ -10,7 +10,7 @@ form biosphere
     container main
     {
         style = basic
-        layout = LAYOUT_VERTICAL
+        layout = LAYOUT_ABSOLUTE
         position = 0, 0
         size = 300, 560
         color = #000000ff

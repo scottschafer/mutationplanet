@@ -39,4 +39,15 @@ public:
 
 typedef SphereEntity * SphereEntityPtr;
 
+// use the cheap "Manhattan distance" method....
+inline float calcDistance(Vector3 v1, Vector3 v2)
+{
+    float x = v1.x - v2.x;
+    float y = v1.y - v2.y;
+    float z = v1.z - v2.z;
+    
+    return max(fabs(x),max(fabs(y),fabs(z)));
+}
+
+
 #endif

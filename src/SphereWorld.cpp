@@ -1,6 +1,6 @@
 /************************************************************************
  MutationPlanet
- Copyright (C) 2012, Scott Schafer
+ Copyright (C) 2012, Scott Schafer, scott.schafer@gmail.com
  
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -51,6 +51,9 @@ SphereWorld::SphereWorld()
     pInstance = this;
 }
 
+/**
+ get a nonexistent entity, or -1 if none are available
+ */
 int SphereWorld :: requestFreeAgentSlot()
 {
     if (mNumAgents == MAX_AGENTS)
@@ -75,6 +78,10 @@ int SphereWorld :: requestFreeAgentSlot()
     return result;
 }
 
+/** 
+ Return a pointer to an empty agent. If killIfNecessary is true, and we've exceeded the maximum
+ number of agents, kill the first one off.
+ **/
 Agent * SphereWorld :: createEmptyAgent(bool killIfNecessary /* = true */)
 {
     if (killIfNecessary && mNumAgents == MAX_AGENTS)
@@ -99,6 +106,9 @@ Agent * SphereWorld :: createEmptyAgent(bool killIfNecessary /* = true */)
     return pResult;
 }
 
+/**
+ Add the agent by registering its segments
+ **/
 void SphereWorld :: addAgentToWorld(Agent *pAgent)
 {
     for (int i = 0; i < pAgent->mNumSegments; i++)
@@ -106,6 +116,9 @@ void SphereWorld :: addAgentToWorld(Agent *pAgent)
     pAgent->mStatus = eAlive;
 }
 
+/**
+ Kill the agent by unregistering its segments and marking its slot as free
+ **/
 void SphereWorld :: killAgent(int agentIndex)
 {
     if (mAgents[agentIndex].mStatus == eNonExistent)
@@ -120,6 +133,10 @@ void SphereWorld :: killAgent(int agentIndex)
     --mNumAgents;
 }
 
+/**
+ Give all the agents in the world a chance to process. Also determines the highest
+ live index (note that requestFreeAgentSlot() sets this as well)
+ **/
 void SphereWorld :: step()
 {
     int lastLiveAgentIndex = -1;
@@ -161,34 +178,11 @@ void SphereWorld :: moveEntity(SphereEntity *pEntity, Vector3 newLoc)
     pSpherePointFinder->moveEntity(pEntity, newLoc);
 }
 
-
+/**
+ Not currently called, but used to test the point finding utility
+ **/
 void SphereWorld::test()
 {
-#if 0
-    SphereEntity * pEntity = new SphereEntity();
-    pEntity->mLocation = Vector3( -0.0826997, 0.0655345, -0.562082);
-    registerEntity(pEntity);
-    
-    Vector3 testPt(-0.0989985, 0.107995, -0.560463);
-    float d = 0.154266;
-    
-    vector<SphereEntity *> nearby;
-    getEntitiesNearPoint(nearby, testPt, d);
-    
-    bool foundEntity = false;
-    for (int l = 0; l < nearby.size(); l++)
-        if (nearby[l] == pEntity)
-        {
-            foundEntity = true;
-            break;
-        }
-    
-    if (! foundEntity)
-    {
-        getEntitiesNearPoint(nearby, testPt, d);
-        throw "fail";
-    }
-#else
     std::vector<SphereEntity*> entities;
     int i;
     for (i = 0; i < 10000; i++)
@@ -239,6 +233,5 @@ void SphereWorld::test()
     
     for (i = 0; i < entities.size(); i++)
         unregisterEntity(entities[i]);
-#endif
 }
 

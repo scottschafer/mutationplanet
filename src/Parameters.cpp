@@ -1,6 +1,6 @@
 /************************************************************************
  MutationPlanet
- Copyright (C) 2012, Scott Schafer
+ Copyright (C) 2012, Scott Schafer, scott.schafer@gmail.com
  
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -29,8 +29,8 @@ float Parameters::getMoveDistance()
 }
 
     // global
-int Parameters :: speed = 10;
-int Parameters :: mutationPercent = 5;
+int Parameters :: speed = 8;
+int Parameters :: mutationPercent = 2;
 
     // energy cost / gain
 float Parameters :: cycleEnergyCost = 1;
