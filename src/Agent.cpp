@@ -48,7 +48,6 @@ void Agent::initialize(Vector3 pt, const char * pGenome, bool allowMutation)
     
     // life, energy etc
     mStatus = eAlive;
-    mEnergy = UtilsRandom::getRangeRandom(1.0f, getSpawnEnergy()-1.0f);
     mSleep = 0;
     
     // spawning
@@ -76,7 +75,8 @@ void Agent::initialize(Vector3 pt, const char * pGenome, bool allowMutation)
 
     // segments
     mNumSegments = strlen(mGenome);
-    mLifespan = 1000 * mNumSegments + UtilsRandom::getRangeRandom(-500, 500);
+    mEnergy = UtilsRandom::getRangeRandom(1.0f, getSpawnEnergy()-1.0f);
+    mLifespan = Parameters::baseLifespan + mNumSegments * Parameters::extraLifespanPerSegment;
     mActiveSegment = 0;
     
     // conditional behavior
@@ -107,109 +107,106 @@ void Agent::initialize(Vector3 pt, const char * pGenome, bool allowMutation)
  **/
 void Agent::step(SphereWorld * pWorld)
 {
-    int numSteps = 1; // for now, just process one segment at a time
+    if (mStatus != eAlive)
+        return;
     
-    while (numSteps--)
+    if (mSleep == -1) // send me off to sleep forever more...
+        return;
+    
+    if (mSleep)
     {
-        if (mStatus != eAlive)
-            return;
-        
-        if (mSleep == -1) // send me off to sleep forever more...
-            return;
-        
-        --mLifespan;
-        if (mLifespan <= 0)
-        {
-            // death from age
-            die(pWorld);
-            return;
-        }
-        
-        if (mSleep)
-        {
-            // zzzz
-            --mSleep;
-            return;
-        }
-
-        // lose some energy every turn
-        mEnergy -= Parameters::cycleEnergyCost;
-        
-        // now process the active segment
-        SphereEntity & s = mSegments[mActiveSegment];
-        switch (s.mType)
-        {                
-            default:
-                break;
-                
-            case eInstructionMove:
-            case eInstructionMoveAndEat: {
-                move(pWorld, (s.mType == eInstructionMoveAndEat));
-                int extraCycles = Parameters::cyclesForMove - 1;
-                mSleep += extraCycles;
-                mEnergy -= extraCycles * Parameters::cycleEnergyCost;
-                break; }
-                
-            case eInstructionTurnLeft:
-                turn(-TURN_ANGLE);
-                break;
-                
-            case eInstructionTurnRight:
-                turn(TURN_ANGLE);
-                break;
-                
-            case eInstructionHardTurnLeft:
-                turn(-HARD_TURN_ANGLE);
-                break;
-                
-            case eInstructionHardTurnRight:
-                turn(HARD_TURN_ANGLE);
-                break;
-                
-            case eInstructionSleep:
-                sleep();
-                break;
-                
-            case eInstructionTestSeeFood:
-                if (! testIsFacingFood(pWorld))
-                    ++mActiveSegment;
-                break;
-                
-            case eInstructionTestNotSeeFood:
-                if (testIsFacingFood(pWorld))
-                    ++mActiveSegment;
-                break;
-                
-            case eInstructionTestBlocked:
-                if (! mWasBlocked)
-                    ++mActiveSegment;
-                break;
-                
-            case eInstructionTestNotBlocked:
-                if (mWasBlocked)
-                    ++mActiveSegment;
-                break;
-                
-            case eInstructionPhotosynthesize:
-                if (! s.mIsOccluded)
-                {
-                    mEnergy += Parameters::photoSynthesizeEnergyGain;
-                    spawnIfAble(pWorld);
-                }
-                break;
-        }
-        
-        if (++mActiveSegment >= mNumSegments)
-            mActiveSegment = 0;
-        
-        if ((mStatus == eAlive) && mEnergy < 0)
-            die(pWorld);
+        // zzzz
+        --mSleep;
+        return;
     }
+
+    --mLifespan;
+    if (mLifespan <= 0)
+    {
+        // death from age
+        die(pWorld);
+        return;
+    }
+    
+    // lose some energy every turn
+    mEnergy -= Parameters::cycleEnergyCost;
+    
+    // now process the active segment
+    SphereEntity & s = mSegments[mActiveSegment];
+    switch (s.mType)
+    {                
+        default:
+            break;
+            
+        case eInstructionMove:
+        case eInstructionMoveAndEat: {
+            move(pWorld, (s.mType == eInstructionMoveAndEat));
+            int extraCycles = Parameters::cyclesForMove - 1;
+            mSleep += extraCycles;
+            //mEnergy -= extraCycles * Parameters::cycleEnergyCost;
+            break; }
+            
+        case eInstructionTurnLeft:
+            turn(-TURN_ANGLE);
+            break;
+            
+        case eInstructionTurnRight:
+            turn(TURN_ANGLE);
+            break;
+            
+        case eInstructionHardTurnLeft:
+            turn(-HARD_TURN_ANGLE);
+            break;
+            
+        case eInstructionHardTurnRight:
+            turn(HARD_TURN_ANGLE);
+            break;
+            
+        case eInstructionSleep:
+            sleep();
+            break;
+            
+        case eInstructionTestSeeFood:
+            if (! testIsFacingFood(pWorld))
+                ++mActiveSegment;
+            break;
+            
+        case eInstructionTestNotSeeFood:
+            if (testIsFacingFood(pWorld))
+                ++mActiveSegment;
+            break;
+            
+        case eInstructionTestBlocked:
+            if (! mWasBlocked)
+                ++mActiveSegment;
+            break;
+            
+        case eInstructionTestNotBlocked:
+            if (mWasBlocked)
+                ++mActiveSegment;
+            break;
+            
+        case eInstructionPhotosynthesize:
+            if (! s.mIsOccluded)
+            {
+                mEnergy += Parameters::photoSynthesizeEnergyGain;
+                spawnIfAble(pWorld);
+            }
+            break;
+    }
+    
+    if (++mActiveSegment >= mNumSegments)
+        mActiveSegment = 0;
+    
+    if ((mStatus == eAlive) && mEnergy < 0)
+        die(pWorld);
 }
 
 void Agent :: die(SphereWorld *pWorld)
 {
     // after dying, turn into food
+    float energyPerSegment = .5 * getSpawnEnergy() / (float)mNumSegments;
+    
     vector<Vector3> foodPoints;
     for (int i = 0; i < mNumSegments; i += 1)
         if (! mSegments[i].mIsOccluded)
@@ -228,8 +225,8 @@ void Agent :: die(SphereWorld *pWorld)
             //
             // They will initially be dormant, but will eventually spring to life
             // if they aren't eaten.
-            pNewAgent->mEnergy = pNewAgent->getSpawnEnergy() / 3;
-            pNewAgent->mSleep = 1000;
+            pNewAgent->mEnergy = energyPerSegment;
+            pNewAgent->mSleep = Parameters::deadCellDormancy;
         }
     }
 }
@@ -292,7 +289,7 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
             if (andEat && pEntity->mType == eInstructionPhotosynthesize)
             {
                 // we moved onto a photosynthesize segment through a move and eat instruction, so chomp!
-                mEnergy += pAgent->mEnergy;
+                mEnergy += pAgent->mEnergy * Parameters::digestionEfficiency;
                 pWorld->killAgent(pAgent->mIndex);
             }
             else
@@ -325,8 +322,9 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
         // segment on top of it
         if (Parameters::allowSelfOverlap && mSegments[i].mType == eInstructionPhotosynthesize && ! mSegments[i].mIsOccluded)
         {
-            int numEntities = pWorld->getNearbyEntities(newLocations[i], moveDistance / 2, entities);
-            mSegments[i].mIsOccluded = (numEntities > 1);
+            int numEntities = pWorld->getNearbyEntities(&mSegments[i], moveDistance / 2, entities);
+            if (numEntities)
+                mSegments[i].mIsOccluded = true;
         }
     }
 
@@ -397,7 +395,7 @@ bool Agent::testIsFacingFood(SphereWorld *pWorld)
 
 void Agent::sleep()
 {
-    mSleep += SLEEP_TIME;
+    mSleep += Parameters::sleepTime;
 }
 
 /**
@@ -459,5 +457,6 @@ void Agent::spawnIfAble(SphereWorld * pWorld)
         // split the energy with the offspring
         mEnergy = pNewAgent->mEnergy = getSpawnEnergy() / 2;
         pWorld->addAgentToWorld(pNewAgent);
+        pNewAgent->mSleep = Parameters::sleepTimeAfterBeingSpawned;
     }
 }

@@ -68,6 +68,7 @@ Main::Main()
 {
     mIsShowingHelp = mShowingInsertCritter = false;
     mViewScale = 1;
+    Parameters::reset();
     
     mHelpPageRect = Rectangle(0, -140, 1024, 1024);
     mHelpCloseRect =  Rectangle(950, 12, 40, 40);
@@ -128,8 +129,8 @@ void * Main :: threadFunction(void*)
 void Main::initialize()
 {
     // Display the gameplay splash screen for at least 1 second.
-    displayScreen(this, &Main::drawSplash, NULL, 1000L);
-
+    displayScreen(this, &Main::drawSplash, NULL, 2000L);
+    
     registerGesture(Gesture::GestureEvent(Gesture::GESTURE_PINCH));
     
     mViewRotateMatrix.identity();
@@ -138,21 +139,21 @@ void Main::initialize()
     
     InstructionSet::reset();
     createUI();
-
+    
     for (int i = 0; i < 255; i++)
         mSegmentBatch[i] = NULL;
-
-    mSegmentBatch[iHelpPage1] = SpriteBatch::create("res/help/helppage1.png");
-    mSegmentBatch[iHelpPage2] = SpriteBatch::create("res/help/helppage2.png");
-    mSegmentBatch[iHelpPage3] = SpriteBatch::create("res/help/helppage3.png");
-    mSegmentBatch[iHelpPage4] = SpriteBatch::create("res/help/helppage4.png");
-    mSegmentBatch[iHelpPage5] = SpriteBatch::create("res/help/helppage5.png");
+    
+    mSegmentBatch[iHelpPage1] = SpriteBatch::create("res/help/HelpPage1.png");
+    mSegmentBatch[iHelpPage2] = SpriteBatch::create("res/help/HelpPage2.png");
+    mSegmentBatch[iHelpPage3] = SpriteBatch::create("res/help/HelpPage3.png");
+    mSegmentBatch[iHelpPage4] = SpriteBatch::create("res/help/HelpPage4.png");
+    mSegmentBatch[iHelpPage5] = SpriteBatch::create("res/help/HelpPage5.png");
     mSegmentBatch[iHelpClose] = SpriteBatch::create("res/help/close.png");
-
+    
     mSegmentBatch[iSpriteSphere] = SpriteBatch::create("res/sphere.png");
     mSegmentBatch[iActiveSegment] = SpriteBatch::create("res/ActiveSegment.png");
     mSegmentBatch[iSegmentFrame] = SpriteBatch::create("res/segmentFrame.png");
-    mSegmentBatch[iMoveArrow] = SpriteBatch::create("res/movearrow.png");
+    mSegmentBatch[iMoveArrow] = SpriteBatch::create("res/MoveArrow.png");
     
     mSegmentBatch[eBarrier1] = mSegmentBatch[eBarrier2] = mSegmentBatch[eBarrier3] = SpriteBatch::create("res/barrier.png");
     
@@ -168,11 +169,11 @@ void Main::initialize()
     mSegmentBatch[eInstructionTestNotSeeFood] = SpriteBatch::create("res/segment_test_not_see_food.png");
     mSegmentBatch[eInstructionTestBlocked] = SpriteBatch::create("res/segment_test_blocked.png");
     mSegmentBatch[eInstructionTestNotBlocked] = SpriteBatch::create("res/segment_test_not_blocked.png");
-
+    
     mSegmentBatch[eInstructionPhotosynthesize] = SpriteBatch::create("res/food.png");
     mSegmentBatch[eInstructionFakePhotosynthesize] = SpriteBatch::create("res/segment_fakefood.png");
-
-    reset();
+    
+    resetWorld();
     
     int rc1;
     
@@ -195,10 +196,9 @@ void Main::drawSplash(void* param)
 /**
  Reset the world by killing off all critters and reseeding it with photosynthesize critters
  **/
-void Main::reset()
+void Main::resetWorld()
 {
     pthread_mutex_lock( &mutex1 );
-    
     
     for (int i = 0; i < MAX_AGENTS; i++)
     {
@@ -212,14 +212,23 @@ void Main::reset()
     int initialCount = 500;
     
     genome += eInstructionPhotosynthesize;
- 
+    
     for (int i = 0; i < 500; i++)
     {
         Agent *pAgent = world.createEmptyAgent();
         pAgent->initialize(getRandomSpherePoint(), genome.c_str(), bAllowMutation);
+        // randomize the initial lifespan so they don't all die at once
+        pAgent->mLifespan = UtilsRandom::getRangeRandom(pAgent->mLifespan/2, pAgent->mLifespan*2);
         world.addAgentToWorld(pAgent);
     }
     pthread_mutex_unlock( &mutex1 );
+}
+
+void Main :: resetParameters()
+{
+    Parameters::reset();
+    setControlValues();
+    updateControlLabels();
 }
 
 void Main :: insertCritter()
@@ -374,16 +383,16 @@ void Main::render(float elapsedTime)
     float renderSize = std::min(getWidth(), getHeight()) * .9;
     float offsetX = (getWidth() - renderSize) / 2;
     float offsetY = (getHeight() - renderSize) / 2;
-
+    
     // draw the planet, slightly scaled down so the critters on the edges seem to have some height...
     mRenderSphereSize = renderSize * mViewScale * .995;
     mSphereOffsetX = (getWidth() - mRenderSphereSize) / 2;
     mSphereOffsetY = (getHeight() - mRenderSphereSize) / 2;
-
+    
     _arcball.setBounds(mRenderSphereSize, mRenderSphereSize);
     
     mSegmentBatch[iSpriteSphere]->draw(Rectangle(mSphereOffsetX, mSphereOffsetY, mRenderSphereSize, mRenderSphereSize), Rectangle(0,0,1024,1024));
-
+    
     // once a second, determine the top critters
     bool sampleCritters = false;
     static float elapsedTimeSinceTally = 1000;
@@ -432,7 +441,7 @@ void Main::render(float elapsedTime)
                     Matrix viewScaleMatrix;
                     viewScaleMatrix.scale(mViewScale);
                     viewScaleMatrix.transformPoint(&pt);
-
+                    
                     if (pt.z < 0)
                         continue; // cheap backface clipping
                     
@@ -464,7 +473,7 @@ void Main::render(float elapsedTime)
                             pBatch = mSegmentBatch[iActiveSegment];
                             src = Rectangle(0,0,
                                             pBatch->getSampler()->getTexture()->getWidth(), pBatch->getSampler()->getTexture()->getHeight());
-
+                            
                             Rectangle activeSegmentRect = dst;
                             activeSegmentRect.inflate(cellSize / 4, cellSize / 4);
                             pBatch->draw(activeSegmentRect, src, Vector4(1,1,1, 1));
@@ -478,19 +487,19 @@ void Main::render(float elapsedTime)
                             Vector2 moveVector(moveVector3.x, moveVector3.y);
                             moveVector.normalize();
                             float rotation = atan2(moveVector.y,moveVector.x);
-
+                            
                             pBatch = mSegmentBatch[iMoveArrow];
                             dst.inflate(cellSize*3/2, cellSize*3/2);
                             src = Rectangle(0,0,
                                             pBatch->getSampler()->getTexture()->getWidth(), pBatch->getSampler()->getTexture()->getHeight());
-
-
+                            
+                            
                             Vector3 dstV(dst.x, dst.y,0);
                             Vector2 rotPoint(0.5f, 0.5f);
                             rotation += 45 * MATH_PI / 180;
                             pBatch->draw(dstV, dst.width, dst.height, 0, 0, 1, 1, Vector4(1,1,1,1),
                                          rotPoint, rotation);
-
+                            
                         }
                     }
                 }
@@ -503,22 +512,24 @@ void Main::render(float elapsedTime)
     {
         for (std::map<string, int>::iterator i = gMapSpeciesToCount.begin(); i != gMapSpeciesToCount.end(); i++)
             gTopSpecies.push_back(*i);
-
+        
         sort(gTopSpecies.begin(), gTopSpecies.end(), compareTopSpeciesFunc);
     }
     
     _font->start();
-
+    
     if (! mIsShowingHelp)
     {
+        _font->drawText("Top Species", getWidth()-180, 10, Vector4(1,1,1,1));
+        
         // draw the top species
         for (int i = 0; i < gTopSpecies.size(); i++)
         {
-            if (i == 33)
+            if (i == 32)
                 break;
             char buf[200];
             float x = getWidth()-50;
-            float y = 20 + 20 * i;
+            float y = 40 + 20 * i;
             
             sprintf(buf, "%d", gTopSpecies[i].second);
             _font->drawText(buf, x, y, Vector4(1,1,1,1));
@@ -552,14 +563,14 @@ void Main::render(float elapsedTime)
     for (int i = iSpriteSphere; i < 255; i++)
         if (mSegmentBatch[i])
             mSegmentBatch[i]->finish();
-
+    
     // Draw the UI.
     _formMain->draw();
     if (_showAdvanced->isChecked())
         _formAdvanced->draw();
     
     _formHelp->draw();
-
+    
     renderInsertCritter();
     renderHelp();
     
@@ -685,11 +696,11 @@ void Main::touchEvent(Touch::TouchEvent evt, int x, int y, unsigned int contactI
             
             if ((y >= 835) && (y <= 890) && (x >= 30) && (x <= 990))
             {
-                if ((x >= 30) && (x <= 215))
+                if ((x >= 30) && (x <= 285))
                     mHelpPageIndex = 0;
-                else if (x <= 343)
+                else if (x <= 475)
                     mHelpPageIndex = 1;
-                else if (x <= 555)
+                else if (x <= 605)
                     mHelpPageIndex = 2;
                 else if (x <= 816)
                     mHelpPageIndex = 3;
@@ -697,13 +708,13 @@ void Main::touchEvent(Touch::TouchEvent evt, int x, int y, unsigned int contactI
                     mHelpPageIndex = 4;
             }
         }
-
+        
         return;
     }
     
     static bool down = false;
     static int lastX, lastY;
-
+    
     static Matrix rotateMatrix;
     static Matrix initialViewMatrix;
     
@@ -723,7 +734,7 @@ void Main::touchEvent(Touch::TouchEvent evt, int x, int y, unsigned int contactI
             
         case Touch::TOUCH_MOVE: {
             gameplay::Quaternion q;
-            _arcball.drag(sphereDisplayPoint, &q);            
+            _arcball.drag(sphereDisplayPoint, &q);
             Matrix::createRotation(q, &rotateMatrix);
             rotateMatrix.multiply(initialViewMatrix);
             mViewRotateMatrix = rotateMatrix;
@@ -764,27 +775,29 @@ void Main::createUI()
     _showAdvanced = createCheckboxControl(_formMain, "Show advanced settings");
     
     createSpacer(_formMain, 15);
-    _resetButton = createButton(_formMain, "Reset world");
+    _resetWorldButton = createButton(_formMain, "Reset world");
     createSpacer(_formMain, 4);
     _insertButton = createButton(_formMain, "Insert...");
     
     // Create advanced form, optionally shown
-    _formAdvanced = createForm(320, 360);
-    _formAdvanced->setPosition(_formAdvanced->getX() + 4, 380);
+    _formAdvanced = createForm(320, 375);
+    _formAdvanced->setPosition(_formAdvanced->getX() + 4, 365);
     
-    createControlHeader(_formAdvanced, "Energy Cost / Gain");
+    createControlHeader(_formAdvanced, "Energy cost / gain");
     // _cycleEnergyCostSlider = createSliderControl(_formAdvanced, "cycleEnergyCost", "Cycle:", .5, 2);
-    _photoSynthesizeEnergyGainSlider = createSliderControl(_formAdvanced, "photoSynthesizeEnergyGain", "Photosynthesis:", 1, 10);
+    _photoSynthesizeEnergyGainSlider = createSliderControl(_formAdvanced, "photoSynthesizeEnergyGain", "Photosynthesis:", 1, 20);
     _moveEnergyCostSlider = createSliderControl(_formAdvanced, "moveEnergyCost", "Move:", 0, 15);
     _moveAndEatEnergyCostSlider = createSliderControl(_formAdvanced, "moveAndEatEnergyCost", "Move & eat:", 0, 15);
     
-    createControlHeader(_formAdvanced,"Spawning");
-    _baseSpawnEnergySlider = createSliderControl(_formAdvanced,"baseSpawnEnergy", "Base:", 50, 500);
+    createControlHeader(_formAdvanced,"Energy to spawn");
+//    _baseSpawnEnergySlider = createSliderControl(_formAdvanced,"baseSpawnEnergy", "Base:", 50, 500);
     _extraSpawnEnergyPerSegmentSlider = createSliderControl(_formAdvanced,"extraSpawnEnergyPerSegment", "Per cell:", 50, 500);
     
     createControlHeader(_formAdvanced,"Other");
     _lookDistanceSlider = createSliderControl(_formAdvanced,"lookDistance", "Vision range:", 1, 15);
     _allowSelfOverlap = createCheckboxControl(_formAdvanced, "Allow self overlap");
+    createSpacer(_formAdvanced, 15);
+    _resetParametersButton = createButton(_formAdvanced, "Reset settings");
     
     _formMain->setConsumeInputEvents(false);
     _formAdvanced->setConsumeInputEvents(false);
@@ -796,17 +809,17 @@ void Main::createUI()
     _formHelp->getControl("main")->setStyle(pNoBorder);
     
     _helpButton = createButton(_formHelp, "What is this?");
-
+    
     // create insert critter form
     _formInsertCritter = createForm(900, 310, false);
     _formInsertCritter->setPosition((1024 - _formInsertCritter->getWidth()) / 2,
                                     (768 - _formInsertCritter->getHeight()) / 2);
-
+    
     _formInsertCritter->setPosition(_formInsertCritter->getX(), -_formInsertCritter->getY());
-
+    
     createControlHeader(_formInsertCritter, "Click on the instructions to build your critter, then press Insert",
                         Vector2(10,20), Vector2(900, 40));
-
+    
     mInsertOK = createButton(_formInsertCritter, "Insert x 500", "", Vector2(590,230), Vector2(150, 40));
     mInsertCancel = createButton(_formInsertCritter, "Cancel", "", Vector2(740,230), Vector2(120, 40));
     mInsertCritterGenome = createContainer(_formInsertCritter, true, Vector2(20,80), Vector2(720, 56));
@@ -825,19 +838,9 @@ void Main::createUI()
         mInsertInstructionButtons.push_back(pInstruction);
         x += 60;
     }
-
+    
     setControlValues();
     updateControlLabels();
-}
-
-static std::string formatText(const char *pFormat, ...)
-{
-    char buffer[1024];
-    va_list argptr;
-    va_start(argptr, pFormat);
-    vsprintf(buffer, pFormat, argptr);
-    va_end(argptr);
-    return string(buffer);
 }
 
 void Main::controlEvent(Control* control, EventType evt)
@@ -848,8 +851,10 @@ void Main::controlEvent(Control* control, EventType evt)
             break;
             
         case Listener::CLICK:
-            if (control == _resetButton)
-                reset();
+            if (control == _resetWorldButton)
+                resetWorld();
+            else if (control == _resetParametersButton)
+                resetParameters();
             else if (control == _helpButton)
             {
                 mIsShowingHelp = true;
@@ -870,23 +875,23 @@ void Main::controlEvent(Control* control, EventType evt)
                     if (mInsertGenome.length() == 0)
                         mInsertOK->setPosition(mInsertOK->getX(), -mInsertOK->getY());
                 }
-             } else if (control == mInsertCancel)
-             {
-                 mShowingInsertCritter = false;
-                 _formInsertCritter->setPosition(_formInsertCritter->getX(), -_formInsertCritter->getY());
-             } else if (control == mInsertOK)
-             {
-                 insertCritter();
-                 mShowingInsertCritter = false;
-                 _formInsertCritter->setPosition(_formInsertCritter->getX(), -_formInsertCritter->getY());
-             } else if (find(mInsertInstructionButtons.begin(), mInsertInstructionButtons.end(),control) !=
-                        mInsertInstructionButtons.end())
-             {
-                 if (mInsertGenome.length() < MAX_GENOME_LENGTH)
-                     mInsertGenome += control->getId();
-                 if (mInsertGenome.length() == 1)
-                     mInsertOK->setPosition(mInsertOK->getX(), -mInsertOK->getY());
-             }
+            } else if (control == mInsertCancel)
+            {
+                mShowingInsertCritter = false;
+                _formInsertCritter->setPosition(_formInsertCritter->getX(), -_formInsertCritter->getY());
+            } else if (control == mInsertOK)
+            {
+                insertCritter();
+                mShowingInsertCritter = false;
+                _formInsertCritter->setPosition(_formInsertCritter->getX(), -_formInsertCritter->getY());
+            } else if (find(mInsertInstructionButtons.begin(), mInsertInstructionButtons.end(),control) !=
+                       mInsertInstructionButtons.end())
+            {
+                if (mInsertGenome.length() < MAX_GENOME_LENGTH)
+                    mInsertGenome += control->getId();
+                if (mInsertGenome.length() == 1)
+                    mInsertOK->setPosition(mInsertOK->getX(), -mInsertOK->getY());
+            }
             break;
             
         case Listener::VALUE_CHANGED:
@@ -938,6 +943,9 @@ void Main :: updateControlLabel(std::string parameterId, const char *pFormat, ..
         vsprintf(buffer, pFormat, argptr);
         va_end(argptr);
         
+        int len = strlen(buffer);
+        if (len > 2 && buffer[len-1] == '0' && buffer[len-2] == '.')
+            buffer[len-2] = 0;
         pLabel->setText(buffer);
     }}
 
@@ -965,16 +973,18 @@ void Main::setControlValues()
     _photoSynthesizeEnergyGainSlider->setValue(Parameters::photoSynthesizeEnergyGain);
     _moveEnergyCostSlider->setValue(Parameters::moveEnergyCost);
     _moveAndEatEnergyCostSlider->setValue(Parameters::moveAndEatEnergyCost);
-    _baseSpawnEnergySlider->setValue(Parameters::baseSpawnEnergy);
+//    _baseSpawnEnergySlider->setValue(Parameters::baseSpawnEnergy);
     _extraSpawnEnergyPerSegmentSlider->setValue(Parameters::extraSpawnEnergyPerSegment);
     _lookDistanceSlider->setValue(Parameters::lookDistance);
     _allowSelfOverlap->setChecked(Parameters::allowSelfOverlap);
+    
+    this->_formAdvanced->update(1);
 }
 
 /**
  * Methods for programmatically creating the UI
  */
-#define LABEL_WIDTH 120
+#define LABEL_WIDTH 150
 #define SLIDER_WIDTH 100
 
 Form * Main :: createForm(float width, float height, bool isLayoutVertical)
@@ -983,7 +993,7 @@ Form * Main :: createForm(float width, float height, bool isLayoutVertical)
     
     Container *pMainContainer = (Container*)result->getControl("main");
     pMainContainer->setSkinColor(Vector4(0,0,0,1));
-//    result->setMargin(2,2,2,2);
+    //    result->setMargin(2,2,2,2);
     
     result->setSize(width, height);
     pMainContainer->setSize(width, height - 20);

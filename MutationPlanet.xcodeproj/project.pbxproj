@@ -7,404 +7,370 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		42438B531491AD2000D218B8 /* libgameplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42438B521491AD2000D218B8 /* libgameplay.a */; };
-		424CC03C161FCBDD00577827 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 424CC03B161FCBDD00577827 /* IOKit.framework */; };
-		428F7BDE15CB131A009ED24C /* game.config in Resources */ = {isa = PBXBuildFile; fileRef = 428F7BDD15CB131A009ED24C /* game.config */; };
-		42C932C11491A0DB0098216A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C932C01491A0DB0098216A /* Cocoa.framework */; };
-		42C932EE1491A4CB0098216A /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 42C932ED1491A4CB0098216A /* icon.png */; };
-		42C932F31491A53E0098216A /* res in Resources */ = {isa = PBXBuildFile; fileRef = 42C932F21491A53E0098216A /* res */; };
-		42C933171491A5EB0098216A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C933161491A5EB0098216A /* OpenGL.framework */; };
-		42C9331D1491A6750098216A /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C9331C1491A6750098216A /* QuartzCore.framework */; };
-		42C9331F1491A67F0098216A /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C9331E1491A67F0098216A /* OpenAL.framework */; };
-		42C933211491A6C70098216A /* libbullet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C933201491A6C70098216A /* libbullet.a */; };
-		42C933261491A6E50098216A /* libogg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C933221491A6E50098216A /* libogg.a */; };
-		42C933271491A6E50098216A /* libvorbis.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C933231491A6E50098216A /* libvorbis.a */; };
-		42C933281491A6E50098216A /* libvorbisenc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C933241491A6E50098216A /* libvorbisenc.a */; };
-		42C933291491A6E50098216A /* libvorbisfile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C933251491A6E50098216A /* libvorbisfile.a */; };
-		42C9332C1491A7680098216A /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C9332A1491A7390098216A /* libpng.a */; };
-		42C9332F1491A78D0098216A /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C9332D1491A7810098216A /* libz.dylib */; };
-		5B61611814CCC24C0073B857 /* libgameplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42438B521491AD2000D218B8 /* libgameplay.a */; };
-		5B61611914CCC24C0073B857 /* libbullet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C933201491A6C70098216A /* libbullet.a */; };
-		5B61611A14CCC24C0073B857 /* libogg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C933221491A6E50098216A /* libogg.a */; };
-		5B61611B14CCC24C0073B857 /* libvorbis.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C933231491A6E50098216A /* libvorbis.a */; };
-		5B61611C14CCC24C0073B857 /* libvorbisenc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C933241491A6E50098216A /* libvorbisenc.a */; };
-		5B61611D14CCC24C0073B857 /* libvorbisfile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C933251491A6E50098216A /* libvorbisfile.a */; };
-		5B61611E14CCC24C0073B857 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C9332A1491A7390098216A /* libpng.a */; };
-		5B61611F14CCC24C0073B857 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C9332D1491A7810098216A /* libz.dylib */; };
-		5B61612614CCC24C0073B857 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 42C932ED1491A4CB0098216A /* icon.png */; };
-		5B61612714CCC24C0073B857 /* res in Resources */ = {isa = PBXBuildFile; fileRef = 42C932F21491A53E0098216A /* res */; };
-		5BAF206D152F2DDD003E2AC3 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BAF2067152F2DDD003E2AC3 /* CoreMotion.framework */; };
-		5BAF206E152F2DDD003E2AC3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BAF2068152F2DDD003E2AC3 /* Foundation.framework */; };
-		5BAF206F152F2DDD003E2AC3 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BAF2069152F2DDD003E2AC3 /* OpenAL.framework */; };
-		5BAF2070152F2DDD003E2AC3 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BAF206A152F2DDD003E2AC3 /* OpenGLES.framework */; };
-		5BAF2071152F2DDD003E2AC3 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BAF206B152F2DDD003E2AC3 /* QuartzCore.framework */; };
-		5BAF2072152F2DDD003E2AC3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BAF206C152F2DDD003E2AC3 /* UIKit.framework */; };
-		7632D15C16966B5300266BE7 /* Agent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7632D14516966B5300266BE7 /* Agent.cpp */; };
-		7632D15D16966B5300266BE7 /* Agent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7632D14516966B5300266BE7 /* Agent.cpp */; };
-		7632D15E16966B5300266BE7 /* arcball.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7632D14716966B5300266BE7 /* arcball.cpp */; };
-		7632D15F16966B5300266BE7 /* arcball.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7632D14716966B5300266BE7 /* arcball.cpp */; };
-		7632D16016966B5300266BE7 /* InstructionSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7632D14B16966B5300266BE7 /* InstructionSet.cpp */; };
-		7632D16116966B5300266BE7 /* InstructionSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7632D14B16966B5300266BE7 /* InstructionSet.cpp */; };
-		7632D16216966B5300266BE7 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7632D14D16966B5300266BE7 /* Main.cpp */; };
-		7632D16316966B5300266BE7 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7632D14D16966B5300266BE7 /* Main.cpp */; };
-		7632D16416966B5300266BE7 /* Parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7632D14F16966B5300266BE7 /* Parameters.cpp */; };
-		7632D16516966B5300266BE7 /* Parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7632D14F16966B5300266BE7 /* Parameters.cpp */; };
-		7632D16816966B5300266BE7 /* SpherePointFinderSpaceDivison.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7632D15416966B5300266BE7 /* SpherePointFinderSpaceDivison.cpp */; };
-		7632D16916966B5300266BE7 /* SpherePointFinderSpaceDivison.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7632D15416966B5300266BE7 /* SpherePointFinderSpaceDivison.cpp */; };
-		7632D16A16966B5300266BE7 /* SphereWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7632D15616966B5300266BE7 /* SphereWorld.cpp */; };
-		7632D16B16966B5300266BE7 /* SphereWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7632D15616966B5300266BE7 /* SphereWorld.cpp */; };
-		7632D16C16966B5300266BE7 /* UtilsGenome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7632D15816966B5300266BE7 /* UtilsGenome.cpp */; };
-		7632D16D16966B5300266BE7 /* UtilsGenome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7632D15816966B5300266BE7 /* UtilsGenome.cpp */; };
-		7632D16E16966B5300266BE7 /* UtilsRandom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7632D15A16966B5300266BE7 /* UtilsRandom.cpp */; };
-		7632D16F16966B5300266BE7 /* UtilsRandom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7632D15A16966B5300266BE7 /* UtilsRandom.cpp */; };
+		4217006314697FF100A45C02 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4217006214697FF100A45C02 /* Cocoa.framework */; };
+		4220A6E5146B121000CAEB3A /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4220A6E4146B121000CAEB3A /* QuartzCore.framework */; };
+		424CC02C161F8DDE00577827 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 424CC02B161F8DDE00577827 /* IOKit.framework */; };
+		42685616157575030013522F /* libgameplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B04C5EA14BFE25C00EB0071 /* libgameplay.a */; };
+		42A3C5DE146C96640091C1E4 /* res in Resources */ = {isa = PBXBuildFile; fileRef = 42A3C5DD146C96640091C1E4 /* res */; };
+		42A3C5E4146CB7420091C1E4 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42A3C5E3146CB7420091C1E4 /* libpng.a */; };
+		42A3C5E6146CB7690091C1E4 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 42A3C5E5146CB7690091C1E4 /* libz.dylib */; };
+		42B7025A15B0A897002BB8C3 /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42B7025915B0A897002BB8C3 /* liblua.a */; };
+		42B7027815B0B278002BB8C3 /* game.config in Resources */ = {isa = PBXBuildFile; fileRef = 42B7027715B0B278002BB8C3 /* game.config */; };
+		42B7027915B0B278002BB8C3 /* game.config in Resources */ = {isa = PBXBuildFile; fileRef = 42B7027715B0B278002BB8C3 /* game.config */; };
+		42CCD4B4146D914B00353661 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 42CCD4B3146D914B00353661 /* icon.png */; };
+		42CD0EE7147D92E60000361E /* libbullet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42CD0EE2147D92E60000361E /* libbullet.a */; };
+		42CD0EE8147D92E60000361E /* libogg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42CD0EE3147D92E60000361E /* libogg.a */; };
+		42CD0EE9147D92E60000361E /* libvorbis.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42CD0EE4147D92E60000361E /* libvorbis.a */; };
+		42CD0EEA147D92E60000361E /* libvorbisenc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42CD0EE5147D92E60000361E /* libvorbisenc.a */; };
+		42CD0EEB147D92E60000361E /* libvorbisfile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42CD0EE6147D92E60000361E /* libvorbisfile.a */; };
+		42F68AA71469CDE100E0E3C4 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42F68AA51469CDE100E0E3C4 /* OpenAL.framework */; };
+		42F68AA81469CDE100E0E3C4 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42F68AA61469CDE100E0E3C4 /* OpenGL.framework */; };
+		5B04C5D414BFE1A200EB0071 /* libbullet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42CD0EE2147D92E60000361E /* libbullet.a */; };
+		5B04C5D514BFE1A200EB0071 /* libogg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42CD0EE3147D92E60000361E /* libogg.a */; };
+		5B04C5D614BFE1A200EB0071 /* libvorbis.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42CD0EE4147D92E60000361E /* libvorbis.a */; };
+		5B04C5D714BFE1A200EB0071 /* libvorbisenc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42CD0EE5147D92E60000361E /* libvorbisenc.a */; };
+		5B04C5D814BFE1A200EB0071 /* libvorbisfile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42CD0EE6147D92E60000361E /* libvorbisfile.a */; };
+		5B04C5D914BFE1A200EB0071 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42A3C5E3146CB7420091C1E4 /* libpng.a */; };
+		5B04C5DA14BFE1A200EB0071 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 42A3C5E5146CB7690091C1E4 /* libz.dylib */; };
+		5B04C5E114BFE1A200EB0071 /* res in Resources */ = {isa = PBXBuildFile; fileRef = 42A3C5DD146C96640091C1E4 /* res */; };
+		5B04C5E214BFE1A200EB0071 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 42CCD4B3146D914B00353661 /* icon.png */; };
+		5B928C6C1513E9960095E677 /* libgameplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B04C5EA14BFE25C00EB0071 /* libgameplay.a */; };
+		5BAF2034152F2B47003E2AC3 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BAF202E152F2B47003E2AC3 /* CoreMotion.framework */; };
+		5BAF2035152F2B47003E2AC3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BAF202F152F2B47003E2AC3 /* Foundation.framework */; };
+		5BAF2036152F2B47003E2AC3 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BAF2030152F2B47003E2AC3 /* OpenAL.framework */; };
+		5BAF2037152F2B47003E2AC3 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BAF2031152F2B47003E2AC3 /* OpenGLES.framework */; };
+		5BAF2038152F2B47003E2AC3 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BAF2032152F2B47003E2AC3 /* QuartzCore.framework */; };
+		5BAF2039152F2B47003E2AC3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BAF2033152F2B47003E2AC3 /* UIKit.framework */; };
+		760EF1D416A9E79900AFF1F2 /* MutationPlanet-ios.plist in Resources */ = {isa = PBXBuildFile; fileRef = 760EF1D316A9E79900AFF1F2 /* MutationPlanet-ios.plist */; };
+		760EF1D616A9E7A400AFF1F2 /* MutationPlanet-macosx.plist in Resources */ = {isa = PBXBuildFile; fileRef = 760EF1D516A9E7A400AFF1F2 /* MutationPlanet-macosx.plist */; };
+		763611B416AA4496005BAF5A /* Agent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7636119F16AA4496005BAF5A /* Agent.cpp */; };
+		763611B516AA4496005BAF5A /* Agent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7636119F16AA4496005BAF5A /* Agent.cpp */; };
+		763611B616AA4496005BAF5A /* arcball.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 763611A116AA4496005BAF5A /* arcball.cpp */; };
+		763611B716AA4496005BAF5A /* arcball.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 763611A116AA4496005BAF5A /* arcball.cpp */; };
+		763611B816AA4496005BAF5A /* InstructionSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 763611A516AA4496005BAF5A /* InstructionSet.cpp */; };
+		763611B916AA4496005BAF5A /* InstructionSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 763611A516AA4496005BAF5A /* InstructionSet.cpp */; };
+		763611BA16AA4496005BAF5A /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 763611A716AA4496005BAF5A /* Main.cpp */; };
+		763611BB16AA4496005BAF5A /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 763611A716AA4496005BAF5A /* Main.cpp */; };
+		763611BC16AA4496005BAF5A /* Parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 763611A916AA4496005BAF5A /* Parameters.cpp */; };
+		763611BD16AA4496005BAF5A /* Parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 763611A916AA4496005BAF5A /* Parameters.cpp */; };
+		763611BE16AA4496005BAF5A /* SpherePointFinderSpaceDivison.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 763611AC16AA4496005BAF5A /* SpherePointFinderSpaceDivison.cpp */; };
+		763611BF16AA4496005BAF5A /* SpherePointFinderSpaceDivison.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 763611AC16AA4496005BAF5A /* SpherePointFinderSpaceDivison.cpp */; };
+		763611C016AA4496005BAF5A /* SphereWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 763611AE16AA4496005BAF5A /* SphereWorld.cpp */; };
+		763611C116AA4496005BAF5A /* SphereWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 763611AE16AA4496005BAF5A /* SphereWorld.cpp */; };
+		763611C216AA4496005BAF5A /* UtilsGenome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 763611B016AA4496005BAF5A /* UtilsGenome.cpp */; };
+		763611C316AA4496005BAF5A /* UtilsGenome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 763611B016AA4496005BAF5A /* UtilsGenome.cpp */; };
+		763611C416AA4496005BAF5A /* UtilsRandom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 763611B216AA4496005BAF5A /* UtilsRandom.cpp */; };
+		763611C516AA4496005BAF5A /* UtilsRandom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 763611B216AA4496005BAF5A /* UtilsRandom.cpp */; };
+		7670340116AF7D0400FC77EF /* Default-Landscape~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 7670340016AF7D0400FC77EF /* Default-Landscape~ipad.png */; };
+		7670340416AF7E8300FC77EF /* Default-Landscape@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 7670340316AF7E8300FC77EF /* Default-Landscape@2x~ipad.png */; };
+		76E91FAE16AF12050091D6E5 /* icon72.png in Resources */ = {isa = PBXBuildFile; fileRef = 76E91FAD16AF12050091D6E5 /* icon72.png */; };
+		76E91FB016AF120C0091D6E5 /* icon144.png in Resources */ = {isa = PBXBuildFile; fileRef = 76E91FAF16AF120C0091D6E5 /* icon144.png */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		7632D140169656CA00266BE7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5BC4E77F150F879E00CBE1C0 /* gameplay.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 4234D99A14686C52003031B3;
-			remoteInfo = "gameplay-macosx";
-		};
-		7632D142169656CA00266BE7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5BC4E77F150F879E00CBE1C0 /* gameplay.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 5B04C5CA14BFCFE100EB0071;
-			remoteInfo = "gameplay-ios";
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
-		42438B521491AD2000D218B8 /* libgameplay.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgameplay.a; path = "~/Library/Developer/Xcode/DerivedData/gameplay-exiunaubxxjndaapmcqkaoeboiob/Build/Products/Debug/libgameplay.a"; sourceTree = "<group>"; };
-		424CC03B161FCBDD00577827 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
-		428F7BDD15CB131A009ED24C /* game.config */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = game.config; sourceTree = "<group>"; };
-		42C932BC1491A0DB0098216A /* MutationPlanet-macosx.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MutationPlanet-macosx.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		42C932C01491A0DB0098216A /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
-		42C932ED1491A4CB0098216A /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
-		42C932F21491A53E0098216A /* res */ = {isa = PBXFileReference; lastKnownFileType = folder; path = res; sourceTree = "<group>"; };
-		42C933161491A5EB0098216A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
-		42C9331C1491A6750098216A /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
-		42C9331E1491A67F0098216A /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
-		42C933201491A6C70098216A /* libbullet.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbullet.a; path = "../external-deps/bullet/lib/macosx/libbullet.a"; sourceTree = "<group>"; };
-		42C933221491A6E50098216A /* libogg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libogg.a; path = "../external-deps/oggvorbis/lib/macosx/libogg.a"; sourceTree = "<group>"; };
-		42C933231491A6E50098216A /* libvorbis.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvorbis.a; path = "../external-deps/oggvorbis/lib/macosx/libvorbis.a"; sourceTree = "<group>"; };
-		42C933241491A6E50098216A /* libvorbisenc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvorbisenc.a; path = "../external-deps/oggvorbis/lib/macosx/libvorbisenc.a"; sourceTree = "<group>"; };
-		42C933251491A6E50098216A /* libvorbisfile.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvorbisfile.a; path = "../external-deps/oggvorbis/lib/macosx/libvorbisfile.a"; sourceTree = "<group>"; };
-		42C9332A1491A7390098216A /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng.a; path = "../external-deps/libpng/lib/macosx/libpng.a"; sourceTree = "<group>"; };
-		42C9332D1491A7810098216A /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
-		5B61611214CCC2200073B857 /* MutationPlanet-macosx.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MutationPlanet-macosx.plist"; sourceTree = "<group>"; };
-		5B61612C14CCC24C0073B857 /* MutationPlanet-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MutationPlanet-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		5B61612E14CCC24D0073B857 /* MutationPlanet-ios.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MutationPlanet-ios.plist"; sourceTree = "<group>"; };
-		5BAF2067152F2DDD003E2AC3 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.1.sdk/System/Library/Frameworks/CoreMotion.framework; sourceTree = DEVELOPER_DIR; };
-		5BAF2068152F2DDD003E2AC3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.1.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		5BAF2069152F2DDD003E2AC3 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.1.sdk/System/Library/Frameworks/OpenAL.framework; sourceTree = DEVELOPER_DIR; };
-		5BAF206A152F2DDD003E2AC3 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.1.sdk/System/Library/Frameworks/OpenGLES.framework; sourceTree = DEVELOPER_DIR; };
-		5BAF206B152F2DDD003E2AC3 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.1.sdk/System/Library/Frameworks/QuartzCore.framework; sourceTree = DEVELOPER_DIR; };
-		5BAF206C152F2DDD003E2AC3 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
-		5BC4E77F150F879E00CBE1C0 /* gameplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gameplay.xcodeproj; path = ../gameplay/gameplay.xcodeproj; sourceTree = SOURCE_ROOT; };
-		5BC4E849150F911D00CBE1C0 /* shaders */ = {isa = PBXFileReference; lastKnownFileType = text; name = shaders; path = ../gameplay/res/shaders; sourceTree = SOURCE_ROOT; };
-		7632D14516966B5300266BE7 /* Agent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Agent.cpp; sourceTree = "<group>"; };
-		7632D14616966B5300266BE7 /* Agent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Agent.h; sourceTree = "<group>"; };
-		7632D14716966B5300266BE7 /* arcball.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = arcball.cpp; sourceTree = "<group>"; };
-		7632D14816966B5300266BE7 /* arcball.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = arcball.h; sourceTree = "<group>"; };
-		7632D14916966B5300266BE7 /* BaseSpherePointFinder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseSpherePointFinder.h; sourceTree = "<group>"; };
-		7632D14A16966B5300266BE7 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
-		7632D14B16966B5300266BE7 /* InstructionSet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InstructionSet.cpp; sourceTree = "<group>"; };
-		7632D14C16966B5300266BE7 /* InstructionSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InstructionSet.h; sourceTree = "<group>"; };
-		7632D14D16966B5300266BE7 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cpp; sourceTree = "<group>"; };
-		7632D14E16966B5300266BE7 /* Main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Main.h; sourceTree = "<group>"; };
-		7632D14F16966B5300266BE7 /* Parameters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Parameters.cpp; sourceTree = "<group>"; };
-		7632D15016966B5300266BE7 /* Parameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Parameters.h; sourceTree = "<group>"; };
-		7632D15316966B5300266BE7 /* SphereEntity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphereEntity.h; sourceTree = "<group>"; };
-		7632D15416966B5300266BE7 /* SpherePointFinderSpaceDivison.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpherePointFinderSpaceDivison.cpp; sourceTree = "<group>"; };
-		7632D15516966B5300266BE7 /* SpherePointFinderSpaceDivison.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpherePointFinderSpaceDivison.h; sourceTree = "<group>"; };
-		7632D15616966B5300266BE7 /* SphereWorld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SphereWorld.cpp; sourceTree = "<group>"; };
-		7632D15716966B5300266BE7 /* SphereWorld.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphereWorld.h; sourceTree = "<group>"; };
-		7632D15816966B5300266BE7 /* UtilsGenome.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UtilsGenome.cpp; sourceTree = "<group>"; };
-		7632D15916966B5300266BE7 /* UtilsGenome.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UtilsGenome.h; sourceTree = "<group>"; };
-		7632D15A16966B5300266BE7 /* UtilsRandom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UtilsRandom.cpp; sourceTree = "<group>"; };
-		7632D15B16966B5300266BE7 /* UtilsRandom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UtilsRandom.h; sourceTree = "<group>"; };
+		4217005E14697FF100A45C02 /* MutationPlanet-macosx.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MutationPlanet-macosx.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4217006214697FF100A45C02 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		4220A6E4146B121000CAEB3A /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		424CC02B161F8DDE00577827 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		42A3C5DD146C96640091C1E4 /* res */ = {isa = PBXFileReference; lastKnownFileType = folder; path = res; sourceTree = "<group>"; };
+		42A3C5E3146CB7420091C1E4 /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng.a; path = "../../external-deps/libpng/lib/macosx/libpng.a"; sourceTree = "<group>"; };
+		42A3C5E5146CB7690091C1E4 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		42B7025915B0A897002BB8C3 /* liblua.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblua.a; path = "../../external-deps/lua/lib/macosx/liblua.a"; sourceTree = "<group>"; };
+		42B7027715B0B278002BB8C3 /* game.config */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = game.config; sourceTree = "<group>"; };
+		42CCD4B3146D914B00353661 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
+		42CD0EE2147D92E60000361E /* libbullet.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbullet.a; path = "../../external-deps/bullet/lib/macosx/libbullet.a"; sourceTree = "<group>"; };
+		42CD0EE3147D92E60000361E /* libogg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libogg.a; path = "../../external-deps/oggvorbis/lib/macosx/libogg.a"; sourceTree = "<group>"; };
+		42CD0EE4147D92E60000361E /* libvorbis.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvorbis.a; path = "../../external-deps/oggvorbis/lib/macosx/libvorbis.a"; sourceTree = "<group>"; };
+		42CD0EE5147D92E60000361E /* libvorbisenc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvorbisenc.a; path = "../../external-deps/oggvorbis/lib/macosx/libvorbisenc.a"; sourceTree = "<group>"; };
+		42CD0EE6147D92E60000361E /* libvorbisfile.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvorbisfile.a; path = "../../external-deps/oggvorbis/lib/macosx/libvorbisfile.a"; sourceTree = "<group>"; };
+		42F68AA51469CDE100E0E3C4 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
+		42F68AA61469CDE100E0E3C4 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		5B04C5E614BFE1A200EB0071 /* MutationPlanet-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MutationPlanet-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5B04C5EA14BFE25C00EB0071 /* libgameplay.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgameplay.a; path = "../../../../../Library/Developer/Xcode/DerivedData/gameplay-byvblnepdcgmghbniqumwtwzdxny/Build/Products/Debug/libgameplay.a"; sourceTree = "<group>"; };
+		5BAF202E152F2B47003E2AC3 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.1.sdk/System/Library/Frameworks/CoreMotion.framework; sourceTree = DEVELOPER_DIR; };
+		5BAF202F152F2B47003E2AC3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.1.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		5BAF2030152F2B47003E2AC3 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.1.sdk/System/Library/Frameworks/OpenAL.framework; sourceTree = DEVELOPER_DIR; };
+		5BAF2031152F2B47003E2AC3 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.1.sdk/System/Library/Frameworks/OpenGLES.framework; sourceTree = DEVELOPER_DIR; };
+		5BAF2032152F2B47003E2AC3 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.1.sdk/System/Library/Frameworks/QuartzCore.framework; sourceTree = DEVELOPER_DIR; };
+		5BAF2033152F2B47003E2AC3 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		760EF1D316A9E79900AFF1F2 /* MutationPlanet-ios.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MutationPlanet-ios.plist"; sourceTree = "<group>"; };
+		760EF1D516A9E7A400AFF1F2 /* MutationPlanet-macosx.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MutationPlanet-macosx.plist"; sourceTree = "<group>"; };
+		7636119F16AA4496005BAF5A /* Agent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Agent.cpp; path = src/Agent.cpp; sourceTree = SOURCE_ROOT; };
+		763611A016AA4496005BAF5A /* Agent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Agent.h; path = src/Agent.h; sourceTree = SOURCE_ROOT; };
+		763611A116AA4496005BAF5A /* arcball.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = arcball.cpp; path = src/arcball.cpp; sourceTree = SOURCE_ROOT; };
+		763611A216AA4496005BAF5A /* arcball.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = arcball.h; path = src/arcball.h; sourceTree = SOURCE_ROOT; };
+		763611A316AA4496005BAF5A /* BaseSpherePointFinder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BaseSpherePointFinder.h; path = src/BaseSpherePointFinder.h; sourceTree = SOURCE_ROOT; };
+		763611A416AA4496005BAF5A /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Constants.h; path = src/Constants.h; sourceTree = SOURCE_ROOT; };
+		763611A516AA4496005BAF5A /* InstructionSet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InstructionSet.cpp; path = src/InstructionSet.cpp; sourceTree = SOURCE_ROOT; };
+		763611A616AA4496005BAF5A /* InstructionSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InstructionSet.h; path = src/InstructionSet.h; sourceTree = SOURCE_ROOT; };
+		763611A716AA4496005BAF5A /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Main.cpp; path = src/Main.cpp; sourceTree = SOURCE_ROOT; };
+		763611A816AA4496005BAF5A /* Main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Main.h; path = src/Main.h; sourceTree = SOURCE_ROOT; };
+		763611A916AA4496005BAF5A /* Parameters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Parameters.cpp; path = src/Parameters.cpp; sourceTree = SOURCE_ROOT; };
+		763611AA16AA4496005BAF5A /* Parameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Parameters.h; path = src/Parameters.h; sourceTree = SOURCE_ROOT; };
+		763611AB16AA4496005BAF5A /* SphereEntity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SphereEntity.h; path = src/SphereEntity.h; sourceTree = SOURCE_ROOT; };
+		763611AC16AA4496005BAF5A /* SpherePointFinderSpaceDivison.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SpherePointFinderSpaceDivison.cpp; path = src/SpherePointFinderSpaceDivison.cpp; sourceTree = SOURCE_ROOT; };
+		763611AD16AA4496005BAF5A /* SpherePointFinderSpaceDivison.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SpherePointFinderSpaceDivison.h; path = src/SpherePointFinderSpaceDivison.h; sourceTree = SOURCE_ROOT; };
+		763611AE16AA4496005BAF5A /* SphereWorld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SphereWorld.cpp; path = src/SphereWorld.cpp; sourceTree = SOURCE_ROOT; };
+		763611AF16AA4496005BAF5A /* SphereWorld.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SphereWorld.h; path = src/SphereWorld.h; sourceTree = SOURCE_ROOT; };
+		763611B016AA4496005BAF5A /* UtilsGenome.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UtilsGenome.cpp; path = src/UtilsGenome.cpp; sourceTree = SOURCE_ROOT; };
+		763611B116AA4496005BAF5A /* UtilsGenome.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UtilsGenome.h; path = src/UtilsGenome.h; sourceTree = SOURCE_ROOT; };
+		763611B216AA4496005BAF5A /* UtilsRandom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UtilsRandom.cpp; path = src/UtilsRandom.cpp; sourceTree = SOURCE_ROOT; };
+		763611B316AA4496005BAF5A /* UtilsRandom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UtilsRandom.h; path = src/UtilsRandom.h; sourceTree = SOURCE_ROOT; };
+		7670340016AF7D0400FC77EF /* Default-Landscape~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape~ipad.png"; sourceTree = "<group>"; };
+		7670340316AF7E8300FC77EF /* Default-Landscape@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape@2x~ipad.png"; sourceTree = "<group>"; };
+		76E91FAD16AF12050091D6E5 /* icon72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon72.png; sourceTree = "<group>"; };
+		76E91FAF16AF120C0091D6E5 /* icon144.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon144.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		42C932B91491A0DB0098216A /* Frameworks */ = {
+		4217005B14697FF100A45C02 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				42438B531491AD2000D218B8 /* libgameplay.a in Frameworks */,
-				42C933211491A6C70098216A /* libbullet.a in Frameworks */,
-				42C933261491A6E50098216A /* libogg.a in Frameworks */,
-				42C933271491A6E50098216A /* libvorbis.a in Frameworks */,
-				42C933281491A6E50098216A /* libvorbisenc.a in Frameworks */,
-				42C933291491A6E50098216A /* libvorbisfile.a in Frameworks */,
-				42C9332C1491A7680098216A /* libpng.a in Frameworks */,
-				42C9332F1491A78D0098216A /* libz.dylib in Frameworks */,
-				424CC03C161FCBDD00577827 /* IOKit.framework in Frameworks */,
-				42C932C11491A0DB0098216A /* Cocoa.framework in Frameworks */,
-				42C9331D1491A6750098216A /* QuartzCore.framework in Frameworks */,
-				42C933171491A5EB0098216A /* OpenGL.framework in Frameworks */,
-				42C9331F1491A67F0098216A /* OpenAL.framework in Frameworks */,
+				5B928C6C1513E9960095E677 /* libgameplay.a in Frameworks */,
+				42CD0EE7147D92E60000361E /* libbullet.a in Frameworks */,
+				42CD0EE8147D92E60000361E /* libogg.a in Frameworks */,
+				42CD0EE9147D92E60000361E /* libvorbis.a in Frameworks */,
+				42CD0EEA147D92E60000361E /* libvorbisenc.a in Frameworks */,
+				42CD0EEB147D92E60000361E /* libvorbisfile.a in Frameworks */,
+				42A3C5E4146CB7420091C1E4 /* libpng.a in Frameworks */,
+				42A3C5E6146CB7690091C1E4 /* libz.dylib in Frameworks */,
+				42B7025A15B0A897002BB8C3 /* liblua.a in Frameworks */,
+				424CC02C161F8DDE00577827 /* IOKit.framework in Frameworks */,
+				4217006314697FF100A45C02 /* Cocoa.framework in Frameworks */,
+				4220A6E5146B121000CAEB3A /* QuartzCore.framework in Frameworks */,
+				42F68AA81469CDE100E0E3C4 /* OpenGL.framework in Frameworks */,
+				42F68AA71469CDE100E0E3C4 /* OpenAL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5B61611714CCC24C0073B857 /* Frameworks */ = {
+		5B04C5D214BFE1A200EB0071 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5BAF206D152F2DDD003E2AC3 /* CoreMotion.framework in Frameworks */,
-				5BAF206E152F2DDD003E2AC3 /* Foundation.framework in Frameworks */,
-				5BAF206F152F2DDD003E2AC3 /* OpenAL.framework in Frameworks */,
-				5BAF2070152F2DDD003E2AC3 /* OpenGLES.framework in Frameworks */,
-				5BAF2071152F2DDD003E2AC3 /* QuartzCore.framework in Frameworks */,
-				5BAF2072152F2DDD003E2AC3 /* UIKit.framework in Frameworks */,
-				5B61611814CCC24C0073B857 /* libgameplay.a in Frameworks */,
-				5B61611914CCC24C0073B857 /* libbullet.a in Frameworks */,
-				5B61611A14CCC24C0073B857 /* libogg.a in Frameworks */,
-				5B61611B14CCC24C0073B857 /* libvorbis.a in Frameworks */,
-				5B61611C14CCC24C0073B857 /* libvorbisenc.a in Frameworks */,
-				5B61611D14CCC24C0073B857 /* libvorbisfile.a in Frameworks */,
-				5B61611E14CCC24C0073B857 /* libpng.a in Frameworks */,
-				5B61611F14CCC24C0073B857 /* libz.dylib in Frameworks */,
+				5BAF2034152F2B47003E2AC3 /* CoreMotion.framework in Frameworks */,
+				5BAF2035152F2B47003E2AC3 /* Foundation.framework in Frameworks */,
+				5BAF2036152F2B47003E2AC3 /* OpenAL.framework in Frameworks */,
+				5BAF2037152F2B47003E2AC3 /* OpenGLES.framework in Frameworks */,
+				5BAF2038152F2B47003E2AC3 /* QuartzCore.framework in Frameworks */,
+				5BAF2039152F2B47003E2AC3 /* UIKit.framework in Frameworks */,
+				5B04C5D414BFE1A200EB0071 /* libbullet.a in Frameworks */,
+				5B04C5D514BFE1A200EB0071 /* libogg.a in Frameworks */,
+				5B04C5D614BFE1A200EB0071 /* libvorbis.a in Frameworks */,
+				5B04C5D714BFE1A200EB0071 /* libvorbisenc.a in Frameworks */,
+				5B04C5D814BFE1A200EB0071 /* libvorbisfile.a in Frameworks */,
+				5B04C5D914BFE1A200EB0071 /* libpng.a in Frameworks */,
+				5B04C5DA14BFE1A200EB0071 /* libz.dylib in Frameworks */,
+				42685616157575030013522F /* libgameplay.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		42C932B11491A0DB0098216A = {
+		4217005314697FF100A45C02 = {
 			isa = PBXGroup;
 			children = (
-				5B61611214CCC2200073B857 /* MutationPlanet-macosx.plist */,
-				5B61612E14CCC24D0073B857 /* MutationPlanet-ios.plist */,
-				42C932ED1491A4CB0098216A /* icon.png */,
-				428F7BDD15CB131A009ED24C /* game.config */,
-				42C932F21491A53E0098216A /* res */,
-				42C932C61491A0DB0098216A /* src */,
-				42C932DD1491A1050098216A /* Libraries */,
-				42C932BF1491A0DB0098216A /* Frameworks */,
-				42C932BD1491A0DB0098216A /* Products */,
+				7670340316AF7E8300FC77EF /* Default-Landscape@2x~ipad.png */,
+				7670340016AF7D0400FC77EF /* Default-Landscape~ipad.png */,
+				76E91FAF16AF120C0091D6E5 /* icon144.png */,
+				76E91FAD16AF12050091D6E5 /* icon72.png */,
+				760EF1D316A9E79900AFF1F2 /* MutationPlanet-ios.plist */,
+				760EF1D516A9E7A400AFF1F2 /* MutationPlanet-macosx.plist */,
+				42CCD4B3146D914B00353661 /* icon.png */,
+				42B7027715B0B278002BB8C3 /* game.config */,
+				42A3C5DD146C96640091C1E4 /* res */,
+				4217006814697FF100A45C02 /* src */,
+				427D4F46147DC9460076760E /* Libraries */,
+				42CCD4B1146D814F00353661 /* Frameworks */,
+				4217005F14697FF100A45C02 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		42C932BD1491A0DB0098216A /* Products */ = {
+		4217005F14697FF100A45C02 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				42C932BC1491A0DB0098216A /* MutationPlanet-macosx.app */,
-				5B61612C14CCC24C0073B857 /* MutationPlanet-ios.app */,
+				4217005E14697FF100A45C02 /* MutationPlanet-macosx.app */,
+				5B04C5E614BFE1A200EB0071 /* MutationPlanet-ios.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		42C932BF1491A0DB0098216A /* Frameworks */ = {
+		4217006814697FF100A45C02 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				5BC4E825150F8CE600CBE1C0 /* GamePlay */,
-				5B61613A14CCC3590073B857 /* MacOSX */,
-				5B61613914CCC3560073B857 /* iOS */,
+				7636119F16AA4496005BAF5A /* Agent.cpp */,
+				763611A016AA4496005BAF5A /* Agent.h */,
+				763611A116AA4496005BAF5A /* arcball.cpp */,
+				763611A216AA4496005BAF5A /* arcball.h */,
+				763611A316AA4496005BAF5A /* BaseSpherePointFinder.h */,
+				763611A416AA4496005BAF5A /* Constants.h */,
+				763611A516AA4496005BAF5A /* InstructionSet.cpp */,
+				763611A616AA4496005BAF5A /* InstructionSet.h */,
+				763611A716AA4496005BAF5A /* Main.cpp */,
+				763611A816AA4496005BAF5A /* Main.h */,
+				763611A916AA4496005BAF5A /* Parameters.cpp */,
+				763611AA16AA4496005BAF5A /* Parameters.h */,
+				763611AB16AA4496005BAF5A /* SphereEntity.h */,
+				763611AC16AA4496005BAF5A /* SpherePointFinderSpaceDivison.cpp */,
+				763611AD16AA4496005BAF5A /* SpherePointFinderSpaceDivison.h */,
+				763611AE16AA4496005BAF5A /* SphereWorld.cpp */,
+				763611AF16AA4496005BAF5A /* SphereWorld.h */,
+				763611B016AA4496005BAF5A /* UtilsGenome.cpp */,
+				763611B116AA4496005BAF5A /* UtilsGenome.h */,
+				763611B216AA4496005BAF5A /* UtilsRandom.cpp */,
+				763611B316AA4496005BAF5A /* UtilsRandom.h */,
 			);
-			name = Frameworks;
+			name = src;
+			path = "sample00-mesh";
 			sourceTree = "<group>";
 		};
-		42C932C61491A0DB0098216A /* src */ = {
+		427D4F46147DC9460076760E /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				7632D14D16966B5300266BE7 /* Main.cpp */,
-				7632D14E16966B5300266BE7 /* Main.h */,
-				7632D14516966B5300266BE7 /* Agent.cpp */,
-				7632D14616966B5300266BE7 /* Agent.h */,
-				7632D14716966B5300266BE7 /* arcball.cpp */,
-				7632D14816966B5300266BE7 /* arcball.h */,
-				7632D14A16966B5300266BE7 /* Constants.h */,
-				7632D14B16966B5300266BE7 /* InstructionSet.cpp */,
-				7632D14C16966B5300266BE7 /* InstructionSet.h */,
-				7632D14F16966B5300266BE7 /* Parameters.cpp */,
-				7632D15016966B5300266BE7 /* Parameters.h */,
-				7632D15316966B5300266BE7 /* SphereEntity.h */,
-				7632D15616966B5300266BE7 /* SphereWorld.cpp */,
-				7632D15716966B5300266BE7 /* SphereWorld.h */,
-				7632D15816966B5300266BE7 /* UtilsGenome.cpp */,
-				7632D15916966B5300266BE7 /* UtilsGenome.h */,
-				7632D15A16966B5300266BE7 /* UtilsRandom.cpp */,
-				7632D15B16966B5300266BE7 /* UtilsRandom.h */,
-				7632D14916966B5300266BE7 /* BaseSpherePointFinder.h */,
-				7632D15516966B5300266BE7 /* SpherePointFinderSpaceDivison.h */,
-				7632D15416966B5300266BE7 /* SpherePointFinderSpaceDivison.cpp */,
-			);
-			path = src;
-			sourceTree = "<group>";
-		};
-		42C932DD1491A1050098216A /* Libraries */ = {
-			isa = PBXGroup;
-			children = (
-				42438B521491AD2000D218B8 /* libgameplay.a */,
-				42C933201491A6C70098216A /* libbullet.a */,
-				42C933221491A6E50098216A /* libogg.a */,
-				42C933231491A6E50098216A /* libvorbis.a */,
-				42C933241491A6E50098216A /* libvorbisenc.a */,
-				42C933251491A6E50098216A /* libvorbisfile.a */,
-				42C9332A1491A7390098216A /* libpng.a */,
-				42C9332D1491A7810098216A /* libz.dylib */,
+				5B04C5EA14BFE25C00EB0071 /* libgameplay.a */,
+				42CD0EE2147D92E60000361E /* libbullet.a */,
+				42B7025915B0A897002BB8C3 /* liblua.a */,
+				42CD0EE3147D92E60000361E /* libogg.a */,
+				42CD0EE4147D92E60000361E /* libvorbis.a */,
+				42CD0EE5147D92E60000361E /* libvorbisenc.a */,
+				42CD0EE6147D92E60000361E /* libvorbisfile.a */,
+				42A3C5E3146CB7420091C1E4 /* libpng.a */,
+				42A3C5E5146CB7690091C1E4 /* libz.dylib */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
 		};
-		5B61613914CCC3560073B857 /* iOS */ = {
+		42CCD4B1146D814F00353661 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				5BAF2067152F2DDD003E2AC3 /* CoreMotion.framework */,
-				5BAF2068152F2DDD003E2AC3 /* Foundation.framework */,
-				5BAF2069152F2DDD003E2AC3 /* OpenAL.framework */,
-				5BAF206A152F2DDD003E2AC3 /* OpenGLES.framework */,
-				5BAF206B152F2DDD003E2AC3 /* QuartzCore.framework */,
-				5BAF206C152F2DDD003E2AC3 /* UIKit.framework */,
+				5B04C5FF14BFE53F00EB0071 /* MacOSX */,
+				5B04C60014BFE54200EB0071 /* iOS */,
 			);
-			name = iOS;
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		5B61613A14CCC3590073B857 /* MacOSX */ = {
+		5B04C5FF14BFE53F00EB0071 /* MacOSX */ = {
 			isa = PBXGroup;
 			children = (
-				424CC03B161FCBDD00577827 /* IOKit.framework */,
-				42C932C01491A0DB0098216A /* Cocoa.framework */,
-				42C9331C1491A6750098216A /* QuartzCore.framework */,
-				42C933161491A5EB0098216A /* OpenGL.framework */,
-				42C9331E1491A67F0098216A /* OpenAL.framework */,
+				424CC02B161F8DDE00577827 /* IOKit.framework */,
+				4217006214697FF100A45C02 /* Cocoa.framework */,
+				4220A6E4146B121000CAEB3A /* QuartzCore.framework */,
+				42F68AA61469CDE100E0E3C4 /* OpenGL.framework */,
+				42F68AA51469CDE100E0E3C4 /* OpenAL.framework */,
 			);
 			name = MacOSX;
 			sourceTree = "<group>";
 		};
-		5BC4E825150F8CE600CBE1C0 /* GamePlay */ = {
+		5B04C60014BFE54200EB0071 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
-				5BC4E849150F911D00CBE1C0 /* shaders */,
-				5BC4E77F150F879E00CBE1C0 /* gameplay.xcodeproj */,
+				5BAF202E152F2B47003E2AC3 /* CoreMotion.framework */,
+				5BAF202F152F2B47003E2AC3 /* Foundation.framework */,
+				5BAF2030152F2B47003E2AC3 /* OpenAL.framework */,
+				5BAF2031152F2B47003E2AC3 /* OpenGLES.framework */,
+				5BAF2032152F2B47003E2AC3 /* QuartzCore.framework */,
+				5BAF2033152F2B47003E2AC3 /* UIKit.framework */,
 			);
-			name = GamePlay;
-			sourceTree = "<group>";
-		};
-		7632D13C169656CA00266BE7 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				7632D141169656CA00266BE7 /* libgameplay.a */,
-				7632D143169656CA00266BE7 /* libgameplay.a */,
-			);
-			name = Products;
+			name = iOS;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		42C932BB1491A0DB0098216A /* MutationPlanet-macosx */ = {
+		4217005D14697FF100A45C02 /* MutationPlanet-macosx */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 42C932DA1491A0DB0098216A /* Build configuration list for PBXNativeTarget "MutationPlanet-macosx" */;
+			buildConfigurationList = 4217007C14697FF200A45C02 /* Build configuration list for PBXNativeTarget "MutationPlanet-macosx" */;
 			buildPhases = (
-				42C932B81491A0DB0098216A /* Sources */,
-				42C932B91491A0DB0098216A /* Frameworks */,
-				42C933301491A7B50098216A /* ShellScript */,
-				42C932BA1491A0DB0098216A /* Resources */,
+				4217005A14697FF100A45C02 /* Sources */,
+				4217005B14697FF100A45C02 /* Frameworks */,
+				422446691471626D0021F131 /* ShellScript */,
+				4217005C14697FF100A45C02 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = "MutationPlanet-macosx";
-			productName = MutationPlanet;
-			productReference = 42C932BC1491A0DB0098216A /* MutationPlanet-macosx.app */;
+			productName = "sample00-mesh";
+			productReference = 4217005E14697FF100A45C02 /* MutationPlanet-macosx.app */;
 			productType = "com.apple.product-type.application";
 		};
-		5B61611414CCC24C0073B857 /* MutationPlanet-ios */ = {
+		5B04C5CF14BFE1A200EB0071 /* MutationPlanet-ios */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5B61612914CCC24C0073B857 /* Build configuration list for PBXNativeTarget "MutationPlanet-ios" */;
+			buildConfigurationList = 5B04C5E314BFE1A200EB0071 /* Build configuration list for PBXNativeTarget "MutationPlanet-ios" */;
 			buildPhases = (
-				5B61611514CCC24C0073B857 /* Sources */,
-				5B61611714CCC24C0073B857 /* Frameworks */,
-				5B61612414CCC24C0073B857 /* ShellScript */,
-				5B61612514CCC24C0073B857 /* Resources */,
+				5B04C5D014BFE1A200EB0071 /* Sources */,
+				5B04C5D214BFE1A200EB0071 /* Frameworks */,
+				5B04C5DF14BFE1A200EB0071 /* ShellScript */,
+				5B04C5E014BFE1A200EB0071 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = "MutationPlanet-ios";
-			productName = MutationPlanet;
-			productReference = 5B61612C14CCC24C0073B857 /* MutationPlanet-ios.app */;
+			productName = "sample00-mesh";
+			productReference = 5B04C5E614BFE1A200EB0071 /* MutationPlanet-ios.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		42C932B31491A0DB0098216A /* Project object */ = {
+		4217005514697FF100A45C02 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0430;
 			};
-			buildConfigurationList = 42C932B61491A0DB0098216A /* Build configuration list for PBXProject "MutationPlanet" */;
+			buildConfigurationList = 4217005814697FF100A45C02 /* Build configuration list for PBXProject "MutationPlanet" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 			);
-			mainGroup = 42C932B11491A0DB0098216A;
-			productRefGroup = 42C932BD1491A0DB0098216A /* Products */;
+			mainGroup = 4217005314697FF100A45C02;
+			productRefGroup = 4217005F14697FF100A45C02 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 7632D13C169656CA00266BE7 /* Products */;
-					ProjectRef = 5BC4E77F150F879E00CBE1C0 /* gameplay.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
-				42C932BB1491A0DB0098216A /* MutationPlanet-macosx */,
-				5B61611414CCC24C0073B857 /* MutationPlanet-ios */,
+				4217005D14697FF100A45C02 /* MutationPlanet-macosx */,
+				5B04C5CF14BFE1A200EB0071 /* MutationPlanet-ios */,
 			);
 		};
 /* End PBXProject section */
 
-/* Begin PBXReferenceProxy section */
-		7632D141169656CA00266BE7 /* libgameplay.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libgameplay.a;
-			remoteRef = 7632D140169656CA00266BE7 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		7632D143169656CA00266BE7 /* libgameplay.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libgameplay.a;
-			remoteRef = 7632D142169656CA00266BE7 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
-
 /* Begin PBXResourcesBuildPhase section */
-		42C932BA1491A0DB0098216A /* Resources */ = {
+		4217005C14697FF100A45C02 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				42C932EE1491A4CB0098216A /* icon.png in Resources */,
-				428F7BDE15CB131A009ED24C /* game.config in Resources */,
-				42C932F31491A53E0098216A /* res in Resources */,
+				42CCD4B4146D914B00353661 /* icon.png in Resources */,
+				42B7027815B0B278002BB8C3 /* game.config in Resources */,
+				42A3C5DE146C96640091C1E4 /* res in Resources */,
+				760EF1D616A9E7A400AFF1F2 /* MutationPlanet-macosx.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5B61612514CCC24C0073B857 /* Resources */ = {
+		5B04C5E014BFE1A200EB0071 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5B61612614CCC24C0073B857 /* icon.png in Resources */,
-				5B61612714CCC24C0073B857 /* res in Resources */,
+				5B04C5E214BFE1A200EB0071 /* icon.png in Resources */,
+				42B7027915B0B278002BB8C3 /* game.config in Resources */,
+				5B04C5E114BFE1A200EB0071 /* res in Resources */,
+				760EF1D416A9E79900AFF1F2 /* MutationPlanet-ios.plist in Resources */,
+				76E91FAE16AF12050091D6E5 /* icon72.png in Resources */,
+				76E91FB016AF120C0091D6E5 /* icon144.png in Resources */,
+				7670340116AF7D0400FC77EF /* Default-Landscape~ipad.png in Resources */,
+				7670340416AF7E8300FC77EF /* Default-Landscape@2x~ipad.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		42C933301491A7B50098216A /* ShellScript */ = {
+		422446691471626D0021F131 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -415,9 +381,9 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cp -rf ../gameplay/res/shaders ${SRCROOT}/res\ncp -rf ../gameplay/res/logo_powered_white.png ${SRCROOT}/res\ntouch -cm ${SRCROOT}/res";
+			shellScript = "cp -rf ${SRCROOT}/../gameplay/gameplay/res/logo_powered_white.png ${SRCROOT}/res\ncp -rf ${SRCROOT}/../gameplay/gameplay/res/shaders ${SRCROOT}/res\ntouch -cm ${SRCROOT}/res";
 		};
-		5B61612414CCC24C0073B857 /* ShellScript */ = {
+		5B04C5DF14BFE1A200EB0071 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -428,51 +394,51 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cp -rf ../gameplay/res/shaders ${SRCROOT}/res\ncp -rf ../gameplay/res/logo_powered_white.png ${SRCROOT}/res\ntouch -cm ${SRCROOT}/res";
+			shellScript = "cp -rf ${SRCROOT}/../gameplay/gameplay/res/logo_powered_white.png ${SRCROOT}/res\ncp -rf ${SRCROOT}/../gameplay/gameplay/res/shaders ${SRCROOT}/res\ntouch -cm ${SRCROOT}/res";
 		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		42C932B81491A0DB0098216A /* Sources */ = {
+		4217005A14697FF100A45C02 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7632D15C16966B5300266BE7 /* Agent.cpp in Sources */,
-				7632D15E16966B5300266BE7 /* arcball.cpp in Sources */,
-				7632D16016966B5300266BE7 /* InstructionSet.cpp in Sources */,
-				7632D16216966B5300266BE7 /* Main.cpp in Sources */,
-				7632D16416966B5300266BE7 /* Parameters.cpp in Sources */,
-				7632D16816966B5300266BE7 /* SpherePointFinderSpaceDivison.cpp in Sources */,
-				7632D16A16966B5300266BE7 /* SphereWorld.cpp in Sources */,
-				7632D16C16966B5300266BE7 /* UtilsGenome.cpp in Sources */,
-				7632D16E16966B5300266BE7 /* UtilsRandom.cpp in Sources */,
+				763611B416AA4496005BAF5A /* Agent.cpp in Sources */,
+				763611B616AA4496005BAF5A /* arcball.cpp in Sources */,
+				763611B816AA4496005BAF5A /* InstructionSet.cpp in Sources */,
+				763611BA16AA4496005BAF5A /* Main.cpp in Sources */,
+				763611BC16AA4496005BAF5A /* Parameters.cpp in Sources */,
+				763611BE16AA4496005BAF5A /* SpherePointFinderSpaceDivison.cpp in Sources */,
+				763611C016AA4496005BAF5A /* SphereWorld.cpp in Sources */,
+				763611C216AA4496005BAF5A /* UtilsGenome.cpp in Sources */,
+				763611C416AA4496005BAF5A /* UtilsRandom.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5B61611514CCC24C0073B857 /* Sources */ = {
+		5B04C5D014BFE1A200EB0071 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7632D15D16966B5300266BE7 /* Agent.cpp in Sources */,
-				7632D15F16966B5300266BE7 /* arcball.cpp in Sources */,
-				7632D16116966B5300266BE7 /* InstructionSet.cpp in Sources */,
-				7632D16316966B5300266BE7 /* Main.cpp in Sources */,
-				7632D16516966B5300266BE7 /* Parameters.cpp in Sources */,
-				7632D16916966B5300266BE7 /* SpherePointFinderSpaceDivison.cpp in Sources */,
-				7632D16B16966B5300266BE7 /* SphereWorld.cpp in Sources */,
-				7632D16D16966B5300266BE7 /* UtilsGenome.cpp in Sources */,
-				7632D16F16966B5300266BE7 /* UtilsRandom.cpp in Sources */,
+				763611B516AA4496005BAF5A /* Agent.cpp in Sources */,
+				763611B716AA4496005BAF5A /* arcball.cpp in Sources */,
+				763611B916AA4496005BAF5A /* InstructionSet.cpp in Sources */,
+				763611BB16AA4496005BAF5A /* Main.cpp in Sources */,
+				763611BD16AA4496005BAF5A /* Parameters.cpp in Sources */,
+				763611BF16AA4496005BAF5A /* SpherePointFinderSpaceDivison.cpp in Sources */,
+				763611C116AA4496005BAF5A /* SphereWorld.cpp in Sources */,
+				763611C316AA4496005BAF5A /* UtilsGenome.cpp in Sources */,
+				763611C516AA4496005BAF5A /* UtilsRandom.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		42C932D81491A0DB0098216A /* Debug */ = {
+		4217007A14697FF200A45C02 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -484,150 +450,178 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				GENERATE_PKGINFO_FILE = YES;
-				INFOPLIST_FILE = "MutationPlanet-macosx.plist";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = NO;
+				GCC_WARN_UNUSED_VARIABLE = NO;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				SHARED_PRECOMPS_DIR = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				VALID_ARCHS = "armv7 i386 x86_64 armv6";
 			};
 			name = Debug;
 		};
-		42C932D91491A0DB0098216A /* Release */ = {
+		4217007B14697FF200A45C02 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				GENERATE_PKGINFO_FILE = YES;
-				INFOPLIST_FILE = "MutationPlanet-macosx.plist";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = NO;
+				GCC_WARN_UNUSED_VARIABLE = NO;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				SHARED_PRECOMPS_DIR = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				VALID_ARCHS = "armv7 i386 x86_64 armv6";
 			};
 			name = Release;
 		};
-		42C932DB1491A0DB0098216A /* Debug */ = {
+		4217007D14697FF200A45C02 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ENABLE_OPENMP_SUPPORT = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
-				GCC_WARN_UNUSED_VARIABLE = NO;
+				GCC_PREFIX_HEADER = "";
 				HEADER_SEARCH_PATHS = (
-					../gameplay/src,
-					"../external-deps/libpng/include",
-					"../external-deps/bullet/include",
-					"../external-deps/oggvorbis/include",
-					"../external-deps/lua/include",
+					../GamePlay/gameplay/src,
+					"../GamePlay/external-deps/lua/include",
+					"../GamePlay/external-deps/libpng/include",
+					"../GamePlay/external-deps/bullet/include",
+					"../GamePlay/external-deps/oggvorbis/include",
 				);
-				INFOPLIST_FILE = "MutationPlanet-macosx.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/MutationPlanet-macosx.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"../external-deps/libpng/lib/macosx\"",
-					"\"../external-deps/bullet/lib/macosx\"",
-					"\"../external-deps/oggvorbis/lib/macosx\"",
+					"\"$(SRCROOT)/../GamePlay/external-deps/lua/lib/macosx\"",
+					"\"$(SRCROOT)/../GamePlay/external-deps/libpng/lib/macosx\"",
+					"\"$(SRCROOT)/../GamePlay/external-deps/bullet/lib/macosx\"",
+					"\"$(SRCROOT)/../GamePlay/external-deps/oggvorbis/lib/macosx\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SHARED_PRECOMPS_DIR = "";
+				SUPPORTED_PLATFORMS = macosx;
+				USER_HEADER_SEARCH_PATHS = "";
+				VALID_ARCHS = "i386 x86_64";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		4217007E14697FF200A45C02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ENABLE_OPENMP_SUPPORT = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
+				HEADER_SEARCH_PATHS = (
+					../GamePlay/gameplay/src,
+					"../GamePlay/external-deps/lua/include",
+					"../GamePlay/external-deps/libpng/include",
+					"../GamePlay/external-deps/bullet/include",
+					"../GamePlay/external-deps/oggvorbis/include",
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/MutationPlanet-macosx.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../GamePlay/external-deps/lua/lib/macosx\"",
+					"\"$(SRCROOT)/../GamePlay/external-deps/libpng/lib/macosx\"",
+					"\"$(SRCROOT)/../GamePlay/external-deps/bullet/lib/macosx\"",
+					"\"$(SRCROOT)/../GamePlay/external-deps/oggvorbis/lib/macosx\"",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SHARED_PRECOMPS_DIR = "";
+				SUPPORTED_PLATFORMS = macosx;
+				USER_HEADER_SEARCH_PATHS = "";
+				VALID_ARCHS = "i386 x86_64";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		5B04C5E414BFE1A200EB0071 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_OPENMP_SUPPORT = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
+				HEADER_SEARCH_PATHS = (
+					../gameplay/gameplay/src,
+					"../gameplay/external-deps/lua/include",
+					"../gameplay/external-deps/libpng/include",
+					"../gameplay/external-deps/bullet/include",
+					"../gameplay/external-deps/oggvorbis/include",
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/MutationPlanet-ios.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../GamePlay/external-deps/lua/lib/ios/$(CURRENT_ARCH)\"",
+					"\"$(SRCROOT)/../GamePlay/external-deps/libpng/lib/ios/$(CURRENT_ARCH)\"",
+					"\"$(SRCROOT)/../GamePlay/external-deps/bullet/lib/ios/$(CURRENT_ARCH)\"",
+					"\"$(SRCROOT)/../GamePlay/external-deps/oggvorbis/lib/ios/$(CURRENT_ARCH)\"",
+				);
+				OTHER_LDFLAGS = "-ObjC++";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				SDKROOT = iphoneos;
+				SHARED_PRECOMPS_DIR = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = 2;
 				USER_HEADER_SEARCH_PATHS = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
 		};
-		42C932DC1491A0DB0098216A /* Release */ = {
+		5B04C5E514BFE1A200EB0071 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_OPENMP_SUPPORT = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
-				GCC_WARN_UNUSED_VARIABLE = NO;
+				GCC_PREFIX_HEADER = "";
 				HEADER_SEARCH_PATHS = (
-					../gameplay/src,
-					"../external-deps/libpng/include",
-					"../external-deps/bullet/include",
-					"../external-deps/oggvorbis/include",
-					"../external-deps/lua/include",
+					../gameplay/gameplay/src,
+					"../gameplay/external-deps/lua/include",
+					"../gameplay/external-deps/libpng/include",
+					"../gameplay/external-deps/bullet/include",
+					"../gameplay/external-deps/oggvorbis/include",
 				);
-				INFOPLIST_FILE = "MutationPlanet-macosx.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/MutationPlanet-ios.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"../external-deps/libpng/lib/macosx\"",
-					"\"../external-deps/bullet/lib/macosx\"",
-					"\"../external-deps/oggvorbis/lib/macosx\"",
+					"\"$(SRCROOT)/../GamePlay/external-deps/lua/lib/ios/$(CURRENT_ARCH)\"",
+					"\"$(SRCROOT)/../GamePlay/external-deps/libpng/lib/ios/$(CURRENT_ARCH)\"",
+					"\"$(SRCROOT)/../GamePlay/external-deps/bullet/lib/ios/$(CURRENT_ARCH)\"",
+					"\"$(SRCROOT)/../GamePlay/external-deps/oggvorbis/lib/ios/$(CURRENT_ARCH)\"",
 				);
+				OTHER_LDFLAGS = "-ObjC++";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "";
-				WRAPPER_EXTENSION = app;
-			};
-			name = Release;
-		};
-		5B61612A14CCC24C0073B857 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
-				GCC_WARN_UNUSED_VARIABLE = NO;
-				HEADER_SEARCH_PATHS = (
-					../gameplay/src,
-					"../external-deps/libpng/include",
-					"../external-deps/bullet/include",
-					"../external-deps/oggvorbis/include",
-					"../external-deps/lua/include",
-				);
-				INFOPLIST_FILE = "MutationPlanet-ios.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"../external-deps/libpng/lib/ios/$(CURRENT_ARCH)\"",
-					"\"../external-deps/bullet/lib/ios/$(CURRENT_ARCH)\"",
-					"\"../external-deps/oggvorbis/lib/ios/$(CURRENT_ARCH)\"",
-				);
+				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "";
-				WRAPPER_EXTENSION = app;
-			};
-			name = Debug;
-		};
-		5B61612B14CCC24C0073B857 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
-				GCC_WARN_UNUSED_VARIABLE = NO;
-				HEADER_SEARCH_PATHS = (
-					../gameplay/src,
-					"../external-deps/libpng/include",
-					"../external-deps/bullet/include",
-					"../external-deps/oggvorbis/include",
-					"../external-deps/lua/include",
-				);
-				INFOPLIST_FILE = "MutationPlanet-ios.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"../external-deps/libpng/lib/ios/$(CURRENT_ARCH)\"",
-					"\"../external-deps/bullet/lib/ios/$(CURRENT_ARCH)\"",
-					"\"../external-deps/oggvorbis/lib/ios/$(CURRENT_ARCH)\"",
-				);
-				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				SHARED_PRECOMPS_DIR = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = 2;
 				USER_HEADER_SEARCH_PATHS = "";
 				WRAPPER_EXTENSION = app;
 			};
@@ -636,34 +630,34 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		42C932B61491A0DB0098216A /* Build configuration list for PBXProject "MutationPlanet" */ = {
+		4217005814697FF100A45C02 /* Build configuration list for PBXProject "MutationPlanet" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				42C932D81491A0DB0098216A /* Debug */,
-				42C932D91491A0DB0098216A /* Release */,
+				4217007A14697FF200A45C02 /* Debug */,
+				4217007B14697FF200A45C02 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		42C932DA1491A0DB0098216A /* Build configuration list for PBXNativeTarget "MutationPlanet-macosx" */ = {
+		4217007C14697FF200A45C02 /* Build configuration list for PBXNativeTarget "MutationPlanet-macosx" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				42C932DB1491A0DB0098216A /* Debug */,
-				42C932DC1491A0DB0098216A /* Release */,
+				4217007D14697FF200A45C02 /* Debug */,
+				4217007E14697FF200A45C02 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5B61612914CCC24C0073B857 /* Build configuration list for PBXNativeTarget "MutationPlanet-ios" */ = {
+		5B04C5E314BFE1A200EB0071 /* Build configuration list for PBXNativeTarget "MutationPlanet-ios" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				5B61612A14CCC24C0073B857 /* Debug */,
-				5B61612B14CCC24C0073B857 /* Release */,
+				5B04C5E414BFE1A200EB0071 /* Debug */,
+				5B04C5E514BFE1A200EB0071 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 42C932B31491A0DB0098216A /* Project object */;
+	rootObject = 4217005514697FF100A45C02 /* Project object */;
 }

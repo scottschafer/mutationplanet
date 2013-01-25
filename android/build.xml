@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="MutationPlanet" default="help">
+<project name="MeshGame" default="help">
 
     <!-- The local.properties file is created and updated by the 'android' tool.
          It contains the path to the SDK. It should *NOT* be checked into
@@ -62,10 +62,20 @@
        If this is not done in place, override ${out.dex.input.absolute.dir} */
        -->
     <target name="-post-compile">
-        <copy file="../res/box.gpb" tofile="assets/res/box.gpb"/>
-        <copy file="../res/box.material" tofile="assets/res/box.material"/>
-        <copy file="../res/colored.vert" tofile="assets/res/colored.vert"/>
-        <copy file="../res/colored.frag" tofile="assets/res/colored.frag"/>
+        <copy file="../game.config" tofile="assets/game.config"/>
+        <copy file="../res/arial40.gpb" tofile="assets/res/arial40.gpb"/>
+        <copy file="../res/duck.gpb" tofile="assets/res/duck.gpb"/>
+        <copy file="../res/duck.material" tofile="assets/res/duck.material"/>
+        <copy file="../res/duck-diffuse.png" tofile="assets/res/duck-diffuse.png"/>
+        <copy file="../res/grid.material" tofile="assets/res/grid.material"/>
+        <copy file="../../../gameplay/res/shaders/textured.vert" tofile="assets/res/shaders/textured.vert"/>
+        <copy file="../../../gameplay/res/shaders/textured.frag" tofile="assets/res/shaders/textured.frag"/>
+        <copy file="../../../gameplay/res/shaders/colored-unlit.vert" tofile="assets/res/shaders/colored-unlit.vert"/>
+        <copy file="../../../gameplay/res/shaders/colored-unlit.frag" tofile="assets/res/shaders/colored-unlit.frag"/>
+        <copy file="../../../gameplay/res/logo_powered_white.png" tofile="assets/res/logo_powered_white.png"/>
+        <copy todir="assets/res/shaders/lib">
+            <fileset dir="../../../gameplay/res/shaders/lib"/>
+        </copy>
     </target>
 
     <!-- Import the actual build file.

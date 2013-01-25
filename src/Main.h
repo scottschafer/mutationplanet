@@ -88,7 +88,8 @@ protected:
 
     void setBarriers(int type, bool bOn);
     
-    void reset();
+    void resetWorld();
+    void resetParameters();
     void insertCritter();
     
 private:
@@ -115,7 +116,8 @@ private:
     
     Font* _font;
 
-    Button * _resetButton;
+    Button * _resetWorldButton;
+    Button * _resetParametersButton;
     Button * _insertButton;
     Button * _helpButton;
     

@@ -147,8 +147,8 @@ int SpherePointFinderSpaceDivision::getNearbyEntities(Vector3 pt, float distance
                     Vector3 testPt = pEntity->mLocation;
                     
                     float d = calcDistance(pt, testPt);
-                    if (d ==0)
-                        continue;
+                    //if (d ==0)
+                    //    continue;
                     if (d < distance)
                     {
                         *pResultArray++ = pEntity;

@@ -28,28 +28,58 @@ float Parameters::getMoveDistance()
     return .005 + (float) cellSize * .002;
 }
 
-    // global
-int Parameters :: speed = 8;
-int Parameters :: mutationPercent = 2;
+void Parameters :: reset()
+{
+    mutationPercent = 3;
+    cycleEnergyCost = 1;
+    moveEnergyCost = 1;
+    moveAndEatEnergyCost = 7;
+    photoSynthesizeEnergyGain = 3.5;
+    digestionEfficiency = .8f;
+    deadCellDormancy = 1000;
+    baseSpawnEnergy = 0;
+    extraSpawnEnergyPerSegment = 250;
+    sleepTimeAfterBeingSpawned = 200;
+    
+    baseLifespan = 5000;
+    extraLifespanPerSegment = 2500;
+    cellSize = 5;
+    cyclesForMove = 1;
+    allowSelfOverlap = true;
+    lookDistance = 10;
+    
+    sleepTime = 20;
+}
 
-    // energy cost / gain
-float Parameters :: cycleEnergyCost = 1;
-float Parameters :: moveEnergyCost = .5;
-float Parameters :: moveAndEatEnergyCost = 7;
-float Parameters :: photoSynthesizeEnergyGain = 4;
-    
-    // spawn energy
-float Parameters :: baseSpawnEnergy = 200;
-float Parameters :: extraSpawnEnergyPerSegment = 100;
-    
-    // lifespan
-float Parameters :: baseLifespan = 2000;
-float Parameters :: extraLifespanPerSegmnet = 100;
-    
-    // moving
-float Parameters :: cellSize = 5;
-int Parameters :: cyclesForMove = 2;
-bool Parameters:: allowSelfOverlap = true;
+// global
+int Parameters :: speed = 10;
+int Parameters :: mutationPercent;
 
-    // looking
-int Parameters :: lookDistance = 10;
+// energy cost / gain
+float Parameters :: cycleEnergyCost;
+float Parameters :: moveEnergyCost;
+float Parameters :: moveAndEatEnergyCost;
+float Parameters :: photoSynthesizeEnergyGain;
+float Parameters :: digestionEfficiency;
+int Parameters :: deadCellDormancy;
+
+// spawn energy
+float Parameters :: baseSpawnEnergy;
+float Parameters :: extraSpawnEnergyPerSegment;
+int Parameters :: sleepTimeAfterBeingSpawned;
+
+// lifespan
+float Parameters :: baseLifespan;
+float Parameters :: extraLifespanPerSegment;
+
+// moving
+float Parameters :: cellSize;
+int Parameters :: cyclesForMove;
+bool Parameters:: allowSelfOverlap;
+
+// looking
+int Parameters :: lookDistance;
+
+// sleep
+int Parameters :: sleepTime;
+

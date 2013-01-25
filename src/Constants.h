@@ -15,7 +15,6 @@ enum {
     MAX_GENOME_LENGTH = 15,
     MAX_AGENTS = 10000,
     NUM_SUBDIVISIONS = 80,
-    SLEEP_TIME = 4,
     TURN_ANGLE = 30,
     HARD_TURN_ANGLE = 90
 };

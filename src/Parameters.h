@@ -18,6 +18,7 @@ class Parameters
 {
 public:
     static float getMoveDistance();
+    static void reset();
     
     // global
     static int speed;
@@ -29,14 +30,17 @@ public:
     static float moveAndEatEnergyCost;
     static float moveEnergyCost;
     static float photoSynthesizeEnergyGain;
+    static float digestionEfficiency;
+    static int deadCellDormancy;
     
-    // spawn energy
+    // spawning
     static float baseSpawnEnergy;
     static float extraSpawnEnergyPerSegment;
+    static int sleepTimeAfterBeingSpawned;
     
     // lifespan
     static float baseLifespan;
-    static float extraLifespanPerSegmnet;
+    static float extraLifespanPerSegment;
     
     // moving
     static int cyclesForMove;
@@ -44,5 +48,8 @@ public:
     
     // looking
     static int lookDistance;
+    
+    // sleep
+    static int sleepTime;
 };
 #endif /* defined(__BioSphere__Parameters__) */

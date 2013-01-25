@@ -51,6 +51,7 @@ public:
     // spawning
     bool    mAllowMutate;
     Vector3 mSpawnLocation;
+    int     mSleepTimeAfterBeingSpawned;
 
     // moving
     Vector3 mMoveVector;
