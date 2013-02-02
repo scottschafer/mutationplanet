@@ -113,18 +113,18 @@ void Agent::step(SphereWorld * pWorld)
     if (mSleep == -1) // send me off to sleep forever more...
         return;
     
-    if (mSleep)
-    {
-        // zzzz
-        --mSleep;
-        return;
-    }
-
     --mLifespan;
     if (mLifespan <= 0)
     {
         // death from age
         die(pWorld);
+        return;
+    }
+
+    if (mSleep)
+    {
+        // zzzz
+        --mSleep;
         return;
     }
     
@@ -143,7 +143,6 @@ void Agent::step(SphereWorld * pWorld)
             move(pWorld, (s.mType == eInstructionMoveAndEat));
             int extraCycles = Parameters::cyclesForMove - 1;
             mSleep += extraCycles;
-            //mEnergy -= extraCycles * Parameters::cycleEnergyCost;
             break; }
             
         case eInstructionTurnLeft:
@@ -202,7 +201,7 @@ void Agent::step(SphereWorld * pWorld)
         die(pWorld);
 }
 
-void Agent :: die(SphereWorld *pWorld)
+void Agent :: die(SphereWorld *pWorld, bool andBecomeFood)
 {
     // after dying, turn into food
     float energyPerSegment = .5 * getSpawnEnergy() / (float)mNumSegments;
@@ -213,20 +212,23 @@ void Agent :: die(SphereWorld *pWorld)
             foodPoints.push_back(mSegments[i].mLocation);
     pWorld->killAgent(mIndex);
     
-    for (int i = 0; i < foodPoints.size(); i++)
+    if (andBecomeFood)
     {
-        Agent *pNewAgent = pWorld->createEmptyAgent();
-        if (pNewAgent)
+        for (int i = 0; i < foodPoints.size(); i++)
         {
-            pNewAgent->initialize(foodPoints[i], "*", mAllowMutate);
-            pWorld->addAgentToWorld(pNewAgent);
-            
-            // The food left by a dead critter will be low energy Photosynthesize critters.
-            //
-            // They will initially be dormant, but will eventually spring to life
-            // if they aren't eaten.
-            pNewAgent->mEnergy = energyPerSegment;
-            pNewAgent->mSleep = Parameters::deadCellDormancy;
+            Agent *pNewAgent = pWorld->createEmptyAgent();
+            if (pNewAgent)
+            {
+                pNewAgent->initialize(foodPoints[i], "*", mAllowMutate);
+                pWorld->addAgentToWorld(pNewAgent);
+                
+                // The food left by a dead critter will be low energy Photosynthesize critters.
+                //
+                // They will initially be dormant, but will eventually spring to life
+                // if they aren't eaten.
+                pNewAgent->mEnergy = energyPerSegment;
+                pNewAgent->mSleep = Parameters::deadCellDormancy;
+            }
         }
     }
 }
@@ -257,6 +259,7 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
     float moveDistance = Parameters::getMoveDistance();
     int numEntities = pWorld->getNearbyEntities(newLocation, moveDistance, entities);
 
+    bool ate = false;
     for (int i = 0; i < numEntities; i++)
     {
         Agent *pAgent = entities[i]->mAgent;
@@ -289,7 +292,9 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
             if (andEat && pEntity->mType == eInstructionPhotosynthesize)
             {
                 // we moved onto a photosynthesize segment through a move and eat instruction, so chomp!
-                mEnergy += pAgent->mEnergy * Parameters::digestionEfficiency;
+                if (! ate) // only gain the energy from one eating per turn
+                    mEnergy += pAgent->mEnergy * Parameters::digestionEfficiency;
+                ate = true;
                 pWorld->killAgent(pAgent->mIndex);
             }
             else
@@ -327,6 +332,13 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
                 mSegments[i].mIsOccluded = true;
         }
     }
+    
+    // offset the spawn location a bit so the child isn't right up against the parent's tail
+    Vector3 spawnLocationOffset = mSpawnLocation - mSegments[mNumSegments-1].mLocation;
+    mSpawnLocation.x += spawnLocationOffset.x / 10.0f;
+    mSpawnLocation.y += spawnLocationOffset.y / 10.0f;
+    mSpawnLocation.z += spawnLocationOffset.z / 10.0f;
+    mSpawnLocation.normalize();
 
     // we might be able to spawn
     spawnIfAble(pWorld);
@@ -429,12 +441,19 @@ void Agent::spawnIfAble(SphereWorld * pWorld)
         if (numEntities > 8)
         {
             // if there are a lot of entities in the vicinity, then we are shaded and cannot
-            // reproduce right now...
+            // reproduce right now.
+            
+            mEnergy = getSpawnEnergy() - 1;
+            mSleep = 5000;
+            
+//            die(pWorld,false);
+            
+            /*
             
             for (int i = 0; i < mNumSegments; i++)
-                mSegments[i].mIsOccluded = true; // all segments are shaded until they move
+                mSegments[i].mIsOccluded = true;
 
-            mEnergy = getSpawnEnergy() - 1;
+             */
             return;
         }
     }
@@ -457,6 +476,8 @@ void Agent::spawnIfAble(SphereWorld * pWorld)
         // split the energy with the offspring
         mEnergy = pNewAgent->mEnergy = getSpawnEnergy() / 2;
         pWorld->addAgentToWorld(pNewAgent);
+        if (! pNewAgent->mIsMotile)
+            pNewAgent->mEnergy = 0;
         pNewAgent->mSleep = Parameters::sleepTimeAfterBeingSpawned;
     }
 }

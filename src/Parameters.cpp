@@ -25,34 +25,34 @@
 
 float Parameters::getMoveDistance()
 {
-    return .005 + (float) cellSize * .002;
+    return .004 + (float) cellSize * .004;
 }
 
 void Parameters :: reset()
 {
-    mutationPercent = 3;
+    mutationPercent = 5;
     cycleEnergyCost = 1;
-    moveEnergyCost = 1;
-    moveAndEatEnergyCost = 7;
-    photoSynthesizeEnergyGain = 3.5;
-    digestionEfficiency = .8f;
-    deadCellDormancy = 1000;
-    baseSpawnEnergy = 0;
-    extraSpawnEnergyPerSegment = 250;
-    sleepTimeAfterBeingSpawned = 200;
+    moveEnergyCost = .5;
+    moveAndEatEnergyCost = 10;//6;
+    photoSynthesizeEnergyGain = 10;//8;
+    digestionEfficiency = 1.0f;
+    deadCellDormancy = 5000;
+    baseSpawnEnergy = 500;
+    extraSpawnEnergyPerSegment = 500;
+    sleepTimeAfterBeingSpawned = 0;
     
-    baseLifespan = 5000;
-    extraLifespanPerSegment = 2500;
+    baseLifespan = 3000;
+    extraLifespanPerSegment = 3000;
     cellSize = 5;
-    cyclesForMove = 1;
+    cyclesForMove = 2;
     allowSelfOverlap = true;
-    lookDistance = 10;
+    lookDistance = 7;
     
-    sleepTime = 20;
+    sleepTime = 10;
 }
 
 // global
-int Parameters :: speed = 10;
+int Parameters :: speed = 8;
 int Parameters :: mutationPercent;
 
 // energy cost / gain

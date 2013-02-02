@@ -66,7 +66,8 @@ protected:
     
     void createControlHeader(Form *form, std::string text,
                              Vector2 pos = Vector2(-1,-1),
-                             Vector2 size = Vector2(-1,-1));
+                             Vector2 size = Vector2(-1,-1),
+                             Vector4 textColor = Vector4(.5,.5,.5,1));
 
     Slider * createSliderControl(Form *form, std::string id, std::string label, float minValue, float maxValue, float step = 0);
 
@@ -126,6 +127,7 @@ private:
     CheckBox * _barriers3;
 
     CheckBox * _showAdvanced;
+    CheckBox * _colorCodeSpecies;
     Slider* _speedSlider;
     Slider* _mutationSlider;
     Slider* _cellSizeSlider;

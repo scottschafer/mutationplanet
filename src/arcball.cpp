@@ -117,11 +117,10 @@ void    ArcBall::drag(Vector2 pt, Quaternion* NewRot)
     //Return the quaternion equivalent to the rotation
     if (NewRot)
     {
-        Vector3  Perp (StVec);
-        Perp.cross(EnVec);
-        
         //Compute the vector perpendicular to the begin and end vectors
         //Vector3fCross(&Perp, &this->StVec, &this->EnVec);
+        Vector3  Perp (StVec);
+        Perp.cross(EnVec);
         
         //Compute the length of the perpendicular vector
         if (Perp.length() > Epsilon)    //if its non-zero
@@ -132,7 +131,7 @@ void    ArcBall::drag(Vector2 pt, Quaternion* NewRot)
             NewRot->z = Perp.z;
             //In the quaternion values, w is cosine (theta / 2), where theta is rotation angle
             
-            NewRot->w = StVec.dot(EnVec); //Vector3fDot(&this->StVec, &this->EnVec);
+            NewRot->w = StVec.dot(EnVec);
         }
         else                                    //if its zero
         {

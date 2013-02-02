@@ -11,7 +11,7 @@
 
 
 enum {
-    MAX_SEGMENTS = 15,
+    MAX_SEGMENTS = 15,  
     MAX_GENOME_LENGTH = 15,
     MAX_AGENTS = 10000,
     NUM_SUBDIVISIONS = 80,
@@ -19,6 +19,6 @@ enum {
     HARD_TURN_ANGLE = 90
 };
 
-const float SPAWN_SPREAD = .04;
+const float SPAWN_SPREAD = .06;
 
 #endif

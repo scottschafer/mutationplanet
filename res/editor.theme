@@ -28,12 +28,12 @@ theme biosphere
 
         image minCap
         {
-            region = 3, 99, 8, 22
+            region = 3, 99, 8, 24
         }
 
         image maxCap
         {
-            region = 3, 99, 8, 22
+            region = 3, 99, 8, 24
         }
 
         image marker
@@ -119,9 +119,9 @@ theme biosphere
             skin = mainNormal
             imageList = normalImages
 
-            font = res/arialblack22.gpb
+            font = res/arialnarrow24.gpb
             textColor = #ffffffff
-            fontSize = 22
+            fontSize = 24
             textAlignment = ALIGN_BOTTOM_HCENTER
         }
 
@@ -149,8 +149,8 @@ theme biosphere
 
         stateNormal
         {
-            font = res/arialblack22.gpb
-            fontSize = 22
+            font = res/arialnarrow24.gpb
+            fontSize = 24
         }
 
         stateActive
@@ -164,9 +164,9 @@ theme biosphere
         stateNormal
         {
             imageList = normalImages
-            font = res/arialblack22.gpb
+            font = res/arialnarrow24.gpb
             textColor = #ffffffff
-            fontSize = 22
+            fontSize = 24
             textAlignment = ALIGN_BOTTOM_HCENTER
         }
 
@@ -181,15 +181,15 @@ theme biosphere
     {
         stateNormal
         {
-            font = res/arialblack22.gpb
-            fontSize = 22
+            font = res/arialnarrow24.gpb
+            fontSize = 24
             textAlignment = ALIGN_VCENTER_LEFT
         }
 
         stateActive
         {
-            font = res/arialblack22.gpb
-            fontSize = 22
+            font = res/arialnarrow24.gpb
+            fontSize = 24
             textAlignment = ALIGN_VCENTER_LEFT
         }
     }
@@ -205,8 +205,8 @@ theme biosphere
         stateNormal
         {
             textColor = #ffffffff
-            font = res/arialblack22.gpb
-            fontSize = 22
+            font = res/arialnarrow24.gpb
+            fontSize = 24
             textAlignment = ALIGN_TOP_HCENTER
         }
 

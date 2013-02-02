@@ -47,7 +47,9 @@ enum
     iHelpClose,
     
     iSpriteSphere,
+    
     iActiveSegment,
+    iGenericSegment,
     iSegmentFrame,
     iMoveArrow
 };
@@ -63,6 +65,45 @@ float totalElapsedTime = 0;
 // the world runs in a different thread than the UI
 pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
 bool threadAlive = false;
+
+/**
+ * When useGenomeColorMapping is on, draw critters with the same genome i the same color. This makes it easier
+ * to visualize the dominance of one particular genome.
+ */
+bool useGenomeColorMapping = false;
+
+Vector4 getColorForGenome(const char *pGenome);
+Vector4 getColorForGenome(const char *pGenome)
+{
+    if (strlen(pGenome) == 1 && *pGenome == eInstructionPhotosynthesize)
+        return Vector4(0,1,0,1);
+    
+    static std::map<std::string, Vector4> assignedColors;
+    static std::vector<Vector4> colors;
+
+    if (assignedColors.size() == 0)
+        for (float r = .4; r <= 1; r += .3)
+            for (float g = .4; g <= 1; g += .3)
+                for (float b = .4; b <= 1; b += .3)
+                    if (r != 0 || g != 1 || b != 0)
+                        colors.push_back(Vector4(r,g,b,1));
+    
+    static int colorIndex = 0;
+    
+    std::string genome(pGenome);
+    Vector4 result;
+    if (assignedColors.find(genome) == assignedColors.end())
+    {
+        result = colors[colorIndex];
+        assignedColors[genome] = result;
+        colorIndex = (colorIndex + 1) % colors.size();
+    }
+    else
+    {
+        result = assignedColors[genome];
+    }
+    return result;
+}
 
 Main::Main()
 {
@@ -113,8 +154,8 @@ void * Main :: threadFunction(void*)
             pthread_mutex_lock( &mutex1 );
             world.step();
             pthread_mutex_unlock( &mutex1 );
-            uint sleepTime = 10 * (10 - Parameters::speed);
-            sleepTime *= sleepTime * sleepTime;
+            uint sleepTime = 50 * (10 - Parameters::speed);
+            sleepTime *= sleepTime;
             
             if (sleepTime)
                 usleep(sleepTime);
@@ -128,14 +169,9 @@ void * Main :: threadFunction(void*)
  **/
 void Main::initialize()
 {
-    // Display the gameplay splash screen for at least 1 second.
-    displayScreen(this, &Main::drawSplash, NULL, 2000L);
-    
     registerGesture(Gesture::GestureEvent(Gesture::GESTURE_PINCH));
     
-    mViewRotateMatrix.identity();
-    
-    _font = Font::create("res/modata18.gpb");
+    _font = Font::create("res/Modata18.gpb");
     
     InstructionSet::reset();
     createUI();
@@ -149,9 +185,10 @@ void Main::initialize()
     mSegmentBatch[iHelpPage4] = SpriteBatch::create("res/help/HelpPage4.png");
     mSegmentBatch[iHelpPage5] = SpriteBatch::create("res/help/HelpPage5.png");
     mSegmentBatch[iHelpClose] = SpriteBatch::create("res/help/close.png");
-    
+
     mSegmentBatch[iSpriteSphere] = SpriteBatch::create("res/sphere.png");
     mSegmentBatch[iActiveSegment] = SpriteBatch::create("res/ActiveSegment.png");
+    mSegmentBatch[iGenericSegment] = SpriteBatch::create("res/segment.png");
     mSegmentBatch[iSegmentFrame] = SpriteBatch::create("res/segmentFrame.png");
     mSegmentBatch[iMoveArrow] = SpriteBatch::create("res/MoveArrow.png");
     
@@ -375,7 +412,7 @@ void Main::render(float elapsedTime)
     // Clear the color and depth buffers
     clear(CLEAR_COLOR_DEPTH, Vector4::zero(), 1.0f, 0);
     
-    for (int i = iSpriteSphere; i < 255; i++)
+    for (int i = iActiveSegment; i < 255; i++)
         if (mSegmentBatch[i])
             mSegmentBatch[i]->start();
     
@@ -391,7 +428,9 @@ void Main::render(float elapsedTime)
     
     _arcball.setBounds(mRenderSphereSize, mRenderSphereSize);
     
+    mSegmentBatch[iSpriteSphere]->start();
     mSegmentBatch[iSpriteSphere]->draw(Rectangle(mSphereOffsetX, mSphereOffsetY, mRenderSphereSize, mRenderSphereSize), Rectangle(0,0,1024,1024));
+    mSegmentBatch[iSpriteSphere]->finish();
     
     // once a second, determine the top critters
     bool sampleCritters = false;
@@ -418,7 +457,7 @@ void Main::render(float elapsedTime)
     // ornaments
     for (int pass = 1; pass <= 2; pass++)
     {
-        if (pass == 2 && mViewScale < 2)
+        if (pass == 2 && mViewScale < 1.5)
             break;
         
         for (int i = 0; i <= world.mMaxLiveAgentIndex; i++)
@@ -436,39 +475,58 @@ void Main::render(float elapsedTime)
                 for (int j = agent.mNumSegments-1; j >= 0; j--)
                 {
                     SphereEntity *pEntity = &agent.mSegments[j];
+                    
+                    bool isPhotosynthesize = pEntity->mType == eInstructionPhotosynthesize;
+                    
                     Vector3 pt = pEntity->mLocation;
+
                     mViewRotateMatrix.transformPoint(&pt);
                     Matrix viewScaleMatrix;
-                    viewScaleMatrix.scale(mViewScale);
-                    viewScaleMatrix.transformPoint(&pt);
+                    pt.x *= mViewScale;
+                    pt.y *= mViewScale;
+                    pt.z *= mViewScale;
                     
                     if (pt.z < 0)
                         continue; // cheap backface clipping
                     
                     // we use an orthogonal projection, but with some fakery to make it look more 3D
-                    float cellSize = Parameters::getMoveDistance() * pt.z * 480;
+                    float cellSize = Parameters::getMoveDistance() * pt.z * 400 + 3;
                     float x = ((pt.x) * (pt.z/5 + 1)) * .98;
                     float y = ((pt.y) * (pt.z/5 + 1)) * .98;
                     Rectangle dst = Rectangle(offsetX + renderSize * (x + 1) / 2 - cellSize / 2,
                                               offsetY + renderSize * (y + 1) / 2 - cellSize / 2,
                                               cellSize, cellSize);
                     
-                    SpriteBatch * pBatch = mSegmentBatch[pEntity->mType];
-                    
-                    Rectangle src = Rectangle(0,0,
-                                              pBatch->getSampler()->getTexture()->getWidth(), pBatch->getSampler()->getTexture()->getHeight());
-                    
                     float alpha = 1;
                     if (agent.mStatus == eAlive)
                         alpha = (float)agent.mEnergy/(float)agent.getSpawnEnergy();
+                    Vector4 color(1,1,1, alpha);
+                    
+                    SpriteBatch * pBatch;
+                    if (useGenomeColorMapping && agent.mStatus == eAlive && ! isPhotosynthesize)
+                    {
+                        pBatch = mSegmentBatch[iGenericSegment];
+                        color = getColorForGenome(agent.mGenome);
+                        alpha = 1;
+                    }
+                    else
+                    {
+                        pBatch = mSegmentBatch[pEntity->mType];
+                    }
+
+                    Rectangle src = Rectangle(0,0,
+                                              pBatch->getSampler()->getTexture()->getWidth(), pBatch->getSampler()->getTexture()->getHeight());
+                    
                     
                     if (pass == 1)
-                        pBatch->draw(dst, src, Vector4(1,1,1, alpha));
+                    {
+                        pBatch->draw(dst, src, color);
+                    }
                     
                     // if we're zoomed in, show an indicator around the active cell
-                    if ((pass == 2) && (agent.mNumSegments > 1))
+                    if (pass == 2)
                     {
-                        if (j == (agent.mActiveSegment /* + agent.mNumSegments - 1 */) % agent.mNumSegments)
+                        if ((agent.mNumSegments > 1) && (j == (agent.mActiveSegment) % agent.mNumSegments))
                         {
                             pBatch = mSegmentBatch[iActiveSegment];
                             src = Rectangle(0,0,
@@ -532,10 +590,15 @@ void Main::render(float elapsedTime)
             float y = 40 + 20 * i;
             
             sprintf(buf, "%d", gTopSpecies[i].second);
-            _font->drawText(buf, x, y, Vector4(1,1,1,1));
+            const char *pGenome = gTopSpecies[i].first.c_str();
+            Vector4 drawColor(1,1,1,1);
+            if (useGenomeColorMapping)
+            {
+                drawColor = getColorForGenome(pGenome);
+            }
+            _font->drawText(buf, x, y, drawColor);
             
             x -= 40;
-            const char *pGenome = gTopSpecies[i].first.c_str();
             int len = strlen(pGenome);
             for (int j = (len - 1); j >= 0; j--)
             {
@@ -559,8 +622,9 @@ void Main::render(float elapsedTime)
             _font->drawText(buf,  getWidth()-200, getHeight() - 25, Vector4(1,1,1,1));
         }
     }
-    
-    for (int i = iSpriteSphere; i < 255; i++)
+    _font->finish();
+
+    for (int i = iActiveSegment; i < 255; i++)
         if (mSegmentBatch[i])
             mSegmentBatch[i]->finish();
     
@@ -574,7 +638,6 @@ void Main::render(float elapsedTime)
     renderInsertCritter();
     renderHelp();
     
-    _font->finish();
 }
 
 /**
@@ -713,31 +776,34 @@ void Main::touchEvent(Touch::TouchEvent evt, int x, int y, unsigned int contactI
     }
     
     static bool down = false;
-    static int lastX, lastY;
     
-    static Matrix rotateMatrix;
-    static Matrix initialViewMatrix;
+    static Quaternion initialRotation;
+    static Quaternion lastDragRotation;
     
     Vector2 sphereDisplayPoint(x - mSphereOffsetX, mRenderSphereSize - (y - mSphereOffsetY));
     switch (evt)
     {
         case Touch::TOUCH_PRESS:
-            gTouchStartViewScale = mViewScale;
-            _arcball.click(sphereDisplayPoint);
-            rotateMatrix.identity();
-            initialViewMatrix = mViewRotateMatrix;
+            if (! down)
+            {
+                gTouchStartViewScale = mViewScale;
+                _arcball.click(sphereDisplayPoint);
+                down = true;
+            }
             break;
             
         case Touch::TOUCH_RELEASE:
             down = false;
+            initialRotation = lastDragRotation;
             break;
             
         case Touch::TOUCH_MOVE: {
             gameplay::Quaternion q;
             _arcball.drag(sphereDisplayPoint, &q);
-            Matrix::createRotation(q, &rotateMatrix);
-            rotateMatrix.multiply(initialViewMatrix);
-            mViewRotateMatrix = rotateMatrix;
+            
+            q.multiply(initialRotation);
+            lastDragRotation = q;
+            Matrix::createRotation(q, &mViewRotateMatrix);
             break; }
     };
 }
@@ -762,13 +828,13 @@ void Main::gesturePinchEvent(int x, int y, float scale)
 void Main::createUI()
 {
     // Create main form
-    _formMain = createForm(320, 330);
+    _formMain = createForm(335, 340);
     _formMain->setPosition(4, 8);
     
     _cellSizeSlider = createSliderControl(_formMain, "cellSize", "Cell size:", 1, 10, 1);
     _speedSlider = createSliderControl(_formMain, "speed", "Speed:", 0, 10, 1);
     _mutationSlider = createSliderControl(_formMain, "mutation", "Mutation:", 0, 10);
-    createSpacer(_formMain, 15);
+    createSpacer(_formMain, 5);
     _barriers1 = createCheckboxControl(_formMain, "Barriers #1");
     _barriers2 = createCheckboxControl(_formMain, "Barriers #2");
     
@@ -780,7 +846,7 @@ void Main::createUI()
     _insertButton = createButton(_formMain, "Insert...");
     
     // Create advanced form, optionally shown
-    _formAdvanced = createForm(320, 375);
+    _formAdvanced = createForm(335, 375);
     _formAdvanced->setPosition(_formAdvanced->getX() + 4, 365);
     
     createControlHeader(_formAdvanced, "Energy cost / gain");
@@ -790,8 +856,7 @@ void Main::createUI()
     _moveAndEatEnergyCostSlider = createSliderControl(_formAdvanced, "moveAndEatEnergyCost", "Move & eat:", 0, 15);
     
     createControlHeader(_formAdvanced,"Energy to spawn");
-//    _baseSpawnEnergySlider = createSliderControl(_formAdvanced,"baseSpawnEnergy", "Base:", 50, 500);
-    _extraSpawnEnergyPerSegmentSlider = createSliderControl(_formAdvanced,"extraSpawnEnergyPerSegment", "Per cell:", 50, 500);
+    _extraSpawnEnergyPerSegmentSlider = createSliderControl(_formAdvanced,"extraSpawnEnergyPerSegment", "Per cell:", 50, 1000);
     
     createControlHeader(_formAdvanced,"Other");
     _lookDistanceSlider = createSliderControl(_formAdvanced,"lookDistance", "Vision range:", 1, 15);
@@ -803,12 +868,15 @@ void Main::createUI()
     _formAdvanced->setConsumeInputEvents(false);
     
     _formHelp = Form::create("res/editor.form");
-    _formHelp->setPosition(720, 700);
+    _formHelp->setPosition(720, 660);
     Theme::Style * pNoBorder = _formHelp->getTheme()->getStyle("noBorder");
     _formHelp->setStyle(pNoBorder);
     _formHelp->getControl("main")->setStyle(pNoBorder);
     
     _helpButton = createButton(_formHelp, "What is this?");
+    _colorCodeSpecies = createCheckboxControl(_formHelp, "Color-code species");
+    _colorCodeSpecies->setFontSize(30);
+    _colorCodeSpecies->setTextAlignment(Font::ALIGN_VCENTER);
     
     // create insert critter form
     _formInsertCritter = createForm(900, 310, false);
@@ -817,18 +885,16 @@ void Main::createUI()
     
     _formInsertCritter->setPosition(_formInsertCritter->getX(), -_formInsertCritter->getY());
     
-    createControlHeader(_formInsertCritter, "Click on the instructions to build your critter, then press Insert",
-                        Vector2(10,20), Vector2(900, 40));
     
-    mInsertOK = createButton(_formInsertCritter, "Insert x 500", "", Vector2(590,230), Vector2(150, 40));
+    mInsertOK = createButton(_formInsertCritter, "Insert x 500", "", Vector2(560,230), Vector2(180, 40));
     mInsertCancel = createButton(_formInsertCritter, "Cancel", "", Vector2(740,230), Vector2(120, 40));
-    mInsertCritterGenome = createContainer(_formInsertCritter, true, Vector2(20,80), Vector2(720, 56));
-    mInsertClear = createButton(_formInsertCritter, "Clear", "", Vector2(755,88), Vector2(80, 40));
+    mInsertCritterGenome = createContainer(_formInsertCritter, true, Vector2(20,20), Vector2(720, 56));
+    mInsertClear = createButton(_formInsertCritter, "Clear", "", Vector2(755,28), Vector2(80, 40));
     
     set<char> availableInstructions = InstructionSet::getAllAvailableInstructions();
     
     float x = 20;
-    float y = 150;
+    float y = 80;
     for (set<char>::iterator i = availableInstructions.begin(); i != availableInstructions.end(); i++)
     {
         string s;
@@ -839,6 +905,9 @@ void Main::createUI()
         x += 60;
     }
     
+    createControlHeader(_formInsertCritter, "Click on the instructions above to build your genome, then press 'Insert x 500'.\nClick on 'What is this?' for a full description of each instruction.",
+                        Vector2(40,140), Vector2(900, 60), Vector4(1,1,1,1));
+
     setControlValues();
     updateControlLabels();
 }
@@ -895,7 +964,9 @@ void Main::controlEvent(Control* control, EventType evt)
             break;
             
         case Listener::VALUE_CHANGED:
-            if (control == _speedSlider)
+            if (control == _colorCodeSpecies)
+                useGenomeColorMapping = _colorCodeSpecies->isChecked();
+            else if (control == _speedSlider)
                 Parameters::speed = _speedSlider->getValue();
             else if (control == _mutationSlider)
                 Parameters::mutationPercent = _mutationSlider->getValue();
@@ -984,8 +1055,8 @@ void Main::setControlValues()
 /**
  * Methods for programmatically creating the UI
  */
-#define LABEL_WIDTH 150
-#define SLIDER_WIDTH 100
+#define LABEL_WIDTH 120
+#define SLIDER_WIDTH 150
 
 Form * Main :: createForm(float width, float height, bool isLayoutVertical)
 {
@@ -993,14 +1064,13 @@ Form * Main :: createForm(float width, float height, bool isLayoutVertical)
     
     Container *pMainContainer = (Container*)result->getControl("main");
     pMainContainer->setSkinColor(Vector4(0,0,0,1));
-    //    result->setMargin(2,2,2,2);
     
     result->setSize(width, height);
     pMainContainer->setSize(width, height - 20);
     return result;
 }
 
-void Main :: createControlHeader(Form *form, std::string text, Vector2 pos, Vector2 size)
+void Main :: createControlHeader(Form *form, std::string text, Vector2 pos, Vector2 size, Vector4 textColor)
 {
     Theme::Style * pNoBorder = form->getTheme()->getStyle("noBorder");
     
@@ -1009,7 +1079,7 @@ void Main :: createControlHeader(Form *form, std::string text, Vector2 pos, Vect
     if (size.x == -1)
     {
         size.x = 300;
-        size.y = pMainContainer->getControls().size() ? 40 : 25;
+        size.y = pMainContainer->getControls().size() ? 30 : 20;
     }
     
     Label *pLabel = Label::create("", pNoBorder);
@@ -1018,6 +1088,7 @@ void Main :: createControlHeader(Form *form, std::string text, Vector2 pos, Vect
     pLabel->setTextAlignment(Font::ALIGN_BOTTOM_LEFT);
     pLabel->setText(text.c_str());
     pLabel->setSize(size.x, size.y);
+    pLabel->setTextColor(textColor);
     
     if (pos.x != -1)
         pLabel->setPosition(pos.x, pos.y);
@@ -1062,26 +1133,26 @@ Slider * Main :: createSliderControl(Form *form, std::string id, std::string lab
     Container *pMainContainer = (Container*)form->getControl("main");
     pContainer->setZIndex(pMainContainer->getControls().size());
     pMainContainer->addControl(pContainer);
-    pContainer->setSize(300, 30);
+    pContainer->setSize(350, 35);
     
     Label *pLabel = Label::create("", pNoBorder);
     pContainer->addControl(pLabel);
-    pLabel->setTextAlignment(Font::ALIGN_BOTTOM_LEFT);
+    pLabel->setTextAlignment(Font::ALIGN_TOP_LEFT);
     pLabel->setText(label.c_str());
-    pLabel->setSize(LABEL_WIDTH, 30);
+    pLabel->setSize(LABEL_WIDTH, 35);
     pLabel->setPosition(5, 0);
     
     Slider *pSlider = Slider::create(id.c_str(), pNoBorder);
     pContainer->addControl(pSlider);
-    pSlider->setSize(SLIDER_WIDTH, 30);
-    pSlider->setPosition(LABEL_WIDTH,0);
+    pSlider->setSize(SLIDER_WIDTH, 35);
+    pSlider->setPosition(LABEL_WIDTH,-8);
     pSlider->setMin(minValue);
     pSlider->setMax(maxValue);
     pSlider->setStep(step);
     
     Label *pValueLabel = Label::create((id + "Label").c_str(), pNoBorder);
     pContainer->addControl(pValueLabel);
-    pValueLabel->setTextAlignment(Font::ALIGN_BOTTOM_LEFT);
+    pValueLabel->setTextAlignment(Font::ALIGN_TOP_LEFT);
     pValueLabel->setSize(60, 30);
     pValueLabel->setPosition(SLIDER_WIDTH + LABEL_WIDTH, 0);
     
@@ -1126,7 +1197,7 @@ Button * Main :: createButton(Form *form, std::string label, const char * id, Ve
     
     if (size.x == -1)
     {
-        size.x = 280;
+        size.x = 285;
         size.y = 40;
     }
     

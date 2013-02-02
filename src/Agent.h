@@ -31,7 +31,7 @@ public:
     void initialize(Vector3 pt, const char *pGenome, bool allowMutation);
     void step(SphereWorld * pWorld);
 
-    void die(SphereWorld *pWorld);
+    void die(SphereWorld *pWorld, bool andBecomeFood = true);
     
     void move(SphereWorld *pWorld, bool andEat);
     void turn(int angle);
