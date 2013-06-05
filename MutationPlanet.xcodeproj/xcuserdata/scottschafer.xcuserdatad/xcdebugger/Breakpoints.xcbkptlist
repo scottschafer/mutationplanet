@@ -8,12 +8,12 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "src/Main.cpp"
-         timestampString = "379964411.657518"
+         timestampString = "388457001.301874"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "740"
-         endingLineNumber = "740"
-         landmarkName = "Main::gesturePinchEvent(int x, int y, float scale)"
+         startingLineNumber = "749"
+         endingLineNumber = "749"
+         landmarkName = "Main::keyEvent(Keyboard::KeyEvent evt, int key)"
          landmarkType = "5">
       </FileBreakpoint>
       <FileBreakpoint
@@ -21,12 +21,12 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "src/Main.cpp"
-         timestampString = "379964411.657518"
+         timestampString = "388457001.301874"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "717"
-         endingLineNumber = "717"
-         landmarkName = "Main::touchEvent(Touch::TouchEvent evt, int x, int y, unsigned int contactIndex)"
+         startingLineNumber = "726"
+         endingLineNumber = "726"
+         landmarkName = "Main::renderHelp()"
          landmarkType = "5">
       </FileBreakpoint>
       <FileBreakpoint
@@ -34,12 +34,12 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "src/Main.cpp"
-         timestampString = "379964411.657518"
+         timestampString = "388457001.301874"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "724"
-         endingLineNumber = "724"
-         landmarkName = "Main::touchEvent(Touch::TouchEvent evt, int x, int y, unsigned int contactIndex)"
+         startingLineNumber = "733"
+         endingLineNumber = "733"
+         landmarkName = "Main::renderHelp()"
          landmarkType = "5">
       </FileBreakpoint>
       <FileBreakpoint
@@ -60,11 +60,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "src/Main.cpp"
-         timestampString = "379964411.657518"
+         timestampString = "388457001.301874"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "558"
-         endingLineNumber = "558"
+         startingLineNumber = "567"
+         endingLineNumber = "567"
          landmarkName = "Main::render(float elapsedTime)"
          landmarkType = "5">
       </FileBreakpoint>
@@ -73,11 +73,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "src/Main.cpp"
-         timestampString = "379964411.657518"
+         timestampString = "388457001.301874"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "559"
-         endingLineNumber = "559"
+         startingLineNumber = "568"
+         endingLineNumber = "568"
          landmarkName = "Main::render(float elapsedTime)"
          landmarkType = "5">
       </FileBreakpoint>
@@ -86,37 +86,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "src/Main.cpp"
-         timestampString = "379964411.657518"
+         timestampString = "388457001.301874"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "865"
-         endingLineNumber = "865"
-         landmarkName = "Main::controlEvent(Control* control, EventType evt)"
-         landmarkType = "5">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "src/Main.cpp"
-         timestampString = "379964411.657518"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "340"
-         endingLineNumber = "340"
-         landmarkName = "Main::update(float elapsedTime)"
-         landmarkType = "5">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "src/Main.cpp"
-         timestampString = "379964411.657518"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "802"
-         endingLineNumber = "802"
+         startingLineNumber = "874"
+         endingLineNumber = "874"
          landmarkName = "Main::createUI()"
          landmarkType = "5">
       </FileBreakpoint>
@@ -125,12 +99,38 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "src/Main.cpp"
-         timestampString = "379964411.657518"
+         timestampString = "388457001.301874"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "343"
-         endingLineNumber = "343"
-         landmarkName = "Main::update(float elapsedTime)"
+         startingLineNumber = "349"
+         endingLineNumber = "349"
+         landmarkName = "Main :: setBarriers(int type, bool bOn)"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "src/Main.cpp"
+         timestampString = "388457001.301874"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "811"
+         endingLineNumber = "811"
+         landmarkName = "Main::touchEvent(Touch::TouchEvent evt, int x, int y, unsigned int contactIndex)"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "src/Main.cpp"
+         timestampString = "388457001.301874"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "352"
+         endingLineNumber = "352"
+         landmarkName = "Main :: setBarriers(int type, bool bOn)"
          landmarkType = "5">
       </FileBreakpoint>
       <FileBreakpoint
@@ -151,37 +151,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "src/Main.cpp"
-         timestampString = "379964411.657518"
+         timestampString = "388457001.301874"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "807"
-         endingLineNumber = "807"
-         landmarkName = "Main::createUI()"
-         landmarkType = "5">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "src/Main.cpp"
-         timestampString = "379964411.657518"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "824"
-         endingLineNumber = "824"
-         landmarkName = "Main::createUI()"
-         landmarkType = "5">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "src/Main.cpp"
-         timestampString = "379964411.657518"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "686"
-         endingLineNumber = "686"
+         startingLineNumber = "816"
+         endingLineNumber = "816"
          landmarkName = "Main::touchEvent(Touch::TouchEvent evt, int x, int y, unsigned int contactIndex)"
          landmarkType = "5">
       </FileBreakpoint>
@@ -190,12 +164,38 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "src/Main.cpp"
-         timestampString = "379964411.657518"
+         timestampString = "388457001.301874"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "674"
-         endingLineNumber = "674"
-         landmarkName = "Main::touchEvent(Touch::TouchEvent evt, int x, int y, unsigned int contactIndex)"
+         startingLineNumber = "833"
+         endingLineNumber = "833"
+         landmarkName = "Main::gesturePinchEvent(int x, int y, float scale)"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "src/Main.cpp"
+         timestampString = "388457001.301874"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "695"
+         endingLineNumber = "695"
+         landmarkName = "Main::renderInsertCritter()"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "src/Main.cpp"
+         timestampString = "388457001.301874"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "683"
+         endingLineNumber = "683"
+         landmarkName = "Main::renderInsertCritter()"
          landmarkType = "5">
       </FileBreakpoint>
       <FileBreakpoint

@@ -55,6 +55,7 @@ protected:
     void renderInsertCritter();
     void renderHelp();
     
+    Rectangle scaleUI(Rectangle);
     /**
      * @see Control::controlEvent
      */
@@ -98,6 +99,7 @@ private:
     void drawSplash(void* param);
 
 private:
+    float mUIScale;
     ArcBall _arcball;
     pthread_t mThread;
     

@@ -15,7 +15,7 @@
 /**   09/23/2003 - (TJG) - Bug fix and optimization         **/
 /**   09/25/2003 - (TJG) - Version for NeHe Basecode users  **/
 /**                                                         **/
-/**   12/28/2012 - sss, adapted for gameplay
+/**   12/28/2012 - sss, adapted for gameplay                **/
 /*************************************************************/
 /*
  MIT License:
@@ -39,6 +39,7 @@
  THE SOFTWARE.
  */
 
+#include "gameplay.h"
 #include "arcball.h"
 
 //Arcball sphere constants:

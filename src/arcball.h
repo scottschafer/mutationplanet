@@ -21,8 +21,6 @@
 #ifndef _ArcBall_h
 #define _ArcBall_h
 
-#include "gameplay.h"
-
 using namespace gameplay;
 
 class ArcBall

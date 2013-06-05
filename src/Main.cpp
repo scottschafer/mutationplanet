@@ -35,6 +35,7 @@
 #include "UtilsRandom.h"
 #include <pthread.h>
 #include "Parameters.h"
+#include "ScalableSlider.h"
 
 // indexes of special graphics in our mSegmentBatch array
 enum
@@ -110,10 +111,7 @@ Main::Main()
     mIsShowingHelp = mShowingInsertCritter = false;
     mViewScale = 1;
     Parameters::reset();
-    
-    mHelpPageRect = Rectangle(0, -140, 1024, 1024);
-    mHelpCloseRect =  Rectangle(950, 12, 40, 40);
-    
+        
     memset(mSegmentBatch, 0, sizeof(mSegmentBatch));
     for (int i = 0; i < sizeof(world.mAgents)/sizeof(world.mAgents[0]); i++)
     {
@@ -164,14 +162,25 @@ void * Main :: threadFunction(void*)
     return NULL;
 }
 
+Rectangle Main::scaleUI(Rectangle r)
+{
+    return Rectangle(mUIScale*r.x, mUIScale*r.y, mUIScale * r.width, mUIScale * r.height);
+}
+
+
 /**
  Initialize the UI, resources and kick off the world's logic thread
  **/
 void Main::initialize()
 {
+    mUIScale = this->getWidth() / 1024;
+    
+    mHelpPageRect = Rectangle(0, -140 * mUIScale, 1024 * mUIScale, 1024 * mUIScale);
+    mHelpCloseRect =  Rectangle(950 * mUIScale, 12 * mUIScale, 40 * mUIScale, 40 * mUIScale);
+
     registerGesture(Gesture::GestureEvent(Gesture::GESTURE_PINCH));
     
-    _font = Font::create("res/Modata18.gpb");
+    _font = Font::create((mUIScale == 1) ? "res/modata18.gpb" : "res/modata36.gpb");
     
     InstructionSet::reset();
     createUI();
@@ -196,8 +205,8 @@ void Main::initialize()
     
     mSegmentBatch[eInstructionMoveAndEat] = SpriteBatch::create("res/segment_M.png");
     mSegmentBatch[eInstructionMove] = SpriteBatch::create("res/segment_n.png");
-    mSegmentBatch[eInstructionTurnLeft] = SpriteBatch::create("res/segment_<.png");
-    mSegmentBatch[eInstructionTurnRight] = SpriteBatch::create("res/segment_>.png");
+    mSegmentBatch[eInstructionTurnLeft] = SpriteBatch::create("res/segment_lt.png");
+    mSegmentBatch[eInstructionTurnRight] = SpriteBatch::create("res/segment_rt.png");
     mSegmentBatch[eInstructionHardTurnLeft] = SpriteBatch::create("res/segment_[.png");
     mSegmentBatch[eInstructionHardTurnRight] = SpriteBatch::create("res/segment_].png");
     mSegmentBatch[eInstructionSleep] = SpriteBatch::create("res/segment_Z.png");
@@ -490,7 +499,7 @@ void Main::render(float elapsedTime)
                         continue; // cheap backface clipping
                     
                     // we use an orthogonal projection, but with some fakery to make it look more 3D
-                    float cellSize = Parameters::getMoveDistance() * pt.z * 400 + 3;
+                    float cellSize = (Parameters::getMoveDistance() * pt.z * 400 + 3)  * mUIScale;
                     float x = ((pt.x) * (pt.z/5 + 1)) * .98;
                     float y = ((pt.y) * (pt.z/5 + 1)) * .98;
                     Rectangle dst = Rectangle(offsetX + renderSize * (x + 1) / 2 - cellSize / 2,
@@ -578,7 +587,7 @@ void Main::render(float elapsedTime)
     
     if (! mIsShowingHelp)
     {
-        _font->drawText("Top Species", getWidth()-180, 10, Vector4(1,1,1,1));
+        _font->drawText("Top Species", getWidth()-180 * mUIScale, 10 * mUIScale, Vector4(1,1,1,1));
         
         // draw the top species
         for (int i = 0; i < gTopSpecies.size(); i++)
@@ -586,8 +595,8 @@ void Main::render(float elapsedTime)
             if (i == 32)
                 break;
             char buf[200];
-            float x = getWidth()-50;
-            float y = 40 + 20 * i;
+            float x = getWidth()-50 * mUIScale;
+            float y = mUIScale * (40 + 20 * i);
             
             sprintf(buf, "%d", gTopSpecies[i].second);
             const char *pGenome = gTopSpecies[i].first.c_str();
@@ -598,7 +607,7 @@ void Main::render(float elapsedTime)
             }
             _font->drawText(buf, x, y, drawColor);
             
-            x -= 40;
+            x -= 40 * mUIScale;
             int len = strlen(pGenome);
             for (int j = (len - 1); j >= 0; j--)
             {
@@ -606,9 +615,9 @@ void Main::render(float elapsedTime)
                 SpriteBatch * pBatch = mSegmentBatch[ch];
                 Rectangle src(0,0,
                               pBatch->getSampler()->getTexture()->getWidth(), pBatch->getSampler()->getTexture()->getHeight());
-                Rectangle dst(x, y, 16, 16);
+                Rectangle dst(x, y, 16 * mUIScale, 16 * mUIScale);
                 pBatch->draw(dst, src);
-                x -= 18;
+                x -= 18 * mUIScale;
             }
         }
         
@@ -618,8 +627,8 @@ void Main::render(float elapsedTime)
         if (gTurnsPerSecond > 0)
         {
             char buf[200];
-            sprintf(buf, "Turns/sec: %d", (int) gTurnsPerSecond);
-            _font->drawText(buf,  getWidth()-200, getHeight() - 25, Vector4(1,1,1,1));
+            sprintf(buf, "Turns/sec: %d, FPS: %d", (int) gTurnsPerSecond, (int)this->getFrameRate());
+            _font->drawText(buf, getWidth()-250 * mUIScale, getHeight() - 25 * mUIScale, Vector4(1,1,1,1));
         }
     }
     _font->finish();
@@ -660,15 +669,15 @@ void Main::renderInsertCritter()
                           pBatch->getSampler()->getTexture()->getWidth(), pBatch->getSampler()->getTexture()->getHeight());
             
             Rectangle dst = pButton->getBounds();
-            dst.x += _formInsertCritter->getX() + 20;
-            dst.y += _formInsertCritter->getY() + 18;
-            dst.inflate(-6,-6);
+            dst.x += _formInsertCritter->getX() + 20 * mUIScale;
+            dst.y += _formInsertCritter->getY() + 18 * mUIScale;
+            dst.inflate(-6 * mUIScale,-6 * mUIScale);
             pBatch->draw(dst, src);
         }
         
-        float x = mInsertCritterGenome->getX() + _formInsertCritter->getX() + 24;
-        float y = mInsertCritterGenome->getY() + _formInsertCritter->getY() + 20;
-        float w = 5 + mInsertCritterGenome->getWidth() / MAX_GENOME_LENGTH;
+        float x = mInsertCritterGenome->getX() + _formInsertCritter->getX() + 24 * mUIScale;
+        float y = mInsertCritterGenome->getY() + _formInsertCritter->getY() + 20 * mUIScale;
+        float w = 5 * mUIScale + mInsertCritterGenome->getWidth() / MAX_GENOME_LENGTH;
         for (string::iterator i = mInsertGenome.begin(); i != mInsertGenome.end(); i++)
         {
             SpriteBatch * pBatch = mSegmentBatch[*i];
@@ -676,10 +685,10 @@ void Main::renderInsertCritter()
                           pBatch->getSampler()->getTexture()->getWidth(), pBatch->getSampler()->getTexture()->getHeight());
             
             Rectangle dst(x, y, w, w);
-            dst.inflate(-6, -6);
+            dst.inflate(-6 * mUIScale, -6 * mUIScale);
             pBatch->draw(dst, src);
             
-            x += w - 6;
+            x += w - 6 * mUIScale;
         }
         
         for (int i = iSpriteSphere; i < 255; i++)
@@ -829,7 +838,7 @@ void Main::createUI()
 {
     // Create main form
     _formMain = createForm(335, 340);
-    _formMain->setPosition(4, 8);
+    _formMain->setPosition(4 * mUIScale, 8 * mUIScale);
     
     _cellSizeSlider = createSliderControl(_formMain, "cellSize", "Cell size:", 1, 10, 1);
     _speedSlider = createSliderControl(_formMain, "speed", "Speed:", 0, 10, 1);
@@ -846,8 +855,8 @@ void Main::createUI()
     _insertButton = createButton(_formMain, "Insert...");
     
     // Create advanced form, optionally shown
-    _formAdvanced = createForm(335, 375);
-    _formAdvanced->setPosition(_formAdvanced->getX() + 4, 365);
+    _formAdvanced = createForm(330, 380);
+    _formAdvanced->setPosition(_formAdvanced->getX() + 4 * mUIScale, 365 * mUIScale);
     
     createControlHeader(_formAdvanced, "Energy cost / gain");
     // _cycleEnergyCostSlider = createSliderControl(_formAdvanced, "cycleEnergyCost", "Cycle:", .5, 2);
@@ -868,20 +877,24 @@ void Main::createUI()
     _formAdvanced->setConsumeInputEvents(false);
     
     _formHelp = Form::create("res/editor.form");
-    _formHelp->setPosition(720, 660);
+    _formHelp->setPosition(720 * mUIScale, 660 * mUIScale);
+    
+    _formHelp->setSize(getWidth() - (unsigned int)_formHelp->getX(), getHeight() - (unsigned int)_formHelp->getY());
+    Control * pHelpMain = _formHelp->getControl("main");
+    pHelpMain->setSize(_formHelp->getWidth(), _formHelp->getHeight());
     Theme::Style * pNoBorder = _formHelp->getTheme()->getStyle("noBorder");
     _formHelp->setStyle(pNoBorder);
     _formHelp->getControl("main")->setStyle(pNoBorder);
     
     _helpButton = createButton(_formHelp, "What is this?");
     _colorCodeSpecies = createCheckboxControl(_formHelp, "Color-code species");
-    _colorCodeSpecies->setFontSize(30);
+    _colorCodeSpecies->setFontSize(30 * mUIScale);
     _colorCodeSpecies->setTextAlignment(Font::ALIGN_VCENTER);
     
     // create insert critter form
     _formInsertCritter = createForm(900, 310, false);
-    _formInsertCritter->setPosition((1024 - _formInsertCritter->getWidth()) / 2,
-                                    (768 - _formInsertCritter->getHeight()) / 2);
+    _formInsertCritter->setPosition((getWidth() - _formInsertCritter->getWidth()) / 2,
+                                    (getHeight() - _formInsertCritter->getHeight()) / 2);
     
     _formInsertCritter->setPosition(_formInsertCritter->getX(), -_formInsertCritter->getY());
     
@@ -1055,8 +1068,8 @@ void Main::setControlValues()
 /**
  * Methods for programmatically creating the UI
  */
-#define LABEL_WIDTH 120
-#define SLIDER_WIDTH 150
+#define LABEL_WIDTH 130
+#define SLIDER_WIDTH 140
 
 Form * Main :: createForm(float width, float height, bool isLayoutVertical)
 {
@@ -1065,8 +1078,21 @@ Form * Main :: createForm(float width, float height, bool isLayoutVertical)
     Container *pMainContainer = (Container*)result->getControl("main");
     pMainContainer->setSkinColor(Vector4(0,0,0,1));
     
-    result->setSize(width, height);
-    pMainContainer->setSize(width, height - 20);
+    result->setSize(width * mUIScale, height * mUIScale);
+    pMainContainer->setSize(width * mUIScale, (height - 20) * mUIScale);
+    pMainContainer->setPosition(pMainContainer->getX() * mUIScale, pMainContainer->getY() * mUIScale);
+    {
+        const Theme::Margin& m = pMainContainer->getMargin();
+        pMainContainer->setMargin(m.top * mUIScale, m.bottom * mUIScale, m.left * mUIScale, m.right * mUIScale);
+        const Theme::Border& b = pMainContainer->getBorder();
+        pMainContainer->setBorder(b.top * mUIScale, b.bottom * mUIScale, b.left * mUIScale, b.right * mUIScale);
+    }
+    {
+        const Theme::Margin& m = result->getMargin();
+        result->setMargin(m.top * mUIScale, m.bottom * mUIScale, m.left * mUIScale, m.right * mUIScale);
+        const Theme::Border& b = result->getBorder();
+        result->setBorder(b.top * mUIScale, b.bottom * mUIScale, b.left * mUIScale, b.right * mUIScale);
+    }
     return result;
 }
 
@@ -1079,19 +1105,20 @@ void Main :: createControlHeader(Form *form, std::string text, Vector2 pos, Vect
     if (size.x == -1)
     {
         size.x = 300;
-        size.y = pMainContainer->getControls().size() ? 30 : 20;
+        size.y = (pMainContainer->getControls().size() ? 30 : 20);
     }
     
     Label *pLabel = Label::create("", pNoBorder);
+    pLabel->setFontSize(pLabel->getFontSize()*mUIScale);
     pLabel->setZIndex(pMainContainer->getControls().size());
     pMainContainer->addControl(pLabel);
     pLabel->setTextAlignment(Font::ALIGN_BOTTOM_LEFT);
     pLabel->setText(text.c_str());
-    pLabel->setSize(size.x, size.y);
+    pLabel->setSize(size.x * mUIScale, size.y * mUIScale);
     pLabel->setTextColor(textColor);
     
     if (pos.x != -1)
-        pLabel->setPosition(pos.x, pos.y);
+        pLabel->setPosition(pos.x * mUIScale, pos.y * mUIScale);
 }
 
 Container * Main :: createContainer(Form *form, bool border, Vector2 pos, Vector2 size)
@@ -1101,16 +1128,17 @@ Container * Main :: createContainer(Form *form, bool border, Vector2 pos, Vector
     
     Container *pContainer = Container::create("", border ? pBasic : pNoBorder);
     Container *pMainContainer = (Container*)form->getControl("main");
-    float height = pMainContainer->getControls().size() ? 40 : 25;
-    pContainer->setSize(300, height);
+    float height = (pMainContainer->getControls().size() ? 40 : 25) * mUIScale;
+    pContainer->setSize(300 * mUIScale, height * mUIScale);
     pContainer->setZIndex(pMainContainer->getControls().size());
     pMainContainer->addControl(pContainer);
     
     if (pos.x != -1)
-        pContainer->setPosition(pos.x, pos.y);
+        pContainer->setPosition(pos.x * mUIScale, pos.y * mUIScale);
     
     if (size.x != -1)
-        pContainer->setSize(size.x, size.y);
+        pContainer->setSize(size.x * mUIScale, size.y * mUIScale);
+    
     return pContainer;
 }
 
@@ -1120,7 +1148,7 @@ void Main :: createSpacer(Form *form, float height)
     
     Container *pContainer = Container::create("", pNoBorder);
     Container *pMainContainer = (Container*)form->getControl("main");
-    pContainer->setSize(300, height);
+    pContainer->setSize(300 * mUIScale, height * mUIScale);
     pContainer->setZIndex(pMainContainer->getControls().size());
     pMainContainer->addControl(pContainer);
 }
@@ -1133,19 +1161,20 @@ Slider * Main :: createSliderControl(Form *form, std::string id, std::string lab
     Container *pMainContainer = (Container*)form->getControl("main");
     pContainer->setZIndex(pMainContainer->getControls().size());
     pMainContainer->addControl(pContainer);
-    pContainer->setSize(350, 35);
+    pContainer->setSize(350 * mUIScale, 35 * mUIScale);
     
     Label *pLabel = Label::create("", pNoBorder);
     pContainer->addControl(pLabel);
     pLabel->setTextAlignment(Font::ALIGN_TOP_LEFT);
     pLabel->setText(label.c_str());
-    pLabel->setSize(LABEL_WIDTH, 35);
-    pLabel->setPosition(5, 0);
+    pLabel->setFontSize(pLabel->getFontSize() * mUIScale);
+    pLabel->setSize(LABEL_WIDTH * mUIScale, 35 * mUIScale);
+    pLabel->setPosition(5 * mUIScale, 0);
     
-    Slider *pSlider = Slider::create(id.c_str(), pNoBorder);
+    Slider *pSlider = ScalableSlider::create(id.c_str(), pNoBorder, mUIScale);
     pContainer->addControl(pSlider);
-    pSlider->setSize(SLIDER_WIDTH, 35);
-    pSlider->setPosition(LABEL_WIDTH,-8);
+    pSlider->setSize(SLIDER_WIDTH * mUIScale, 35 * mUIScale);
+    pSlider->setPosition(LABEL_WIDTH * mUIScale,-8 * mUIScale);
     pSlider->setMin(minValue);
     pSlider->setMax(maxValue);
     pSlider->setStep(step);
@@ -1153,8 +1182,9 @@ Slider * Main :: createSliderControl(Form *form, std::string id, std::string lab
     Label *pValueLabel = Label::create((id + "Label").c_str(), pNoBorder);
     pContainer->addControl(pValueLabel);
     pValueLabel->setTextAlignment(Font::ALIGN_TOP_LEFT);
-    pValueLabel->setSize(60, 30);
-    pValueLabel->setPosition(SLIDER_WIDTH + LABEL_WIDTH, 0);
+    pValueLabel->setSize(60 * mUIScale, 30 * mUIScale);
+    pValueLabel->setFontSize(pValueLabel->getFontSize() * mUIScale);
+    pValueLabel->setPosition((SLIDER_WIDTH + LABEL_WIDTH) * mUIScale, 0);
     
     pSlider->addListener(this, Listener::VALUE_CHANGED);
     
@@ -1179,13 +1209,14 @@ CheckBox * Main :: createCheckboxControl(Form *form, std::string label, Vector2 
     pCheckbox->setTextAlignment(Font::ALIGN_BOTTOM_LEFT);
     pMainContainer->addControl(pCheckbox);
     pCheckbox->setText(label.c_str());
-    pCheckbox->setSize(size.x, size.y);
-    pCheckbox->setImageSize(20, 20);
+    pCheckbox->setSize(size.x * mUIScale, size.y * mUIScale);
+    pCheckbox->setFontSize(pCheckbox->getFontSize() * mUIScale);
+    pCheckbox->setImageSize(20 * mUIScale, 20 * mUIScale);
     
     pCheckbox->addListener(this, Listener::VALUE_CHANGED);
     
     if (pos.x != -1)
-        pCheckbox->setPosition(pos.x, pos.y);
+        pCheckbox->setPosition(pos.x * mUIScale, pos.y * mUIScale);
     
     return pCheckbox;
 }
@@ -1207,14 +1238,14 @@ Button * Main :: createButton(Form *form, std::string label, const char * id, Ve
     pButton->setZIndex(pMainContainer->getControls().size());
     pMainContainer->addControl(pButton);
     pButton->setText(label.c_str());
-    pButton->setSize(size.x, size.y);
+    pButton->setSize(size.x * mUIScale, size.y * mUIScale);
     
     pButton->addListener(this, Listener::CLICK);
     
     if (pos.x != -1)
-        pButton->setPosition(pos.x, pos.y);
+        pButton->setPosition(pos.x * mUIScale, pos.y * mUIScale);
     
-    pButton->setFontSize(24);
+    pButton->setFontSize(24*mUIScale);
     return pButton;
 }
 
