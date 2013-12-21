@@ -25,42 +25,42 @@
 
 float Parameters::getMoveDistance()
 {
-    return .004 + (float) cellSize * .004;
+    return (.004f + (float) cellSize * .004f);// * .75f;
 }
 
 void Parameters :: reset()
 {
-    mutationPercent = 5;
-    cycleEnergyCost = 1;
-    moveEnergyCost = .5;
-    moveAndEatEnergyCost = 10;//6;
-    photoSynthesizeEnergyGain = 10;//8;
+    mutationPercent = 8;
+    moveEnergyCost = 10;
+    moveAndEatEnergyCost = 20;//6;
+    photoSynthesizeEnergyGain = 1.2f;//8;
     digestionEfficiency = 1.0f;
-    deadCellDormancy = 5000;
-    baseSpawnEnergy = 500;
-    extraSpawnEnergyPerSegment = 500;
-    sleepTimeAfterBeingSpawned = 0;
+	biteStrength = .5f;
+    deadCellDormancy = 2000;
+    baseSpawnEnergy = 1000;
+    extraSpawnEnergyPerSegment = 1000;
+    sleepTimeAfterBeingSpawned = 5;
     
-    baseLifespan = 3000;
-    extraLifespanPerSegment = 3000;
-    cellSize = 5;
-    cyclesForMove = 2;
-    allowSelfOverlap = true;
-    lookDistance = 7;
+    baseLifespan = 5000;
+    extraLifespanPerSegment = 5000;
+    cellSize = 1;
+    extraCyclesForMove = 10;
+    allowSelfOverlap = false;
+    lookDistance = 30;
     
     sleepTime = 10;
 }
 
 // global
-int Parameters :: speed = 8;
+int Parameters :: speed = 10;
 int Parameters :: mutationPercent;
 
 // energy cost / gain
-float Parameters :: cycleEnergyCost;
 float Parameters :: moveEnergyCost;
 float Parameters :: moveAndEatEnergyCost;
 float Parameters :: photoSynthesizeEnergyGain;
 float Parameters :: digestionEfficiency;
+float Parameters :: biteStrength;
 int Parameters :: deadCellDormancy;
 
 // spawn energy
@@ -74,7 +74,7 @@ float Parameters :: extraLifespanPerSegment;
 
 // moving
 float Parameters :: cellSize;
-int Parameters :: cyclesForMove;
+int Parameters :: extraCyclesForMove;
 bool Parameters:: allowSelfOverlap;
 
 // looking

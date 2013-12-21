@@ -28,16 +28,53 @@
 #include "InstructionSet.h"
 #include "Constants.h"
 
-void UtilsGenome::generateRandomly(int length, char *pOut)
+eSegmentExecutionType getRandomExecutionType()
 {
-    while (length--)
-        *pOut++ = InstructionSet::getRandomInstruction();
-    *pOut = 0;;
+	int r = rand() % 5;
+	switch (r) {
+	case 0:
+		return eIf;
+	case 1:
+		return eNotIf;
+	default:
+		return eAlways;
+	}
+};
+
+int strlen(const Instruction *pIn)
+{
+	int result = 0;
+	while (pIn[result].instruction)
+		++result;
+	return result;
 }
 
-void UtilsGenome::mutate(const char *pIn, char *pOut)
+void strcpy(Instruction *pDest, const Instruction *pSrc)
 {
-    char *pResult = pOut;
+	memcpy (pDest, pSrc, MAX_GENOME_LENGTH * sizeof(Instruction));
+}
+
+Instruction randomInstruction()
+{
+	Instruction result;
+	result.instruction = InstructionSet::getRandomInstruction();
+	result.executeType = getRandomExecutionType();
+	return result;
+}
+
+void UtilsGenome::generateRandomly(int length, Instruction *pOut)
+{
+    while (length--) {
+		(*pOut).instruction = InstructionSet::getRandomInstruction();
+		(*pOut).executeType = getRandomExecutionType();
+		++pOut;
+	}
+	(*pOut).instruction = 0;
+}
+
+void UtilsGenome::mutate(const Instruction *pIn, Instruction *pOut)
+{
+    Instruction *pResult = pOut;
     
     int mutationType = (int) UtilsRandom::getRangeRandom(0, 2);
     int length = strlen(pIn);
@@ -49,7 +86,7 @@ void UtilsGenome::mutate(const char *pIn, char *pOut)
             if (length < (MAX_GENOME_LENGTH-1))
             {
                 // insert a new random instruction
-                char insertInstruction = InstructionSet::getRandomInstruction();
+                Instruction insertInstruction = randomInstruction();
                 int insertPosition = (int) UtilsRandom::getRangeRandom(0,length);
                 while (length-- > 0)
                 {
@@ -57,9 +94,9 @@ void UtilsGenome::mutate(const char *pIn, char *pOut)
                         *pOut++ = insertInstruction;
                     *pOut++ = *pIn++;
                 }
-                if (! insertInstruction)
+                if (! insertPosition)
                     *pOut++ = insertInstruction;
-                *pOut = 0;
+				(*pOut).instruction = 0;
             }
             else
             {
@@ -69,10 +106,13 @@ void UtilsGenome::mutate(const char *pIn, char *pOut)
             
         case 1: {
             // modify an instruction randomly
-            char mutateInstruction = InstructionSet::getRandomInstruction();
+            Instruction mutateInstruction = randomInstruction();
             int charPosition = (int) UtilsRandom::getRangeRandom(0,length-1);
             strcpy(pOut, pIn);
-            pOut[charPosition] = mutateInstruction;
+			if (UtilsRandom::getRangeRandom(0, 1))
+				pOut[charPosition].instruction = mutateInstruction.instruction;
+			else
+				pOut[charPosition].executeType = mutateInstruction.executeType;
             break; }
             
         case 2: {
@@ -84,14 +124,14 @@ void UtilsGenome::mutate(const char *pIn, char *pOut)
             else
             {
                 int charPosition = (int) UtilsRandom::getRangeRandom(0,length-1);
-                while (*pIn)
+				while ((*pIn).instruction)
                 {
                     if (!charPosition)
                         ++pIn;
                     --charPosition;
                     *pOut++ = *pIn++;
                 }
-                *pOut = 0;
+				(*pOut).instruction = 0;
             }
             break; }
     }

@@ -29,7 +29,8 @@ public:
     void addAgentToWorld(Agent *);
     void killAgent(int agentIndex);
     
-    void step();
+    int step();
+	int	getNumAgents() { return mNumAgents; }
     
     int getNearbyEntities(SphereEntity * pNearEntity, float distance, SphereEntity **pResultArray, int maxResults = 16);
     int getNearbyEntities(Vector3 location, float distance, SphereEntity **pResultArray, int maxResults = 16);

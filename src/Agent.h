@@ -11,6 +11,8 @@
 
 #include "constants.h"
 #include "gameplay.h"
+#include "instruction.h"
+#include "Genome.h"
 
 using namespace gameplay;
 
@@ -29,6 +31,8 @@ class Agent
 public:
     Agent();
     void initialize(Vector3 pt, const char *pGenome, bool allowMutation);
+    void initialize(Vector3 pt, const Instruction *pGenome, bool allowMutation);
+
     void step(SphereWorld * pWorld);
 
     void die(SphereWorld *pWorld, bool andBecomeFood = true);
@@ -39,15 +43,19 @@ public:
     bool testIsFacingFood(SphereWorld *pWorld);
     void spawnIfAble(SphereWorld * pWorld);
     float  getSpawnEnergy();
+	void advanceOnTestFail();    
     
-    int     mIndex;
+	int     mIndex;
     
     // life, energy etc
     eStatus mStatus;
     int     mLifespan;
     float   mEnergy;
     int     mSleep;
-    
+	int		mDormant;
+	int		mDelaySpawnCount;
+	bool	mCondition;
+	bool	mDefaultCondition;
     // spawning
     bool    mAllowMutate;
     Vector3 mSpawnLocation;
@@ -57,13 +65,15 @@ public:
     Vector3 mMoveVector;
     bool    mWasBlocked;
     bool    mIsMotile;
-    
+	bool	mIsHyper;
+	bool	mWasEaten;
+	bool	mWasPreyedOn;
+
     // segments
     int     mNumSegments;
     int     mActiveSegment;
     SphereEntity *mSegments;
-    char    mGenome[MAX_SEGMENTS + 1];
-    
+	Genome	mGenome;
 };
 
 #endif

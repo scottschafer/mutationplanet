@@ -12,14 +12,15 @@
 #include <iostream>
 
 #include "Constants.h"
+#include "Instruction.h"
 
 using namespace std;
 
 class UtilsGenome
 {
 public:
-    static void generateRandomly(int length, char *pOut);
-    static void mutate(const char *pIn, char *pOut);
+    static void generateRandomly(int length, Instruction *pOut);
+    static void mutate(const Instruction *pIn, Instruction *pOut);
 };
 
 #endif /* defined(__MutationPlanet__UtilsGenome__) */

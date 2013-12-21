@@ -26,11 +26,11 @@ public:
     static float cellSize;
     
     // energy cost / gain
-    static float cycleEnergyCost;
     static float moveAndEatEnergyCost;
     static float moveEnergyCost;
     static float photoSynthesizeEnergyGain;
     static float digestionEfficiency;
+    static float biteStrength;
     static int deadCellDormancy;
     
     // spawning
@@ -43,7 +43,7 @@ public:
     static float extraLifespanPerSegment;
     
     // moving
-    static int cyclesForMove;
+    static int extraCyclesForMove;
     static bool allowSelfOverlap;
     
     // looking

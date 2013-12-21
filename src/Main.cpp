@@ -33,7 +33,6 @@
 #include "InstructionSet.h"
 #include "Agent.h"
 #include "UtilsRandom.h"
-#include <pthread.h>
 #include "Parameters.h"
 #include "ScalableSlider.h"
 
@@ -51,8 +50,14 @@ enum
     
     iActiveSegment,
     iGenericSegment,
+
+
     iSegmentFrame,
-    iMoveArrow
+    iMoveArrow,
+
+	iSegmentIf = 200,
+	iSegmentIfNot,
+	iSegmentAlways
 };
 
 // Declare our game instance
@@ -73,9 +78,11 @@ bool threadAlive = false;
  */
 bool useGenomeColorMapping = false;
 
-Vector4 getColorForGenome(const char *pGenome);
-Vector4 getColorForGenome(const char *pGenome)
+Vector4 getColorForGenome(std::string genome);
+Vector4 getColorForGenome(std::string genome)
 {
+	const char *pGenome = genome.c_str();
+
     if (strlen(pGenome) == 1 && *pGenome == eInstructionPhotosynthesize)
         return Vector4(0,1,0,1);
     
@@ -83,15 +90,14 @@ Vector4 getColorForGenome(const char *pGenome)
     static std::vector<Vector4> colors;
 
     if (assignedColors.size() == 0)
-        for (float r = .4; r <= 1; r += .3)
-            for (float g = .4; g <= 1; g += .3)
-                for (float b = .4; b <= 1; b += .3)
+        for (float r = .4f; r <= 1; r += .3f)
+            for (float g = .4f; g <= 1; g += .3f)
+                for (float b = .4f; b <= 1; b += .3f)
                     if (r != 0 || g != 1 || b != 0)
                         colors.push_back(Vector4(r,g,b,1));
     
     static int colorIndex = 0;
     
-    std::string genome(pGenome);
     Vector4 result;
     if (assignedColors.find(genome) == assignedColors.end())
     {
@@ -133,6 +139,8 @@ inline Vector3 getRandomSpherePoint()
     return v;
 }
 
+bool gDecimateAgents = false;
+
 /**
  * The thread function that runs the logic of the world, including all critter processing
  **/
@@ -150,9 +158,10 @@ void * Main :: threadFunction(void*)
         else
         {
             pthread_mutex_lock( &mutex1 );
-            world.step();
+            gDecimateAgents = (world.step() > 50000);
+
             pthread_mutex_unlock( &mutex1 );
-            uint sleepTime = 50 * (10 - Parameters::speed);
+            unsigned int sleepTime = 50 * (10 - Parameters::speed);
             sleepTime *= sleepTime;
             
             if (sleepTime)
@@ -167,6 +176,56 @@ Rectangle Main::scaleUI(Rectangle r)
     return Rectangle(mUIScale*r.x, mUIScale*r.y, mUIScale * r.width, mUIScale * r.height);
 }
 
+typedef struct {
+	int iSegmentType;
+	const char * resSource;
+} SegmentResourceMapping;
+
+SegmentResourceMapping arraySegments[] = 
+{
+	iHelpPage1, "res/help/HelpPage1.png",
+	iHelpPage2, "res/help/HelpPage2.png",
+    iHelpPage1, "res/help/HelpPage1.png",
+    iHelpPage2,"res/help/HelpPage2.png",
+    iHelpPage3, "res/help/HelpPage3.png",
+    iHelpPage4, "res/help/HelpPage4.png",
+    iHelpPage5, "res/help/HelpPage5.png",
+    iHelpClose, "res/help/close.png",
+
+    iSpriteSphere, "res/sphere.png",
+    iActiveSegment, "res/ActiveSegment.png",
+    iGenericSegment, "res/segment.png",
+    iSegmentFrame, "res/segmentFrame.png",
+    iMoveArrow, "res/MoveArrow.png",
+
+    iSegmentIf, "res/segment_exec_if.png",
+    iSegmentIfNot, "res/segment_exec_no.png",
+    iSegmentAlways, "res/segment_exec_always.png",
+
+    eBarrier1, "res/barrier.png",
+	eBarrier2, "res/barrier.png",
+	eBarrier3, "res/barrier.png",
+    
+    eInstructionMoveAndEat, "res/segment_M.png",
+    eInstructionMove, "res/segment_n.png",
+    eInstructionTurnLeft, "res/segment_lt.png",
+    eInstructionTurnRight, "res/segment_rt.png",
+    eInstructionHardTurnLeft, "res/segment_[.png",
+    eInstructionHardTurnRight, "res/segment_].png",
+    eInstructionSleep, "res/segment_Z.png",
+    
+    eInstructionTestSeeFood, "res/segment_test_see_food.png",
+    eInstructionTestNotSeeFood, "res/segment_test_not_see_food.png",
+    eInstructionTestBlocked, "res/segment_test_blocked.png",
+    eInstructionTestNotBlocked, "res/segment_test_not_blocked.png",
+    eInstructionTestOccluded, "res/segment.png",
+    
+    eInstructionPhotosynthesize, "res/food.png",
+    eInstructionFakePhotosynthesize, "res/segment_fakefood.png",
+
+    eInstructionHyper, "res/segment_hyper.png",
+    eInstructionTestPreyedOn, "res/segment_ifHungry.png"
+};
 
 /**
  Initialize the UI, resources and kick off the world's logic thread
@@ -185,40 +244,19 @@ void Main::initialize()
     InstructionSet::reset();
     createUI();
     
-    for (int i = 0; i < 255; i++)
+	int i;
+    for (i = 0; i < 255; i++)
         mSegmentBatch[i] = NULL;
-    
-    mSegmentBatch[iHelpPage1] = SpriteBatch::create("res/help/HelpPage1.png");
-    mSegmentBatch[iHelpPage2] = SpriteBatch::create("res/help/HelpPage2.png");
-    mSegmentBatch[iHelpPage3] = SpriteBatch::create("res/help/HelpPage3.png");
-    mSegmentBatch[iHelpPage4] = SpriteBatch::create("res/help/HelpPage4.png");
-    mSegmentBatch[iHelpPage5] = SpriteBatch::create("res/help/HelpPage5.png");
-    mSegmentBatch[iHelpClose] = SpriteBatch::create("res/help/close.png");
 
-    mSegmentBatch[iSpriteSphere] = SpriteBatch::create("res/sphere.png");
-    mSegmentBatch[iActiveSegment] = SpriteBatch::create("res/ActiveSegment.png");
-    mSegmentBatch[iGenericSegment] = SpriteBatch::create("res/segment.png");
-    mSegmentBatch[iSegmentFrame] = SpriteBatch::create("res/segmentFrame.png");
-    mSegmentBatch[iMoveArrow] = SpriteBatch::create("res/MoveArrow.png");
+	for (i = 0; i < sizeof(arraySegments)/sizeof(arraySegments[0]); i++)
+	{
+		mSegmentBatch[arraySegments[i].iSegmentType] = SpriteBatch::create(arraySegments[i].resSource);
+		Texture * pTexture = mSegmentBatch[arraySegments[i].iSegmentType]->getSampler()->getTexture();
+
+		mSegmentSrcRect[arraySegments[i].iSegmentType] = Rectangle(0,0, pTexture->getWidth(), pTexture->getHeight());
+	}
     
-    mSegmentBatch[eBarrier1] = mSegmentBatch[eBarrier2] = mSegmentBatch[eBarrier3] = SpriteBatch::create("res/barrier.png");
-    
-    mSegmentBatch[eInstructionMoveAndEat] = SpriteBatch::create("res/segment_M.png");
-    mSegmentBatch[eInstructionMove] = SpriteBatch::create("res/segment_n.png");
-    mSegmentBatch[eInstructionTurnLeft] = SpriteBatch::create("res/segment_lt.png");
-    mSegmentBatch[eInstructionTurnRight] = SpriteBatch::create("res/segment_rt.png");
-    mSegmentBatch[eInstructionHardTurnLeft] = SpriteBatch::create("res/segment_[.png");
-    mSegmentBatch[eInstructionHardTurnRight] = SpriteBatch::create("res/segment_].png");
-    mSegmentBatch[eInstructionSleep] = SpriteBatch::create("res/segment_Z.png");
-    
-    mSegmentBatch[eInstructionTestSeeFood] = SpriteBatch::create("res/segment_test_see_food.png");
-    mSegmentBatch[eInstructionTestNotSeeFood] = SpriteBatch::create("res/segment_test_not_see_food.png");
-    mSegmentBatch[eInstructionTestBlocked] = SpriteBatch::create("res/segment_test_blocked.png");
-    mSegmentBatch[eInstructionTestNotBlocked] = SpriteBatch::create("res/segment_test_not_blocked.png");
-    
-    mSegmentBatch[eInstructionPhotosynthesize] = SpriteBatch::create("res/food.png");
-    mSegmentBatch[eInstructionFakePhotosynthesize] = SpriteBatch::create("res/segment_fakefood.png");
-    
+
     resetWorld();
     
     int rc1;
@@ -257,16 +295,56 @@ void Main::resetWorld()
     bool bAllowMutation = true;
     int initialCount = 500;
     
+//	genome += eInstructionMoveAndEat;
     genome += eInstructionPhotosynthesize;
-    
-    for (int i = 0; i < 500; i++)
-    {
-        Agent *pAgent = world.createEmptyAgent();
-        pAgent->initialize(getRandomSpherePoint(), genome.c_str(), bAllowMutation);
-        // randomize the initial lifespan so they don't all die at once
-        pAgent->mLifespan = UtilsRandom::getRangeRandom(pAgent->mLifespan/2, pAgent->mLifespan*2);
-        world.addAgentToWorld(pAgent);
-    }
+    //bAllowMutation = false;
+
+	if (false) {
+		Agent *pAgent = world.createEmptyAgent();
+		genome = eInstructionMove;
+		genome += eInstructionPhotosynthesize;
+		pAgent->initialize(getRandomSpherePoint(), genome.c_str(), bAllowMutation);
+		pAgent->mEnergy = 100;
+	}
+	else
+	if (false)
+	{
+		bAllowMutation = false;
+
+		genome = eInstructionPhotosynthesize;
+		int maxMoveCritters = 1;
+		for (int i = 0; i < 7000; i++) {
+			Agent *pAgent = world.createEmptyAgent();
+			if (i < maxMoveCritters) {
+				genome = eInstructionTestSeeFood;
+				genome += eInstructionTurnLeft;
+				genome += eInstructionMoveAndEat;
+				genome += eInstructionMove;
+			}
+			else
+				genome = eInstructionPhotosynthesize;
+			pAgent->initialize(getRandomSpherePoint(), genome.c_str(), bAllowMutation);
+			if (i < maxMoveCritters) {
+				pAgent->mGenome[1].executeType = eNotIf;
+				pAgent->mGenome[2].executeType = eIf;
+			}
+			//pAgent->mEnergy = Parameters::extraSpawnEnergyPerSegment/2;// (i == 4999) ? Parameters::extraSpawnEnergyPerSegment/2 :  Parameters::cycleEnergyCost * 2;
+			// randomize the initial lifespan so they don't all die at once
+			//pAgent->mLifespan = UtilsRandom::getRangeRandom(pAgent->mLifespan/2, pAgent->mLifespan*2);
+			world.addAgentToWorld(pAgent);
+		}
+	}
+	else
+	{
+		for (int i = 0; i < 500; i++)
+		{
+			Agent *pAgent = world.createEmptyAgent();
+			pAgent->initialize(getRandomSpherePoint(), genome.c_str(), bAllowMutation);
+			// randomize the initial lifespan so they don't all die at once
+			pAgent->mLifespan = UtilsRandom::getRangeRandom(pAgent->mLifespan/2, pAgent->mLifespan*2);
+			world.addAgentToWorld(pAgent);
+		}
+	}
     pthread_mutex_unlock( &mutex1 );
 }
 
@@ -279,14 +357,16 @@ void Main :: resetParameters()
 
 void Main :: insertCritter()
 {
-    pthread_mutex_lock( &mutex1 );
-    for (int i = 0; i < 500; i++)
-    {
-        Agent *pAgent = world.createEmptyAgent(true);
-        pAgent->initialize(getRandomSpherePoint(), mInsertGenome.c_str(), true);
-        world.addAgentToWorld(pAgent);
-    }
-    pthread_mutex_unlock( &mutex1 );
+	if (mInsertGenome.length()) {
+		pthread_mutex_lock( &mutex1 );
+		for (int i = 0; i < 500; i++)
+		{
+			Agent *pAgent = world.createEmptyAgent(true);
+			pAgent->initialize(getRandomSpherePoint(), mInsertGenome.c_str(), true);
+			world.addAgentToWorld(pAgent);
+		}
+		pthread_mutex_unlock( &mutex1 );
+	}
 }
 
 /**
@@ -315,8 +395,8 @@ void Main :: setBarriers(int type, bool bOn)
         genome += barrierType;
         if (type == 0)
         {
-            float barrierDistance = .008;
-            for (float a = -MATH_PI * .95; a < MATH_PI * .95; a += barrierDistance)
+            float barrierDistance = .008f;
+            for (float a = -MATH_PI * .95f; a < MATH_PI * .95f; a += barrierDistance)
             {
                 Agent *pAgent = world.createEmptyAgent(true);
                 
@@ -331,8 +411,8 @@ void Main :: setBarriers(int type, bool bOn)
         
         if (type == 1)
         {
-            float barrierDistance = .05;
-            for (float a = -MATH_PI * .98; a < MATH_PI * .98; a += barrierDistance)
+            float barrierDistance = .05f;
+            for (float a = -MATH_PI * .98f; a < MATH_PI * .98f; a += barrierDistance)
             {
                 for (int i = 0; i < 6; i++)
                 {
@@ -401,11 +481,11 @@ void Main::update(float elapsedTime)
 /**
  Helper function and data for sampling the top "species", as identified by their genome
  **/
-std::map<string, int> gMapSpeciesToCount;
-vector<pair<string,int> > gTopSpecies;
+std::map<std::string, int> gMapSpeciesToCount;
+vector<pair<std::string,int> > gTopSpecies;
 
-bool compareTopSpeciesFunc(const pair<string,int> &p1, const pair<string,int> &p2);
-bool compareTopSpeciesFunc(const pair<string,int> &p1, const pair<string,int> &p2)
+bool compareTopSpeciesFunc(const pair<std::string,int> &p1, const pair<std::string,int> &p2);
+bool compareTopSpeciesFunc(const pair<std::string,int> &p1, const pair<std::string,int> &p2)
 {
     return p1.second > p2.second;
 }
@@ -418,9 +498,14 @@ float gTurnsPerSecond = 0;
  */
 void Main::render(float elapsedTime)
 {
+	try {
     // Clear the color and depth buffers
     clear(CLEAR_COLOR_DEPTH, Vector4::zero(), 1.0f, 0);
-    
+	int i;
+	int reserveBatchCount = 200;
+	for (i = 0; i < 255; i++)
+		mSegmentBatchCount[i] = reserveBatchCount;
+
     for (int i = iActiveSegment; i < 255; i++)
         if (mSegmentBatch[i])
             mSegmentBatch[i]->start();
@@ -464,6 +549,7 @@ void Main::render(float elapsedTime)
     
     // draw all the visible agents in two passes, first drawing the segments, then drawing the
     // ornaments
+    //pthread_mutex_lock( &mutex1 );
     for (int pass = 1; pass <= 2; pass++)
     {
         if (pass == 2 && mViewScale < 1.5)
@@ -511,25 +597,23 @@ void Main::render(float elapsedTime)
                         alpha = (float)agent.mEnergy/(float)agent.getSpawnEnergy();
                     Vector4 color(1,1,1, alpha);
                     
-                    SpriteBatch * pBatch;
+                    int iBatch;
                     if (useGenomeColorMapping && agent.mStatus == eAlive && ! isPhotosynthesize)
                     {
-                        pBatch = mSegmentBatch[iGenericSegment];
+                        iBatch = iGenericSegment;
                         color = getColorForGenome(agent.mGenome);
                         alpha = 1;
                     }
                     else
                     {
-                        pBatch = mSegmentBatch[pEntity->mType];
+						iBatch = pEntity->mType;
                     }
 
-                    Rectangle src = Rectangle(0,0,
-                                              pBatch->getSampler()->getTexture()->getWidth(), pBatch->getSampler()->getTexture()->getHeight());
-                    
+                    Rectangle src = mSegmentSrcRect[iBatch];
                     
                     if (pass == 1)
                     {
-                        pBatch->draw(dst, src, color);
+                        draw(iBatch, dst, src, color);
                     }
                     
                     // if we're zoomed in, show an indicator around the active cell
@@ -537,13 +621,10 @@ void Main::render(float elapsedTime)
                     {
                         if ((agent.mNumSegments > 1) && (j == (agent.mActiveSegment) % agent.mNumSegments))
                         {
-                            pBatch = mSegmentBatch[iActiveSegment];
-                            src = Rectangle(0,0,
-                                            pBatch->getSampler()->getTexture()->getWidth(), pBatch->getSampler()->getTexture()->getHeight());
-                            
                             Rectangle activeSegmentRect = dst;
+							Rectangle src = mSegmentSrcRect[iActiveSegment];
                             activeSegmentRect.inflate(cellSize / 4, cellSize / 4);
-                            pBatch->draw(activeSegmentRect, src, Vector4(1,1,1, 1));
+                            draw(iActiveSegment, activeSegmentRect, src, Vector4(1,1,1, 1));
                         }
                         
                         // draw the move arrow
@@ -555,16 +636,13 @@ void Main::render(float elapsedTime)
                             moveVector.normalize();
                             float rotation = atan2(moveVector.y,moveVector.x);
                             
-                            pBatch = mSegmentBatch[iMoveArrow];
                             dst.inflate(cellSize*3/2, cellSize*3/2);
-                            src = Rectangle(0,0,
-                                            pBatch->getSampler()->getTexture()->getWidth(), pBatch->getSampler()->getTexture()->getHeight());
-                            
+							Rectangle src = mSegmentSrcRect[iMoveArrow];
                             
                             Vector3 dstV(dst.x, dst.y,0);
                             Vector2 rotPoint(0.5f, 0.5f);
                             rotation += 45 * MATH_PI / 180;
-                            pBatch->draw(dstV, dst.width, dst.height, 0, 0, 1, 1, Vector4(1,1,1,1),
+                            draw(iMoveArrow, dstV, dst.width, dst.height, 0, 0, 1, 1, Vector4(1,1,1,1),
                                          rotPoint, rotation);
                             
                         }
@@ -573,11 +651,15 @@ void Main::render(float elapsedTime)
             }
         }
     }
-    
+    //pthread_mutex_unlock( &mutex1 );
+
+	for (i = 0; i < 255; i++)
+		mSegmentBatchCount[i] -= reserveBatchCount;
+
     // sort the sampled critters, if we're doing that...
     if (sampleCritters)
     {
-        for (std::map<string, int>::iterator i = gMapSpeciesToCount.begin(); i != gMapSpeciesToCount.end(); i++)
+        for (std::map<std::string, int>::iterator i = gMapSpeciesToCount.begin(); i != gMapSpeciesToCount.end(); i++)
             gTopSpecies.push_back(*i);
         
         sort(gTopSpecies.begin(), gTopSpecies.end(), compareTopSpeciesFunc);
@@ -590,7 +672,7 @@ void Main::render(float elapsedTime)
         _font->drawText("Top Species", getWidth()-180 * mUIScale, 10 * mUIScale, Vector4(1,1,1,1));
         
         // draw the top species
-        for (int i = 0; i < gTopSpecies.size(); i++)
+        for (size_t i = 0; i < gTopSpecies.size(); i++)
         {
             if (i == 32)
                 break;
@@ -599,24 +681,44 @@ void Main::render(float elapsedTime)
             float y = mUIScale * (40 + 20 * i);
             
             sprintf(buf, "%d", gTopSpecies[i].second);
-            const char *pGenome = gTopSpecies[i].first.c_str();
+			std::string genome = gTopSpecies[i].first;
+            const char *pGenome = genome.c_str();
             Vector4 drawColor(1,1,1,1);
             if (useGenomeColorMapping)
             {
-                drawColor = getColorForGenome(pGenome);
+                drawColor = getColorForGenome(gTopSpecies[i].first);
             }
             _font->drawText(buf, x, y, drawColor);
             
             x -= 40 * mUIScale;
             int len = strlen(pGenome);
-            for (int j = (len - 1); j >= 0; j--)
+            for (int j = (len - 1); j >= 0; j -= 2)
             {
                 char ch = pGenome[j];
-                SpriteBatch * pBatch = mSegmentBatch[ch];
-                Rectangle src(0,0,
-                              pBatch->getSampler()->getTexture()->getWidth(), pBatch->getSampler()->getTexture()->getHeight());
                 Rectangle dst(x, y, 16 * mUIScale, 16 * mUIScale);
-                pBatch->draw(dst, src);
+				Rectangle src = mSegmentSrcRect[ch];
+                draw((int) ch, dst, src);
+
+				if (ch != eInstructionPhotosynthesize && ch != eInstructionFakePhotosynthesize && ch != eInstructionPhotosynthesizeLess)
+				{
+					int iExecType = 0;
+					SpriteBatch * pExecType = NULL;
+					switch (pGenome[j-1]) {
+					case eIf:
+						iExecType = iSegmentIf;
+						break;
+					case eNotIf:
+						iExecType = iSegmentIfNot;
+						break;
+					}
+					
+					if (iExecType) {
+						Rectangle src = mSegmentSrcRect[iExecType];
+		                draw(iExecType, dst, src);
+						//_font->drawText("Y", dst.left(), dst.top(), Vector4(1,1,1,1));
+					}
+				}
+
                 x -= 18 * mUIScale;
             }
         }
@@ -646,7 +748,11 @@ void Main::render(float elapsedTime)
     
     renderInsertCritter();
     renderHelp();
-    
+	}
+	catch (...)
+	{
+		cout << "exception during render";
+	}
 }
 
 /**
@@ -665,6 +771,8 @@ void Main::renderInsertCritter()
         {
             Button *pButton = *i;
             SpriteBatch * pBatch = mSegmentBatch[pButton->getId()[0]];
+			if (! pBatch)
+				pBatch = mSegmentBatch[iGenericSegment];
             Rectangle src(0,0,
                           pBatch->getSampler()->getTexture()->getWidth(), pBatch->getSampler()->getTexture()->getHeight());
             
@@ -860,19 +968,24 @@ void Main::createUI()
     
     createControlHeader(_formAdvanced, "Energy cost / gain");
     // _cycleEnergyCostSlider = createSliderControl(_formAdvanced, "cycleEnergyCost", "Cycle:", .5, 2);
-    _photoSynthesizeEnergyGainSlider = createSliderControl(_formAdvanced, "photoSynthesizeEnergyGain", "Photosynthesis:", 1, 20);
+    _photoSynthesizeEnergyGainSlider = createSliderControl(_formAdvanced, "photoSynthesizeEnergyGain", "Photosynthesis:", 1, 2);
     _moveEnergyCostSlider = createSliderControl(_formAdvanced, "moveEnergyCost", "Move:", 0, 15);
-    _moveAndEatEnergyCostSlider = createSliderControl(_formAdvanced, "moveAndEatEnergyCost", "Move & eat:", 0, 15);
+    _moveAndEatEnergyCostSlider = createSliderControl(_formAdvanced, "moveAndEatEnergyCost", "Move & eat:", 0, 30);
     
-    createControlHeader(_formAdvanced,"Energy to spawn");
-    _extraSpawnEnergyPerSegmentSlider = createSliderControl(_formAdvanced,"extraSpawnEnergyPerSegment", "Per cell:", 50, 1000);
+    //createControlHeader(_formAdvanced,"Energy to spawn");
+    _extraSpawnEnergyPerSegmentSlider = createSliderControl(_formAdvanced,"extraSpawnEnergyPerSegment", "Per cell:", 50, 2000);
     
-    createControlHeader(_formAdvanced,"Other");
-    _lookDistanceSlider = createSliderControl(_formAdvanced,"lookDistance", "Vision range:", 1, 15);
+    //createControlHeader(_formAdvanced,"Other");
+    _lookDistanceSlider = createSliderControl(_formAdvanced,"lookDistance", "Vision range:", 1, 30);
+    //createSpacer(_formAdvanced, 15);
+    //_resetParametersButton = createButton(_formAdvanced, "Reset settings");
+    
+    _extraCyclesForMoveSlider = createSliderControl(_formAdvanced,"extraCyclesForMove", "Move delay:", 0, 20);
+    _biteStrengthSlider = createSliderControl(_formAdvanced,"biteStrength", "Bite strength:", 0.1, 5);
+	_digestionEfficiencySlider = createSliderControl(_formAdvanced, "digestionEfficiency", "Digestion:", 0.1, 1);
+
     _allowSelfOverlap = createCheckboxControl(_formAdvanced, "Allow self overlap");
-    createSpacer(_formAdvanced, 15);
-    _resetParametersButton = createButton(_formAdvanced, "Reset settings");
-    
+
     _formMain->setConsumeInputEvents(false);
     _formAdvanced->setConsumeInputEvents(false);
     
@@ -985,8 +1098,8 @@ void Main::controlEvent(Control* control, EventType evt)
                 Parameters::mutationPercent = _mutationSlider->getValue();
             else if (control == _cellSizeSlider)
                 Parameters::cellSize = _cellSizeSlider->getValue();
-            else if (control == _cycleEnergyCostSlider)
-                Parameters::cycleEnergyCost = _cycleEnergyCostSlider->getValue();
+//            else if (control == _cycleEnergyCostSlider)
+//                Parameters::cycleEnergyCost = _cycleEnergyCostSlider->getValue();
             else if (control == _photoSynthesizeEnergyGainSlider)
                 Parameters::photoSynthesizeEnergyGain = _photoSynthesizeEnergyGainSlider->getValue();
             else if (control == _moveEnergyCostSlider)
@@ -1001,6 +1114,12 @@ void Main::controlEvent(Control* control, EventType evt)
                 Parameters::lookDistance = _lookDistanceSlider->getValue();
             else if (control == _allowSelfOverlap)
                 Parameters::allowSelfOverlap = _allowSelfOverlap->isChecked();
+			else if (control == _extraCyclesForMoveSlider)
+				Parameters::extraCyclesForMove = _extraCyclesForMoveSlider->getValue();
+			else if (control == _biteStrengthSlider)
+				Parameters::biteStrength = _biteStrengthSlider->getValue();
+			else if (control == _digestionEfficiencySlider)
+				Parameters::digestionEfficiency = _digestionEfficiencySlider->getValue();
             else if (control == _barriers1)
                 setBarriers(0, _barriers1->isChecked());
             else if (control == _barriers2)
@@ -1040,13 +1159,17 @@ void Main::updateControlLabels()
     updateControlLabel("speed", "%d", Parameters::speed);
     updateControlLabel("mutation", "%d%%", Parameters::mutationPercent);
     updateControlLabel("cellSize", "%d", (int) Parameters::cellSize);
-    updateControlLabel("cycleEnergyCost", "-%.1f", Parameters::cycleEnergyCost);
+//    updateControlLabel("cycleEnergyCost", "-%.1f", Parameters::cycleEnergyCost);
     updateControlLabel("photoSynthesizeEnergyGain", "+%.1f", Parameters::photoSynthesizeEnergyGain);
     updateControlLabel("moveEnergyCost", "-%.1f", Parameters::moveEnergyCost);
     updateControlLabel("moveAndEatEnergyCost", "-%.1f", Parameters::moveAndEatEnergyCost);
     updateControlLabel("baseSpawnEnergy", "%d", (int) Parameters::baseSpawnEnergy);
     updateControlLabel("extraSpawnEnergyPerSegment", "%d", (int) Parameters::extraSpawnEnergyPerSegment);
     updateControlLabel("lookDistance", "%d", Parameters::lookDistance);
+    updateControlLabel("extraCyclesForMove", "%d", Parameters::extraCyclesForMove);
+	updateControlLabel("biteStrength", "%d%%", (int)(Parameters::biteStrength * 100));
+	updateControlLabel("digestionEfficiency", "%d%%", (int)(Parameters::digestionEfficiency * 100));
+	
 }
 
 void Main::setControlValues()
@@ -1061,7 +1184,10 @@ void Main::setControlValues()
     _extraSpawnEnergyPerSegmentSlider->setValue(Parameters::extraSpawnEnergyPerSegment);
     _lookDistanceSlider->setValue(Parameters::lookDistance);
     _allowSelfOverlap->setChecked(Parameters::allowSelfOverlap);
-    
+
+	_extraCyclesForMoveSlider->setValue(Parameters::extraCyclesForMove);
+	_biteStrengthSlider->setValue(Parameters::biteStrength);
+	_digestionEfficiencySlider->setValue(Parameters::digestionEfficiency);
     this->_formAdvanced->update(1);
 }
 
@@ -1250,3 +1376,84 @@ Button * Main :: createButton(Form *form, std::string label, const char * id, Ve
 }
 
 
+SpriteBatch * Main :: getLegalSpriteBatch(int iBatch)
+{
+	SpriteBatch *pResult = mSegmentBatch[iBatch];
+	if (! pResult)
+	{
+		iBatch = iGenericSegment;
+		pResult = mSegmentBatch[iBatch];
+	}
+
+	if (mSegmentBatchCount[iBatch] >= 60000)
+		return NULL;
+	++mSegmentBatchCount[iBatch];
+	return pResult;
+}
+
+void Main :: draw(int iBatch, const Rectangle& dst, const Rectangle& src, const Vector4& color)
+{
+	SpriteBatch * pBatch = getLegalSpriteBatch(iBatch);
+	if (pBatch)
+		pBatch->draw(dst, src, color);
+}
+
+void Main :: draw(int iBatch, const Vector3& dst, const Rectangle& src, const Vector2& scale, const Vector4& color)
+{
+	SpriteBatch * pBatch = getLegalSpriteBatch(iBatch);
+	if (pBatch)
+		pBatch->draw(dst, src, scale, color);
+}
+
+void Main :: draw(int iBatch, const Vector3& dst, const Rectangle& src, const Vector2& scale, const Vector4& color,
+            const Vector2& rotationPoint, float rotationAngle)
+{
+	SpriteBatch * pBatch = getLegalSpriteBatch(iBatch);
+	if (pBatch)
+		pBatch->draw(dst, src, scale, color, rotationPoint, rotationAngle);
+}
+
+void Main :: draw(int iBatch, const Vector3& dst, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color,
+            const Vector2& rotationPoint, float rotationAngle, bool positionIsCenter)
+{
+	SpriteBatch * pBatch = getLegalSpriteBatch(iBatch);
+	if (pBatch)
+		pBatch->draw(dst, width, height, u1, v1, u2, v2, color, rotationPoint, rotationAngle, positionIsCenter);
+}
+
+void Main :: draw(int iBatch, float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color,
+            const Vector2& rotationPoint, float rotationAngle, bool positionIsCenter)
+{
+	SpriteBatch * pBatch = getLegalSpriteBatch(iBatch);
+	if (pBatch)
+		pBatch->draw(x, y, z, width, height, u1, v1, u2, v2, color, rotationPoint, rotationAngle, positionIsCenter);
+}
+
+void Main :: draw(int iBatch, const Vector3& position, const Vector3& right, const Vector3& forward, float width, float height, 
+            float u1, float v1, float u2, float v2, const Vector4& color, const Vector2& rotationPoint, float rotationAngle)
+{
+	SpriteBatch * pBatch = getLegalSpriteBatch(iBatch);
+	if (pBatch)
+		pBatch->draw(position, right, forward, width, height, u1, v1, u2, v2, color, rotationPoint, rotationAngle);
+}
+
+void Main :: draw(int iBatch, float x, float y, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color)
+{
+	SpriteBatch * pBatch = getLegalSpriteBatch(iBatch);
+	if (pBatch)
+		pBatch->draw(x, y, width, height, u1, v1, u2, v2, color);
+}
+
+void Main :: draw(int iBatch, float x, float y, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, const Rectangle& clip)
+{
+	SpriteBatch * pBatch = getLegalSpriteBatch(iBatch);
+	if (pBatch)
+		pBatch->draw(x, y, width, height, u1, v1, u2, v2, color, clip);
+}
+
+void Main :: draw(int iBatch, float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, bool positionIsCenter)
+{
+	SpriteBatch * pBatch = getLegalSpriteBatch(iBatch);
+	if (pBatch)
+		pBatch->draw(x, y, z, width, height, u1, v1, u2, v2, color, positionIsCenter);
+}

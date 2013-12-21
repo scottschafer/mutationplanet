@@ -137,8 +137,9 @@ void SphereWorld :: killAgent(int agentIndex)
  Give all the agents in the world a chance to process. Also determines the highest
  live index (note that requestFreeAgentSlot() sets this as well)
  **/
-void SphereWorld :: step()
+int SphereWorld :: step()
 {
+	int result = 0;
     int lastLiveAgentIndex = -1;
     for (int i = 0; i <= mMaxLiveAgentIndex; i++)
     {
@@ -147,10 +148,12 @@ void SphereWorld :: step()
         {
             lastLiveAgentIndex = i;
             agent.step(this);
+			result += agent.mNumSegments;
         }
     }
     
     mMaxLiveAgentIndex = lastLiveAgentIndex;
+	return result;
 }
 
 int SphereWorld::getNearbyEntities(SphereEntity * pNearEntity, float distance, SphereEntity **pResultArray, int maxResults /*= 16 */)
@@ -184,7 +187,7 @@ void SphereWorld :: moveEntity(SphereEntity *pEntity, Vector3 newLoc)
 void SphereWorld::test()
 {
     std::vector<SphereEntity*> entities;
-    int i;
+    size_t i;
     for (i = 0; i < 10000; i++)
     {
         Vector3 v(UtilsRandom::getUnitRandom(),UtilsRandom::getUnitRandom(),UtilsRandom::getUnitRandom());

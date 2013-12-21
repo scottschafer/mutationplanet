@@ -42,21 +42,43 @@ Agent::Agent()
  
 void Agent::initialize(Vector3 pt, const char * pGenome, bool allowMutation)
 {
-    strcpy(mGenome, pGenome);
     if (strlen(pGenome) == 0)
         throw "error";
-    
+
+	mDefaultCondition = !(UtilsRandom::getRandom() % 2);
+	Instruction instructions[MAX_SEGMENTS + 1];
+	for (int i = 0; i < (MAX_SEGMENTS+1); i++)
+	{
+		instructions[i].instruction = pGenome[i];
+		instructions[i].executeType = eAlways;
+		if (!pGenome[i])
+			break;
+	}
+	initialize(pt, instructions, allowMutation);
+}
+
+void Agent::initialize(Vector3 pt, const Instruction * pGenome, bool allowMutation)
+{
+	mNumSegments = mGenome.initialize(pGenome);
+    if (mNumSegments == 0)
+		throw "error";
+
     // life, energy etc
     mStatus = eAlive;
     mSleep = 0;
-    
+	mWasEaten = false;
+	mCondition = false;
+	mWasPreyedOn = false;
+    mDormant = 0;
+
     // spawning
     mAllowMutate = allowMutation;
     mSpawnLocation = pt;
     
     // moving
     mWasBlocked = false;
-    
+    mIsHyper = false;
+
     // establish initial move vector
     float moveDistance = Parameters::getMoveDistance();
 
@@ -74,8 +96,7 @@ void Agent::initialize(Vector3 pt, const char * pGenome, bool allowMutation)
     mMoveVector.z *= moveDistance;
 
     // segments
-    mNumSegments = strlen(mGenome);
-    mEnergy = UtilsRandom::getRangeRandom(1.0f, getSpawnEnergy()-1.0f);
+    mEnergy = UtilsRandom::getRangeRandom(1.0f, getSpawnEnergy());
     mLifespan = Parameters::baseLifespan + mNumSegments * Parameters::extraLifespanPerSegment;
     mActiveSegment = 0;
     
@@ -84,150 +105,314 @@ void Agent::initialize(Vector3 pt, const char * pGenome, bool allowMutation)
     float scaleLocation = 1;
     int i = 0;
     mIsMotile = false;
-    while (i < mNumSegments)
+
+	while (i < mNumSegments)
     {
         SphereEntity &segment = mSegments[i];
         
-        segment.mType = *pGenome++;
+		segment.mType = (*pGenome).instruction;
+		++pGenome;
         if (segment.mType == eInstructionMove || segment.mType == eInstructionMoveAndEat)
             mIsMotile = true;
-        
-        segment.mSegmentIndex = i;
+
+		segment.mSegmentIndex = i;
         segment.mLocation = pt * scaleLocation;
         segment.mAgent = this;
-        segment.mIsOccluded = (i != 0);
+        segment.mIsOccluded = (mNumSegments != 1);//(i != (mNumSegments-1));
         segment.mIsAnchored = false;
         ++i;
     }
     turn(UtilsRandom::getRangeRandom(0, 359));
 }
 
+#define PHOTOSYNTHESIZE_ON_INSTRUCTION 0
+#define DOUBLE_MEANING 1
+
 /**
  Process the Agent's active segment
  **/
 void Agent::step(SphereWorld * pWorld)
 {
-    if (mStatus != eAlive)
-        return;
-    
-    if (mSleep == -1) // send me off to sleep forever more...
-        return;
-    
-    --mLifespan;
-    if (mLifespan <= 0)
-    {
-        // death from age
-        die(pWorld);
-        return;
-    }
+	if (mWasEaten || mNumSegments == 0)
+	{
+		pWorld->killAgent(mIndex);
+		return;
+	}
 
-    if (mSleep)
-    {
-        // zzzz
-        --mSleep;
+	if (mStatus != eAlive)
         return;
-    }
     
-    // lose some energy every turn
-    mEnergy -= Parameters::cycleEnergyCost;
+	extern bool gDecimateAgents;
+	if (gDecimateAgents)
+		if ((UtilsRandom::getRandom() % 10) == 0)
+		{
+			pWorld->killAgent(mIndex);
+			return;
+		}
+
+	--mLifespan;
+	if (mLifespan <= 0)
+	{
+	// death from age
+		die(pWorld);
+		return;
+	}
+
+	if (mDormant) {
+		--mDormant;
+		return;
+	}
+
+	if (mDelaySpawnCount)
+		--mDelaySpawnCount;
+
+#if ! PHOTOSYNTHESIZE_ON_INSTRUCTION
+	int numPhotosynthesize = 0;
+	for (int i = 0; i < mNumSegments; i++)
+	{
+		SphereEntity & s = mSegments[i];
+		if (s.mType == eInstructionPhotosynthesize)
+		{
+			if (! s.mIsOccluded)
+			{
+				++numPhotosynthesize;
+				mEnergy += (Parameters::photoSynthesizeEnergyGain - CYCLE_ENERGY_COST);
+				//didPhotoSynthesize = true;
+			}
+		}
+	}
+	/*
+	if (numPhotosynthesize) {
+		mEnergy += (Parameters::photoSynthesizeEnergyGain - CYCLE_ENERGY_COST) (;//(Parameters::photoSynthesizeEnergyGain - 1.0f);
+		if (numPhotosynthesize > 1)
+		{
+			mEnergy += (Parameters::photoSynthesizeEnergyGain - CYCLE_ENERGY_COST) * (numPhotosynthesize - 1);
+		}
+	}
+	*/
+#endif
+
+
+	int numSteps = (mIsHyper ? 3 : 1);
+
+	// lose some energy every turn
+	if (mEnergy < 0 || mWasEaten)
+	{
+		die(pWorld, !mWasEaten);
+		return;
+	}				
+
+	for (int step = 1; step <= numSteps; step++)
+	{
+		if (mStatus != eAlive)
+			break;
+
+		mEnergy -= CYCLE_ENERGY_COST;
+		if (mSleep && mEnergy > 0)
+		{
+			if (mSleep == -1) // send me off to sleep forever more...
+				return;
+
+			// zzzz
+			--mSleep;
+			return;
+		}
+
+		// now process the active segment
+		Instruction & i = mGenome[mActiveSegment];
+		if (((i.executeType == eIf) && ! mCondition) || ((i.executeType == eNotIf) && mCondition))
+		{
+			mEnergy += CYCLE_ENERGY_COST;// / 2;
+			numSteps = max(numSteps, 2);
+		}
+		else
+		{
+			//mEnergy -= CYCLE_ENERGY_COST;
+			//SphereEntity & s = mSegments[mActiveSegment];
+			switch (i.instruction)
+			{                
+				default:
+					break;
+            
+				case eInstructionMove:
+				case eInstructionMoveAndEat: {
+					move(pWorld, (i.instruction == eInstructionMoveAndEat));
+					break; }
+            
+				case eInstructionTurnLeft:
+					turn(-TURN_ANGLE);
+#if DOUBLE_MEANING
+					mCondition = ! mCondition;
+#endif
+					break;
+            
+				case eInstructionTurnRight:
+					turn(TURN_ANGLE);
+#if DOUBLE_MEANING
+					mCondition = ! mCondition;
+#endif
+					break;
+            
+				case eInstructionHardTurnLeft:
+					turn(-HARD_TURN_ANGLE);
+#if DOUBLE_MEANING
+					mCondition = false;
+#endif
+					break;
+            
+				case eInstructionHardTurnRight:
+					turn(HARD_TURN_ANGLE);
+#if DOUBLE_MEANING
+					mCondition = true;
+#endif
+					break;
+            
+				case eInstructionSleep:
+				    mSleep += Parameters::sleepTime;
+					mEnergy += ((Parameters::sleepTime-1) * CYCLE_ENERGY_COST) / 2;
+#if DOUBLE_MEANING
+					mCondition = false;
+#endif
+					break;
+            
+				case eInstructionTestSeeFood:
+#if DOUBLE_MEANING
+					if (testIsFacingFood(pWorld))
+						mCondition = ! mCondition;
+#else
+					mCondition = testIsFacingFood(pWorld);
+#endif
+					numSteps = max(numSteps, 2);
+					break;
+
+				case eInstructionTestBlocked:
+#if DOUBLE_MEANING
+					if (mWasBlocked)
+						mCondition = ! mCondition;
+#else
+					mCondition = mWasBlocked;
+#endif
+					numSteps = max(numSteps, 2);
+					break;
+
+				case eInstructionTestPreyedOn: {
+					bool flag = (mWasPreyedOn || (mEnergy < Parameters::extraSpawnEnergyPerSegment));
+#if DOUBLE_MEANING
+					if (flag)
+						mCondition = ! mCondition;
+#else
+					mCondition = flag;
+#endif
+					numSteps = max(numSteps, 2);
+					mWasPreyedOn = false;
+					break; }
+
+				case eInstructionTestOccluded: {
+					bool flag = false;
+					for (int i = 0; i < mNumSegments; i++)
+					{
+						SphereEntity & s = mSegments[i];
+						if (s.mIsOccluded)
+						{
+							flag = true;
+							break;
+						}
+					}
+
+#if DOUBLE_MEANING
+					if (flag)
+						mCondition = ! mCondition;
+#else
+					mCondition = flag;
+#endif
+					numSteps = max(numSteps, 2);
+					break; }
+
+											   
+				/*
+				case eInstructionClearCondition:
+					mCondition = false;
+					break;
+				case eInstructionTestNotBlocked:
+					//if (mWasBlocked)
+					//	advanceOnTestFail();
+					break;
+				*/
+
+				case eInstructionPhotosynthesize:
+					mEnergy += CYCLE_ENERGY_COST;
+#if PHOTOSYNTHESIZE_ON_INSTRUCTION
+					if (! mSegments[mActiveSegment].mIsOccluded)
+					{
+						mEnergy += Parameters::photoSynthesizeEnergyGain;
+						spawnIfAble(pWorld);
+					}
+#endif
+					break;
+
+				case eInstructionHyper:
+					mIsHyper = mCondition;
+					break;
+			}
     
-    // now process the active segment
-    SphereEntity & s = mSegments[mActiveSegment];
-    switch (s.mType)
-    {                
-        default:
-            break;
-            
-        case eInstructionMove:
-        case eInstructionMoveAndEat: {
-            move(pWorld, (s.mType == eInstructionMoveAndEat));
-            int extraCycles = Parameters::cyclesForMove - 1;
-            mSleep += extraCycles;
-            break; }
-            
-        case eInstructionTurnLeft:
-            turn(-TURN_ANGLE);
-            break;
-            
-        case eInstructionTurnRight:
-            turn(TURN_ANGLE);
-            break;
-            
-        case eInstructionHardTurnLeft:
-            turn(-HARD_TURN_ANGLE);
-            break;
-            
-        case eInstructionHardTurnRight:
-            turn(HARD_TURN_ANGLE);
-            break;
-            
-        case eInstructionSleep:
-            sleep();
-            break;
-            
-        case eInstructionTestSeeFood:
-            if (! testIsFacingFood(pWorld))
-                ++mActiveSegment;
-            break;
-            
-        case eInstructionTestNotSeeFood:
-            if (testIsFacingFood(pWorld))
-                ++mActiveSegment;
-            break;
-            
-        case eInstructionTestBlocked:
-            if (! mWasBlocked)
-                ++mActiveSegment;
-            break;
-            
-        case eInstructionTestNotBlocked:
-            if (mWasBlocked)
-                ++mActiveSegment;
-            break;
-            
-        case eInstructionPhotosynthesize:
-            if (! s.mIsOccluded)
-            {
-                mEnergy += Parameters::photoSynthesizeEnergyGain;
-                spawnIfAble(pWorld);
-            }
-            break;
-    }
-    
-    if (++mActiveSegment >= mNumSegments)
-        mActiveSegment = 0;
-    
-    if ((mStatus == eAlive) && mEnergy < 0)
-        die(pWorld);
+		}
+
+		if (++mActiveSegment >= mNumSegments) {
+			mActiveSegment = 0;
+		}
+	}
+	spawnIfAble(pWorld);
+}
+
+void Agent :: advanceOnTestFail()
+{
+	++mActiveSegment;
+	/*
+	int nextEndif = mActiveSegment;
+	while (nextEndif < mNumSegments)
+	{
+		if (mSegments[nextEndif].mType == eInstructionEndIf)
+		{
+			mActiveSegment = nextEndif + 1;
+			break;
+		}
+		++nextEndif;
+	}
+	*/
 }
 
 void Agent :: die(SphereWorld *pWorld, bool andBecomeFood)
 {
-    // after dying, turn into food
-    float energyPerSegment = .5 * getSpawnEnergy() / (float)mNumSegments;
-    
+	andBecomeFood = false;
+    // after dying, turn into food    
     vector<Vector3> foodPoints;
-    for (int i = 0; i < mNumSegments; i += 1)
-        if (! mSegments[i].mIsOccluded)
-            foodPoints.push_back(mSegments[i].mLocation);
+	if (andBecomeFood)
+		for (int i = 0; i < mNumSegments; i += 1)
+			if (! mSegments[i].mIsOccluded)
+				foodPoints.push_back(mSegments[i].mLocation);
     pWorld->killAgent(mIndex);
     
     if (andBecomeFood)
     {
-        for (int i = 0; i < foodPoints.size(); i++)
+		float energyPerSegment = UtilsRandom::getRangeRandom(1.0f, Parameters::extraLifespanPerSegment / 2);
+        for (size_t i = 0; i < foodPoints.size(); i++)
         {
             Agent *pNewAgent = pWorld->createEmptyAgent();
             if (pNewAgent)
             {
-                pNewAgent->initialize(foodPoints[i], "*", mAllowMutate);
+                pNewAgent->initialize(foodPoints[i], "*", true); //mAllowMutate);
                 pWorld->addAgentToWorld(pNewAgent);
                 
                 // The food left by a dead critter will be low energy Photosynthesize critters.
                 //
                 // They will initially be dormant, but will eventually spring to life
                 // if they aren't eaten.
-                pNewAgent->mEnergy = energyPerSegment;
-                pNewAgent->mSleep = Parameters::deadCellDormancy;
+				pNewAgent->mEnergy = pNewAgent->getSpawnEnergy();///5;// / 4;
+				
+				pNewAgent->mDormant = Parameters::deadCellDormancy;
+				/* mSleep = 
+					UtilsRandom::getRangeRandom(Parameters::deadCellDormancy/2, Parameters::deadCellDormancy); */
+				break;
             }
         }
     }
@@ -235,7 +420,7 @@ void Agent :: die(SphereWorld *pWorld, bool andBecomeFood)
 
 float Agent::getSpawnEnergy()
 {
-    return Parameters::baseSpawnEnergy + mNumSegments * Parameters::extraSpawnEnergyPerSegment;
+    return /*Parameters::baseSpawnEnergy + */ mNumSegments * Parameters::extraSpawnEnergyPerSegment;
 }
 
 /**
@@ -244,9 +429,10 @@ float Agent::getSpawnEnergy()
 void Agent::move(SphereWorld * pWorld, bool andEat)
 {
     if (andEat)
-        mEnergy -= Parameters::moveAndEatEnergyCost;
+		mEnergy -= Parameters::moveAndEatEnergyCost;
     else
         mEnergy -= Parameters::moveEnergyCost;
+	mSleep += mIsHyper ? (Parameters::extraCyclesForMove/2) : Parameters::extraCyclesForMove;
 
     mWasBlocked = false;
 
@@ -266,7 +452,7 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
         SphereEntity * pEntity = entities[i];
         
         // check that the agent is alive, since we might have killed while looping over entities
-        if (pAgent->mStatus == eNonExistent)
+		if (pAgent->mStatus == eNonExistent || pAgent->mWasEaten)
             continue;
         
         if (pAgent == this)
@@ -289,21 +475,52 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
         }
         else
         {
+			float biteStrength = Parameters::biteStrength;
+			float digestion = Parameters::digestionEfficiency;
+
             if (andEat && pEntity->mType == eInstructionPhotosynthesize)
             {
+				//bool saveBlock = mWasBlocked;
+                mWasBlocked = true;
+				/*
+				if (pEntity->mAgent->mStatus == eInanimate)
+					return;
+
+				if (pEntity->mType != eInstructionPhotosynthesize) {
+					biteStrength /= 5;
+					digestion = 0;
+				}
+				*/
+
                 // we moved onto a photosynthesize segment through a move and eat instruction, so chomp!
-                if (! ate) // only gain the energy from one eating per turn
-                    mEnergy += pAgent->mEnergy * Parameters::digestionEfficiency;
-                ate = true;
-                pWorld->killAgent(pAgent->mIndex);
+                //if (! ate) // only gain the energy from one eating per turn
+				{					
+					int energyLoss = min(Parameters::extraSpawnEnergyPerSegment * biteStrength, pAgent->mEnergy+1);
+
+                    mEnergy += energyLoss * digestion;
+					pAgent->mEnergy -= energyLoss;
+					pAgent->mWasPreyedOn = true;
+					if (pAgent->mEnergy <= 0) {
+						pAgent->mWasEaten = true;					
+						//pWorld->killAgent(pAgent->mIndex);
+		                //mWasBlocked = saveBlock;
+					}
+				}
+                //ate = true;
+				break;
+				//return;
             }
             else
             {
-                mWasBlocked = true;
-                return; // can't move over other critter
+                mWasBlocked = true; // can't move over other critter
+				return;
+                //return; 
             }
         }
     }
+
+	if (mWasBlocked)
+		return;
 
     // now move
     mSpawnLocation = mSegments[mNumSegments-1].mLocation; // old tail location
@@ -334,17 +551,24 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
     }
     
     // offset the spawn location a bit so the child isn't right up against the parent's tail
-    Vector3 spawnLocationOffset = mSpawnLocation - mSegments[mNumSegments-1].mLocation;
-    mSpawnLocation.x += spawnLocationOffset.x / 10.0f;
-    mSpawnLocation.y += spawnLocationOffset.y / 10.0f;
-    mSpawnLocation.z += spawnLocationOffset.z / 10.0f;
-    mSpawnLocation.normalize();
-
+	if (true) {
+		Vector3 spawnLocationOffset = mSpawnLocation - mSegments[mNumSegments-1].mLocation;
+		mSpawnLocation.x += spawnLocationOffset.x / 10.0f;
+		mSpawnLocation.y += spawnLocationOffset.y / 10.0f;
+		mSpawnLocation.z += spawnLocationOffset.z / 10.0f;
+		mSpawnLocation.normalize();
+	}
+	/*
+    if (andEat)
+		mEnergy -= Parameters::moveAndEatEnergyCost * Parameters::extraCyclesForMove;
+    else
+        mEnergy -= Parameters::moveEnergyCost * Parameters::extraCyclesForMove;
+		*/
     // we might be able to spawn
-    spawnIfAble(pWorld);
+//    spawnIfAble(pWorld);
 }
 
-// turn by a degress by rotating the head's move vectore
+// turn by a degress by rotating the head's move vector
 void Agent::turn(int a)
 {
     double r = double(a) / double(360) * MATH_PI * 2;
@@ -377,9 +601,10 @@ bool Agent::testIsFacingFood(SphereWorld *pWorld)
         SphereEntityPtr entities[16];
         int numEntities = pWorld->getNearbyEntities(lookLocation, lookRadius, entities);
 
-        for (int i = 0; i < numEntities; i++)
+		bool result = false;
+        for (int j = 0; j < numEntities; j++)
         {
-            SphereEntity *pEntity = entities[i];
+            SphereEntity *pEntity = entities[j];
             Agent *pAgent = pEntity->mAgent;
             
             // check that the agent is alive, since we might have killed while looping over entities
@@ -388,18 +613,24 @@ bool Agent::testIsFacingFood(SphereWorld *pWorld)
                 switch (pEntity->mType)
                 {
                     case eInstructionPhotosynthesize:
-                        return true;
+						return true;
+                        result = true;
+						break;
                         
                     case eInstructionFakePhotosynthesize:
-                        return strcmp(pEntity->mAgent->mGenome, mGenome) != 0;
-                        
-                  default:
-                    return false;
+                        result |= pEntity->mAgent->mGenome != mGenome;
+                        break;
                 }
             }
         }
-        lookVector *= 1.05;
-        lookRadius *= 1.05;
+
+		if (numEntities > 0)
+			return result;
+
+		if (i > 3) {
+			lookVector *= 1.03f;
+			lookRadius *= 1.03f;
+		}
     }
 
     return false;
@@ -415,39 +646,56 @@ void Agent::sleep()
  */
 void Agent::spawnIfAble(SphereWorld * pWorld)
 {
+	if (mDelaySpawnCount)
+		return;
+
     if (mEnergy < getSpawnEnergy())
         return;
     
-    mEnergy = max(mEnergy, getSpawnEnergy());
+    //mEnergy = min(mEnergy, getSpawnEnergy());
     
     Vector3 ptLocation = mSpawnLocation;
     
     // if we've never moved, find a nearby spot for the new child. 
     if (ptLocation == mSegments[0].mLocation)
     {
+		if (mNumSegments > 1)
+		{
+			mEnergy = -1000;
+			//die(pWorld,false);
+			return;
+		}
+
+		
+		float spawnSpread = Parameters::getMoveDistance() * 4.0f;
         while (true)
         {
-            ptLocation.x += UtilsRandom::getRangeRandom(-SPAWN_SPREAD, SPAWN_SPREAD);
-            ptLocation.y += UtilsRandom::getRangeRandom(-SPAWN_SPREAD, SPAWN_SPREAD);
-            ptLocation.z += UtilsRandom::getRangeRandom(-SPAWN_SPREAD, SPAWN_SPREAD);
+            ptLocation.x += UtilsRandom::getRangeRandom(-spawnSpread, spawnSpread);
+            ptLocation.y += UtilsRandom::getRangeRandom(-spawnSpread, spawnSpread);
+            ptLocation.z += UtilsRandom::getRangeRandom(-spawnSpread, spawnSpread);
             ptLocation.normalize();
-            if (ptLocation.distance(mSpawnLocation) > (SPAWN_SPREAD/2))
+            if (ptLocation.distance(mSpawnLocation) > (spawnSpread/2))
                 break;
         }
 
+		{
         SphereEntityPtr entities[16];
-        int numEntities = pWorld->getNearbyEntities(ptLocation, SPAWN_SPREAD, entities);
+        int numEntities = pWorld->getNearbyEntities(ptLocation, spawnSpread, entities);
         
-        if (numEntities > 8)
+        if (numEntities > 5)
         {
             // if there are a lot of entities in the vicinity, then we are shaded and cannot
             // reproduce right now.
             
-            mEnergy = getSpawnEnergy() - 1;
-            mSleep = 5000;
+	        mEnergy = getSpawnEnergy() - 1;
+			mDormant = 10000;
+
+            //mDelaySpawnCount = mIsMotile ? 1000 : 50000;
             
-//            die(pWorld,false);
+            //die(pWorld,false);
             
+			//mEnergy = -1000;
+			//mWasEaten = true;
             /*
             
             for (int i = 0; i < mNumSegments; i++)
@@ -456,28 +704,34 @@ void Agent::spawnIfAble(SphereWorld * pWorld)
              */
             return;
         }
+		}
     }
     
     // the child might have a mutant genome...
-    char mutantGenome[MAX_GENOME_LENGTH];
-    char * genome = mGenome;
-
+	Instruction *pInstructions = mGenome.mInstructions;
+	Genome mutantGenome;
     bool mutate = mAllowMutate && Parameters::mutationPercent && UtilsRandom::getRangeRandom(1, 100) <= Parameters::mutationPercent;
     if (mutate)
     {
-        genome = mutantGenome;
-        UtilsGenome::mutate(mGenome, mutantGenome);
+		mutantGenome = mGenome.mutate();
+		pInstructions = mutantGenome.mInstructions;
     }
+
+	if ((pInstructions[0].instruction == eInstructionPhotosynthesize) && (! pInstructions[1].instruction) &&
+		(pWorld->getNumAgents() > MAX_SIMPLE_PHOTOSYNTHESIZE))
+		return;
     
     Agent *pNewAgent = pWorld->createEmptyAgent();
-    if (pNewAgent)
+	if (pNewAgent != NULL && pInstructions[0].instruction != 0)
     {
-        pNewAgent->initialize(ptLocation, genome, mAllowMutate);
+        pNewAgent->initialize(ptLocation, pInstructions, mAllowMutate);
         // split the energy with the offspring
-        mEnergy = pNewAgent->mEnergy = getSpawnEnergy() / 2;
+		mEnergy = getSpawnEnergy();
+        mEnergy = pNewAgent->mEnergy = mEnergy * .5;
         pWorld->addAgentToWorld(pNewAgent);
-        if (! pNewAgent->mIsMotile)
-            pNewAgent->mEnergy = 0;
-        pNewAgent->mSleep = Parameters::sleepTimeAfterBeingSpawned;
+        //if (! pNewAgent->mIsMotile)
+        //    pNewAgent->mEnergy = 0;
+		if (pNewAgent->mIsMotile)
+			pNewAgent->mDormant = Parameters::sleepTimeAfterBeingSpawned;
     }
 }

@@ -3,6 +3,11 @@
 
 #include "gameplay.h"
 #include "arcball.h"
+#include <pthread.h>
+
+#ifdef _WINDOWS
+extern void usleep(unsigned int ms);
+#endif
 
 using namespace gameplay;
 
@@ -97,6 +102,21 @@ protected:
 private:
     static void * threadFunction(void*);
     void drawSplash(void* param);
+	
+	SpriteBatch * getLegalSpriteBatch(int iBatch);
+    void draw(int iBatch, const Rectangle& dst, const Rectangle& src, const Vector4& color = Vector4::one());
+    void draw(int iBatch, const Vector3& dst, const Rectangle& src, const Vector2& scale, const Vector4& color = Vector4::one());
+    void draw(int iBatch, const Vector3& dst, const Rectangle& src, const Vector2& scale, const Vector4& color,
+              const Vector2& rotationPoint, float rotationAngle);
+    void draw(int iBatch, const Vector3& dst, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color,
+              const Vector2& rotationPoint, float rotationAngle, bool positionIsCenter = false);
+    void draw(int iBatch, float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color,
+              const Vector2& rotationPoint, float rotationAngle, bool positionIsCenter = false);
+    void draw(int iBatch, const Vector3& position, const Vector3& right, const Vector3& forward, float width, float height, 
+              float u1, float v1, float u2, float v2, const Vector4& color, const Vector2& rotationPoint, float rotationAngle);
+    void draw(int iBatch, float x, float y, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color);
+    void draw(int iBatch, float x, float y, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, const Rectangle& clip);
+    void draw(int iBatch, float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, bool positionIsCenter = false);
 
 private:
     float mUIScale;
@@ -142,6 +162,10 @@ private:
     Slider* _baseSpawnEnergySlider;
     Slider* _extraSpawnEnergyPerSegmentSlider;
 
+    Slider* _extraCyclesForMoveSlider;
+    Slider* _biteStrengthSlider;
+    Slider* _digestionEfficiencySlider;
+
     Slider* _lookDistanceSlider;
     CheckBox * _allowSelfOverlap;
     
@@ -160,6 +184,8 @@ private:
     Rectangle mHelpCloseRect;
     
     SpriteBatch * mSegmentBatch[255];
+    int mSegmentBatchCount[255];
+	Rectangle mSegmentSrcRect[255];
 };
 
 #endif

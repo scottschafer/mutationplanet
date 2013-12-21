@@ -29,6 +29,7 @@
 #include "InstructionSet.h"
 #include "UtilsRandom.h"
 #include <vector>
+#include <algorithm>
 
 static std::vector<char> availableInstructions;
 static std::set<char> allAvailableInstructions;
@@ -45,10 +46,16 @@ void InstructionSet :: reset()
     setInstructionAvailable(eInstructionSleep, true);
     setInstructionAvailable(eInstructionTestSeeFood, true);
     setInstructionAvailable(eInstructionTestBlocked, true);
-    setInstructionAvailable(eInstructionTestNotSeeFood, true);
-    setInstructionAvailable(eInstructionTestNotBlocked, true);
+	setInstructionAvailable(eInstructionTestPreyedOn, true);
+	setInstructionAvailable(eInstructionTestOccluded, true);
+    //setInstructionAvailable(eInstructionTestNotSeeFood, false);
+    //setInstructionAvailable(eInstructionTestNotBlocked, false);
     setInstructionAvailable(eInstructionPhotosynthesize, true);
-    setInstructionAvailable(eInstructionFakePhotosynthesize, true);
+
+    setInstructionAvailable(eInstructionHyper, true);
+    //setInstructionAvailable(eInstructionPhotosynthesizeLess, false);
+
+	//setInstructionAvailable(eInstructionFakePhotosynthesize, false);
 }
 
 char InstructionSet :: getRandomInstruction()
@@ -79,6 +86,10 @@ void InstructionSet :: setInstructionAvailable(char instruction, bool isAvailabl
             availableInstructions.erase(i);
     }
     
-    allAvailableInstructions.insert(instruction);
-        
+    allAvailableInstructions.insert(instruction);        
+}
+
+bool InstructionSet::instructionSupportsConditions(char instruction)
+{
+	return instruction != eInstructionPhotosynthesize;
 }

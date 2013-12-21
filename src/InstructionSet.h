@@ -28,8 +28,15 @@ enum eInstructions
     eInstructionTestBlocked = 'B',
     eInstructionTestNotSeeFood = 'f',
     eInstructionTestNotBlocked = 'b',
+    eInstructionTestPreyedOn = 'p',
+    eInstructionTestOccluded = 'o',
     eInstructionPhotosynthesize = '*',
-    eInstructionFakePhotosynthesize = '+'
+    eInstructionFakePhotosynthesize = '+',
+	eInstructionEndIf = '|',
+	eInstructionHyper = 'H',
+	eInstructionPhotosynthesizeLess = 'x',
+	eInstructionClearCondition = '0'
+
 };
 
 
@@ -39,6 +46,8 @@ public:
     static void reset();
     static char getRandomInstruction();
     static void setInstructionAvailable(char instruction, bool isAvailable);
+	static bool instructionSupportsConditions(char instruction);
+
     static std::set<char> getAllAvailableInstructions();
 };
 
