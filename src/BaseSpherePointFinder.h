@@ -22,12 +22,14 @@ using namespace gameplay;
  
 class BaseSpherePointFinder {
 public:
+    virtual void clear() = 0;
     virtual void insert(SphereEntity *) = 0;
     virtual void remove(SphereEntity *) = 0;
     virtual void moveEntity(SphereEntity *, Vector3) = 0;
     
     virtual int getNearbyEntities(SphereEntity * pNearEntity, float distance, SphereEntity **pResultArray, int maxResults = 16) = 0;
     virtual int getNearbyEntities(Vector3 location, float distance, SphereEntity **pResultArray, int maxResults = 16) = 0;
+    virtual int getNearbyEntities(Vector3 location, float distance, SphereEntity **pResultArray, int maxResults, Agent *pExclude) = 0;
 
 };
 #endif /* defined(__BioSphere__BaseSpherePointFinder__) */

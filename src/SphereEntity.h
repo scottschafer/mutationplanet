@@ -15,17 +15,41 @@ using namespace std;
 
 class SphereWorld;
 class Agent;
+class SpherePointFinderSpaceDivision;
+
+class SphereEntityPoint3d {
+public:
+	SphereEntityPoint3d() {
+		x = y = z = 0;
+	}
+
+	void reset() {
+		x = y = z = 0;
+	}
+
+	const bool operator == (const SphereEntityPoint3d & rhs) { return x == rhs.x && y == rhs.y && z == rhs.z; }
+	const bool operator != (const SphereEntityPoint3d & rhs) { return x != rhs.x || y != rhs.y || z != rhs.z; }
+
+	int x, y, z;
+};
 
 class SphereEntity
 {
 public:
-    SphereEntity() {}
+    SphereEntity() {
+		mSpherePrev = mSphereNext = NULL;
+		mAgent = NULL;
+		mWorld = NULL;
+	}
     
     SphereEntity(Vector3 location, char type, Agent *pAgent = NULL)
     {
         mLocation = location;
         mType = type;
         mAgent = pAgent;
+		mSpherePrev = mSphereNext = NULL;
+		mAgent = NULL;
+		mWorld = NULL;
     }
     
     Agent * mAgent;
@@ -35,6 +59,9 @@ public:
     bool mIsOccluded;
     bool mIsAnchored;
     SphereWorld *mWorld;
+
+	SphereEntity * mSpherePrev, *mSphereNext;
+	SphereEntityPoint3d mSpherePoint;
 };
 
 typedef SphereEntity * SphereEntityPtr;

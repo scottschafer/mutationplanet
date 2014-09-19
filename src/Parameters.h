@@ -9,7 +9,7 @@
 #ifndef __BioSphere__Parameters__
 #define __BioSphere__Parameters__
 
-
+#include <string>
 /**
  * All the tweakable parameters
  */
@@ -17,39 +17,57 @@
 class Parameters
 {
 public:
-    static float getMoveDistance();
-    static void reset();
+	static Parameters instance;
+
+	Parameters();
+	//static void serialize(JSONSerializer &);
+
+    float getMoveDistance();
+	float getPhotosynthesizeBonus();
+    void reset();
     
     // global
-    static int speed;
-    static int mutationPercent;
-    static float cellSize;
-    
+    int speed;
+    int mutationPercent;
+    float cellSize;
+    int slowSideSpeed;
+
     // energy cost / gain
-    static float moveAndEatEnergyCost;
-    static float moveEnergyCost;
-    static float photoSynthesizeEnergyGain;
-    static float digestionEfficiency;
-    static float biteStrength;
-    static int deadCellDormancy;
+    float moveAndEatEnergyCost;
+    float moveEnergyCost;
+    float photoSynthesizeEnergyGain;
+    //float photoSynthesizeBonus;
+    float digestionEfficiency;
+    float biteStrength;
+	float unexecutedTurnCost;
+    int deadCellDormancy;
     
     // spawning
-    static float baseSpawnEnergy;
-    static float extraSpawnEnergyPerSegment;
-    static int sleepTimeAfterBeingSpawned;
+    float baseSpawnEnergy;
+    float extraSpawnEnergyPerSegment;
+    int sleepTimeAfterBeingSpawned;
     
     // lifespan
-    static float baseLifespan;
-    static float extraLifespanPerSegment;
+    float baseLifespan;
+    float extraLifespanPerSegment;
     
     // moving
-    static int extraCyclesForMove;
-    static bool allowSelfOverlap;
+    int extraCyclesForMove;
+    bool allowSelfOverlap;
     
     // looking
-    static int lookDistance;
+    int lookDistance;
     
     // sleep
-    static int sleepTime;
+    int sleepTime;
+
+	int turnToFoodAfterDeath;
+
+	float mouthSize;
+	float lookSpread;
+
+	int cannibals;
+	int allowOr;
+
 };
 #endif /* defined(__BioSphere__Parameters__) */

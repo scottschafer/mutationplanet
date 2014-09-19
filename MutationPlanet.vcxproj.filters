@@ -38,12 +38,96 @@
     <None Include="game.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\MeshGame.cpp">
+    <ClCompile Include="src\Agent.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\arcball.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\InstructionSet.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Parameters.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ScalableSlider.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SphereWorld.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UtilsGenome.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UtilsRandom.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Genome.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpherePointFinderLinkedList.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Main_InsertCritter.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Main_SaveLoad.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\MeshGame.h">
+    <ClInclude Include="src\Agent.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\arcball.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BaseSpherePointFinder.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Constants.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\InstructionSet.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Main.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Parameters.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ScalableSlider.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SphereEntity.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SphereWorld.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UtilsGenome.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UtilsRandom.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pthread\pthread.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Instruction.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Genome.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpherePointFinderLinkedList.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

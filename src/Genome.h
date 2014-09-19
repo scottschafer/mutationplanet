@@ -10,6 +10,7 @@ public:
 	Genome();
 
 	int initialize(const char *pInstructions);
+	int initializeHasExecutionType(const char *pInstructions);
 	int initialize(const Instruction *pInstructions);
 
 	Genome mutate();

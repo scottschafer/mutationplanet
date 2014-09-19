@@ -6,8 +6,8 @@
 //
 //
 
-#ifndef __BioSphere__SpherePointFinderSpaceDivison__
-#define __BioSphere__SpherePointFinderSpaceDivison__
+#ifndef __BioSphere__SpherePointFinderLinkedList__
+#define __BioSphere__SpherePointFinderLinkedList__
 
 #include "BaseSpherePointFinder.h"
 #include "constants.h"
@@ -17,26 +17,26 @@ using namespace gameplay;
 using namespace std;
 
 
-class SpherePointFinderSpaceDivision : public BaseSpherePointFinder
+class SpherePointFinderLinkedList : public BaseSpherePointFinder
 {
 public:
-    SpherePointFinderSpaceDivision();
+    SpherePointFinderLinkedList();
     
+	void clear();
     void insert(SphereEntity *);
     void remove(SphereEntity *);
     void moveEntity(SphereEntity *, Vector3);
     
     int getNearbyEntities(SphereEntity * pNearEntity, float distance, SphereEntity **pResultArray, int maxResults = 16);
     int getNearbyEntities(Vector3 location, float distance, SphereEntity **pResultArray, int maxResults = 16);
-    
-private:
-    int getNearbyEntities(Vector3 location, float distance, SphereEntity **pResultArray, int maxResults, SphereEntity *pToExclude);
+    int getNearbyEntities(Vector3 location, float distance, SphereEntity **pResultArray, int maxResults, Agent *pExclude);
 
-    SphereEntityPoint3d convertToIntVector(Vector3 &v) const;
+private:
+	SphereEntityPoint3d convertToIntVector(Vector3 &v) const;
     //SetEntityPtr getEntitySet(int x, int y, int z, bool createIfNULL = true);
 
 private:
-    SphereEntityPtr mPointsInSubspace[NUM_SUBDIVISIONS][NUM_SUBDIVISIONS][NUM_SUBDIVISIONS];
+    SphereEntityPtr *mSphereEntities;
 };
 
 #endif /* defined(__BioSphere__SpherePointFinderSpaceDivison__) */

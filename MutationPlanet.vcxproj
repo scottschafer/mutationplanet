@@ -51,7 +51,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{D672DC66-3CE0-4878-B0D2-813CA731012F}</ProjectGuid>
+    <ProjectGuid>{E3966560-AFCF-4BD0-A742-26278CC552B2}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>sample00-mesh</RootNamespace>
   </PropertyGroup>
@@ -161,7 +161,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
     <OutDir>$(Configuration)\</OutDir>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
     <CustomBuildBeforeTargets>
@@ -249,15 +249,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_ITERATOR_DEBUG_LEVEL=0;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../gameplay/src;../../external-deps/bullet/include;../../external-deps/lua/include;../../external-deps/openal/include/AL;../../external-deps/oggvorbis/include;../../external-deps/libpng/include;../../external-deps/zlib/include;../../external-deps/glew/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./src/pthread;../gameplay/src;../external-deps/bullet/include;../external-deps/lua/include;../external-deps/openal/include/AL;../external-deps/oggvorbis/include;../external-deps/libpng/include;../external-deps/zlib/include;../external-deps/glew/include</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>lua.lib;OpenAL32.lib;OpenGL32.lib;GLU32.lib;glew32.lib;libpng14.lib;zlib.lib;gameplay.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../external-deps/lua/lib/windows/x86;../../external-deps/bullet/lib/windows/x86;../../external-deps/openal/lib/windows/x86;../../external-deps/oggvorbis/lib/windows/x86;../../external-deps/glew/lib/windows/x86;../../external-deps/libpng/lib/windows/x86;../../external-deps/zlib/lib/windows/x86;../../gameplay/windows/x86/$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>pthreadVC2.lib;lua.lib;OpenAL32.lib;OpenGL32.lib;GLU32.lib;glew32.lib;libpng14.lib;zlib.lib;gameplay.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../external-deps/lua/lib/windows/x86;../external-deps/bullet/lib/windows/x86;../external-deps/openal/lib/windows/x86;../external-deps/oggvorbis/lib/windows/x86;../external-deps/glew/lib/windows/x86;../external-deps/libpng/lib/windows/x86;../external-deps/zlib/lib/windows/x86;../gameplay/windows/x86/$(Configuration);./src/pthread</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -501,15 +500,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../gameplay/src;../../external-deps/bullet/include;../../external-deps/lua/include;../../external-deps/openal/include/AL;../../external-deps/oggvorbis/include;../../external-deps/libpng/include;../../external-deps/zlib/include;../../external-deps/glew/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./src/pthread;../gameplay/src;../external-deps/bullet/include;../external-deps/lua/include;../external-deps/openal/include/AL;../external-deps/oggvorbis/include;../external-deps/libpng/include;../external-deps/zlib/include;../external-deps/glew/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>lua.lib;OpenAL32.lib;OpenGL32.lib;GLU32.lib;glew32.lib;libpng14.lib;zlib.lib;gameplay.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../external-deps/lua/lib/windows/x86;../../external-deps/bullet/lib/windows/x86;../../external-deps/openal/lib/windows/x86;../../external-deps/oggvorbis/lib/windows/x86;../../external-deps/glew/lib/windows/x86;../../external-deps/libpng/lib/windows/x86;../../external-deps/zlib/lib/windows/x86;../../gameplay/windows/x86/$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>pthreadVC2.lib;lua.lib;OpenAL32.lib;OpenGL32.lib;GLU32.lib;glew32.lib;libpng14.lib;zlib.lib;gameplay.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>./src/pthread;../external-deps/lua/lib/windows/x86;../external-deps/bullet/lib/windows/x86;../external-deps/openal/lib/windows/x86;../external-deps/oggvorbis/lib/windows/x86;../external-deps/glew/lib/windows/x86;../external-deps/libpng/lib/windows/x86;../external-deps/zlib/lib/windows/x86;../gameplay/windows/x86/$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -635,10 +634,38 @@
     <None Include="res\grid.material" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\MeshGame.cpp" />
+    <ClCompile Include="src\Agent.cpp" />
+    <ClCompile Include="src\arcball.cpp" />
+    <ClCompile Include="src\Genome.cpp" />
+    <ClCompile Include="src\InstructionSet.cpp" />
+    <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Main_InsertCritter.cpp" />
+    <ClCompile Include="src\Main_SaveLoad.cpp" />
+    <ClCompile Include="src\Parameters.cpp" />
+    <ClCompile Include="src\ScalableSlider.cpp" />
+    <ClCompile Include="src\SpherePointFinderLinkedList.cpp" />
+    <ClCompile Include="src\SphereWorld.cpp" />
+    <ClCompile Include="src\UtilsGenome.cpp" />
+    <ClCompile Include="src\UtilsRandom.cpp" />
+    <ClCompile Include="src\win.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\MeshGame.h" />
+    <ClInclude Include="src\Agent.h" />
+    <ClInclude Include="src\arcball.h" />
+    <ClInclude Include="src\BaseSpherePointFinder.h" />
+    <ClInclude Include="src\Constants.h" />
+    <ClInclude Include="src\Genome.h" />
+    <ClInclude Include="src\Instruction.h" />
+    <ClInclude Include="src\InstructionSet.h" />
+    <ClInclude Include="src\Main.h" />
+    <ClInclude Include="src\Parameters.h" />
+    <ClInclude Include="src\pthread\pthread.h" />
+    <ClInclude Include="src\ScalableSlider.h" />
+    <ClInclude Include="src\SphereEntity.h" />
+    <ClInclude Include="src\SpherePointFinderLinkedList.h" />
+    <ClInclude Include="src\SphereWorld.h" />
+    <ClInclude Include="src\UtilsGenome.h" />
+    <ClInclude Include="src\UtilsRandom.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

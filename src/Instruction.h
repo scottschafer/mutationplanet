@@ -7,10 +7,14 @@ enum eSegmentExecutionType {
 	eNotIf = 'n'
 };
 
-typedef struct {
+class Instruction {
+public:
+	Instruction() {}
+	Instruction(char instruction, eSegmentExecutionType executeType) : instruction(instruction), executeType(executeType) {}
+
 	char instruction;
 	eSegmentExecutionType executeType;
 
-} Instruction;
+};
 
 #endif

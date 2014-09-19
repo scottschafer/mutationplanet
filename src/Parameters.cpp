@@ -23,42 +23,71 @@
 
 #include "Parameters.h"
 
+Parameters Parameters :: instance;
+
+Parameters :: Parameters() {
+	speed = 10;
+	mutationPercent = 15;
+	slowSideSpeed = 4;
+
+	reset();
+}
+
 float Parameters::getMoveDistance()
 {
-    return (.004f + (float) cellSize * .004f);// * .75f;
+    return (cellSize + 1) * .002f;
+}
+
+float Parameters::getPhotosynthesizeBonus()
+{
+	return photoSynthesizeEnergyGain - 1.0;
 }
 
 void Parameters :: reset()
 {
-    mutationPercent = 8;
-    moveEnergyCost = 10;
-    moveAndEatEnergyCost = 20;//6;
-    photoSynthesizeEnergyGain = 1.2f;//8;
+	slowSideSpeed = 4;
+    mutationPercent = 25;
+    moveEnergyCost = 4;
+    moveAndEatEnergyCost = 60;//6;
+    photoSynthesizeEnergyGain = 2.0f;//8;
+	//photoSynthesizeBonus = 1.0f;
     digestionEfficiency = 1.0f;
-	biteStrength = .5f;
-    deadCellDormancy = 2000;
-    baseSpawnEnergy = 1000;
+	biteStrength = 1.0f;
+    deadCellDormancy = 10000; // turns before a "dead" cell (such as left by a critter that starved) turns into a live photo cell
+    baseSpawnEnergy = 0;
     extraSpawnEnergyPerSegment = 1000;
-    sleepTimeAfterBeingSpawned = 5;
+    sleepTimeAfterBeingSpawned = 0;//20;
     
-    baseLifespan = 5000;
-    extraLifespanPerSegment = 5000;
-    cellSize = 1;
-    extraCyclesForMove = 10;
+    baseLifespan = 0;
+    extraLifespanPerSegment = 10000;
+    cellSize = 4;
+    extraCyclesForMove = 5;
     allowSelfOverlap = false;
     lookDistance = 30;
-    
-    sleepTime = 10;
+
+    sleepTime = 20;
+	unexecutedTurnCost = .1f;
+
+	turnToFoodAfterDeath = true;
+
+	mouthSize = 1.0f;
+	lookSpread = 1.02f;
+
+	cannibals = 1;
+	allowOr = true;
 }
 
+/*
 // global
 int Parameters :: speed = 10;
 int Parameters :: mutationPercent;
+int Parameters :: slowSideSpeed = 4;
 
 // energy cost / gain
 float Parameters :: moveEnergyCost;
 float Parameters :: moveAndEatEnergyCost;
 float Parameters :: photoSynthesizeEnergyGain;
+float Parameters :: unexecutedTurnCost;
 float Parameters :: digestionEfficiency;
 float Parameters :: biteStrength;
 int Parameters :: deadCellDormancy;
@@ -83,3 +112,15 @@ int Parameters :: lookDistance;
 // sleep
 int Parameters :: sleepTime;
 
+int Parameters :: turnToFoodAfterDeath;
+
+//float Parameters :: photoSynthesizeBonus;
+
+float Parameters :: mouthSize;
+float Parameters :: lookSpread;
+
+int Parameters :: cannibals;
+
+int Parameters :: allowOr;
+
+*/

@@ -17,6 +17,7 @@ enum eInstructions
     eBarrier1 = '.',
     eBarrier2 = ',',
     eBarrier3 = '_',
+    eBarrier4 = '-',
     eInstructionMoveAndEat = 'M',
     eInstructionMove = 'n',
     eInstructionTurnLeft = '<',

@@ -11,11 +11,12 @@ extern void usleep(unsigned int ms);
 
 using namespace gameplay;
 
+class SphereWorld;
+
 /**
  * Main game class.
  */
 class Main: public Game, Control::Listener
-
 {
 public:
 
@@ -33,6 +34,7 @@ public:
      * @see Game::touchEvent
      */
     void touchEvent(Touch::TouchEvent evt, int x, int y, unsigned int contactIndex);
+	void touchEvent(Touch::TouchEvent evt, float x, float y, unsigned int contactIndex);
     void gesturePinchEvent(int x, int y, float scale);
 
 protected:
@@ -61,7 +63,9 @@ protected:
     void renderHelp();
     
     Rectangle scaleUI(Rectangle);
-    /**
+	Rectangle getRectangleForPoint(Vector3 point, float renderSize, float offsetX, float offsetY, float scaleSize = 1);
+
+	/**
      * @see Control::controlEvent
      */
     void controlEvent(Control* control, EventType evt);
@@ -70,7 +74,7 @@ protected:
     void setControlValues();
     void createSpacer(Form *form, float height);
     
-    void createControlHeader(Form *form, std::string text,
+    Label * createControlHeader(Form *form, std::string text,
                              Vector2 pos = Vector2(-1,-1),
                              Vector2 size = Vector2(-1,-1),
                              Vector4 textColor = Vector4(.5,.5,.5,1));
@@ -85,21 +89,43 @@ protected:
                           Vector2 pos = Vector2(-1,-1),
                           Vector2 size = Vector2(-1,-1));
 
+    Label * createLabel(Form *form, std::string label, const char * id = "",
+                          Vector2 pos = Vector2(-1,-1),
+                          Vector2 size = Vector2(-1,-1));
+
     Container * createContainer(Form *form, bool border,
                                 Vector2 pos = Vector2(-1,-1),
                                 Vector2 size = Vector2(-1,-1));
     
     Form * createForm(float width, float height, bool isLayoutVertical = true);
-    
+
+	void createInsertCritterForm();
+	void handleInsertCritterEvent(Control* control, EventType evt);
+	void updateInsertCritterForm();
+    void insertCritter(int count);
+	void setInsertCritterFormVisible(bool);
+
+	void createLoadSaveForm();
+	void setSaveLoadFormVisible(bool show);
+	void handleSaveLoad();
+	bool handleSaveLoadEvent(Control* control, EventType evt);
+	void updateSaveLoad(float elapsed);
+
+	void renderSegment(std::string segment, Rectangle dstRect);
+
     void updateControlLabel(std::string parameterId, const char *pFormat, ...);
 
     void setBarriers(int type, bool bOn);
-    
+    void onBarriers();
     void resetWorld();
     void resetParameters();
-    void insertCritter();
     
 private:
+	void handleSave(int i);
+	void handleLoad(int i);
+
+	void handleFollowCritter(float elapsedTime);
+
     static void * threadFunction(void*);
     void drawSplash(void* param);
 	
@@ -119,6 +145,8 @@ private:
     void draw(int iBatch, float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, bool positionIsCenter = false);
 
 private:
+	static SphereWorld world;
+	int mCurBarriers;
     float mUIScale;
     ArcBall _arcball;
     pthread_t mThread;
@@ -135,29 +163,33 @@ private:
     Form* _formHelp;
     
     bool    mShowingInsertCritter;
+	bool	mShowingLoadSave;
     Form* _formInsertCritter;
+    Form* _formSaveLoad;
     
     Font* _font;
 
-    Button * _resetWorldButton;
+    Button * _saveLoadButton;
+	Button * _resetWorldButton;
     Button * _resetParametersButton;
     Button * _insertButton;
     Button * _helpButton;
     
-    CheckBox * _barriers1;
-    CheckBox * _barriers2;
-    CheckBox * _barriers3;
-
     CheckBox * _showAdvanced;
+    CheckBox * _followCritter;
     CheckBox * _colorCodeSpecies;
     Slider* _speedSlider;
     Slider* _mutationSlider;
     Slider* _cellSizeSlider;
+    Slider* _barriersSlider;
 
     Slider* _cycleEnergyCostSlider;
     Slider* _photoSynthesizeEnergyGainSlider;
+    Slider* _photoSynthesizeBonusSlider;
+    Slider* _deadCellDormancySlider;
     Slider* _moveEnergyCostSlider;
     Slider* _moveAndEatEnergyCostSlider;
+    Slider* _mouthSizeSlider;
 
     Slider* _baseSpawnEnergySlider;
     Slider* _extraSpawnEnergyPerSegmentSlider;
@@ -168,12 +200,17 @@ private:
 
     Slider* _lookDistanceSlider;
     CheckBox * _allowSelfOverlap;
-    
+    CheckBox * _starveBecomeFood;
+    CheckBox * _cannibals;
+	CheckBox * _allowOr;
+
     // insert form
     std::vector<Button*> mInsertInstructionButtons;
     Container * mInsertCritterGenome;
     Button * mInsertClear;
-    Button * mInsertOK;
+    Button * mInsertOK_1;
+    Button * mInsertOK_25;
+    Button * mInsertOK_500;
     Button * mInsertCancel;
     std::string mInsertGenome;
     
@@ -186,6 +223,37 @@ private:
     SpriteBatch * mSegmentBatch[255];
     int mSegmentBatchCount[255];
 	Rectangle mSegmentSrcRect[255];
+};
+
+enum
+{
+    iHelpPage1 = 0,
+    iHelpPage2,
+    iHelpPage3,
+    iHelpPage4,
+    iHelpPage5,
+    iHelpClose,
+    
+    iSpriteSphere,
+    
+    iGenericSegment,
+
+    iSegmentFrame,
+
+    iActiveSegment = 200,
+	iActiveSegmentConditionOff,
+	iSegmentIf,
+	iSegmentIfNot,
+	iSegmentAlways,
+    iMoveArrow
+};
+
+class LockWorldMutex {
+public:
+	LockWorldMutex(bool bDoLock = true);
+	~LockWorldMutex();
+private:
+	bool mDoLock;
 };
 
 #endif

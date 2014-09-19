@@ -27,6 +27,7 @@
 #include "Agent.h"
 #include "UtilsRandom.h"
 #include "SpherePointFinderSpaceDivison.h"
+#include "SpherePointFinderLinkedList.h"
 
 static BaseSpherePointFinder * pSpherePointFinder = NULL;
 static SphereWorld * pInstance = NULL;
@@ -34,11 +35,11 @@ static SphereWorld * pInstance = NULL;
 
 SphereWorld::SphereWorld()
 {
-    // = new SpherePointFinderKDTree();
-    pSpherePointFinder = new SpherePointFinderSpaceDivision();
+	pSpherePointFinder = new SpherePointFinderLinkedList();
 
     mMaxLiveAgentIndex = -1;
     mNumAgents = 0;
+	mAllowFollow = false;
 
     if (pInstance)
         throw "already inited";
@@ -50,6 +51,19 @@ SphereWorld::SphereWorld()
     
     pInstance = this;
 }
+
+void SphereWorld :: clear()
+{
+    for (int i = 0; i < MAX_AGENTS; i++)
+    {
+        Agent & agent = mAgents[i];
+        if (agent.mStatus == eAlive)
+            killAgent(i);
+    }
+	mNumAgents = mMaxLiveAgentIndex = 0;
+	mFreeSlots.clear();
+}
+
 
 /**
  get a nonexistent entity, or -1 if none are available
@@ -84,12 +98,15 @@ int SphereWorld :: requestFreeAgentSlot()
  **/
 Agent * SphereWorld :: createEmptyAgent(bool killIfNecessary /* = true */)
 {
-    if (killIfNecessary && mNumAgents == MAX_AGENTS)
+	int killedIndex = -1;
+
+    if (killIfNecessary && mNumAgents >= MAX_AGENTS)
     {
         for (int i = 0; i < mMaxLiveAgentIndex; i++)
         {
             if (mAgents[i].mStatus == eAlive)
             {
+				killedIndex = i;
                 killAgent(i);
                 break;
             }
@@ -98,6 +115,10 @@ Agent * SphereWorld :: createEmptyAgent(bool killIfNecessary /* = true */)
     
     Agent *pResult = NULL;
     int index = requestFreeAgentSlot();
+	if (index == -1)
+	{
+		printf("WTF");
+	}
     if (index != -1)
     {
         pResult = &mAgents[index];
@@ -121,6 +142,11 @@ void SphereWorld :: addAgentToWorld(Agent *pAgent)
  **/
 void SphereWorld :: killAgent(int agentIndex)
 {
+	if (agentIndex == mTopCritterIndex) {
+		mTopCritterIndex = -1;
+		mAllowFollow = false;
+	}
+
     if (mAgents[agentIndex].mStatus == eNonExistent)
         throw "attempt to kill non-existent agent";
     
@@ -129,7 +155,8 @@ void SphereWorld :: killAgent(int agentIndex)
         unregisterEntity(&agent.mSegments[i]);
     agent.mStatus = eNonExistent;
     
-    mFreeSlots.insert(agentIndex);
+	mFreeSlots.insert(agentIndex);
+
     --mNumAgents;
 }
 
@@ -139,13 +166,24 @@ void SphereWorld :: killAgent(int agentIndex)
  **/
 int SphereWorld :: step()
 {
+	if (mTopCritterIndex != -1 && mAgents[mTopCritterIndex].mStatus != eAlive)
+		mTopCritterIndex = -1;
+
+	int topCritterIndex = -1;
+	int topEnergy = -1;
+
 	int result = 0;
     int lastLiveAgentIndex = -1;
     for (int i = 0; i <= mMaxLiveAgentIndex; i++)
     {
         Agent & agent = mAgents[i];
-        if (agent.mStatus != eNonExistent)
+
+        if (agent.mStatus == eAlive)
         {
+			if (agent.mEnergy > topEnergy) {
+				topCritterIndex = i;
+				topEnergy = agent.mEnergy;
+			}
             lastLiveAgentIndex = i;
             agent.step(this);
 			result += agent.mNumSegments;
@@ -153,6 +191,8 @@ int SphereWorld :: step()
     }
     
     mMaxLiveAgentIndex = lastLiveAgentIndex;
+	if (mTopCritterIndex ==-1)
+		mTopCritterIndex = topCritterIndex;
 	return result;
 }
 
@@ -164,6 +204,11 @@ int SphereWorld::getNearbyEntities(SphereEntity * pNearEntity, float distance, S
 int SphereWorld::getNearbyEntities(Vector3 location, float distance, SphereEntity **pResultArray, int maxResults /* = 16 */)
 {
     return pSpherePointFinder->getNearbyEntities(location, distance, pResultArray, maxResults);
+}
+
+int SphereWorld::getNearbyEntities(Vector3 location, float distance, SphereEntity **pResultArray, int maxResults /* = 16 */, Agent *pExclude /* = null */)
+{
+    return pSpherePointFinder->getNearbyEntities(location, distance, pResultArray, maxResults, pExclude);
 }
 
 void SphereWorld :: registerEntity(SphereEntity *pEntity)
@@ -182,13 +227,18 @@ void SphereWorld :: moveEntity(SphereEntity *pEntity, Vector3 newLoc)
 }
 
 /**
- Not currently called, but used to test the point finding utility
+ Used to test the point finding utility
  **/
 void SphereWorld::test()
 {
+	//return;
+
+	srand(0);
     std::vector<SphereEntity*> entities;
     size_t i;
-    for (i = 0; i < 10000; i++)
+	size_t testSize = 100;
+
+    for (i = 0; i < testSize; i++)
     {
         Vector3 v(UtilsRandom::getUnitRandom(),UtilsRandom::getUnitRandom(),UtilsRandom::getUnitRandom());
         
@@ -201,6 +251,8 @@ void SphereWorld::test()
     
     for (i = 0; i < entities.size(); i++)
     {
+		printf("looking for %d\n", i);
+
         SphereEntity * pEntity = entities[i];
         for (int j = 0; j < 4; j++)
         {
@@ -212,8 +264,9 @@ void SphereWorld::test()
                 testPt.y += UtilsRandom::getRangeRandom(-d, d);
                 testPt.z += UtilsRandom::getRangeRandom(-d, d);
                 
+				float distance = testPt.distance(pEntity->mLocation);
                 SphereEntityPtr entities[10000];
-                int numEntities = getNearbyEntities(testPt, d, entities, 10000);
+                int numEntities = getNearbyEntities(testPt, d, entities, testSize);
                 
                 bool foundEntity = false;
                 for (int l = 0; l < numEntities; l++)
@@ -227,7 +280,7 @@ void SphereWorld::test()
                 {
                     unregisterEntity(pEntity);
                     registerEntity(pEntity);
-                    getNearbyEntities(testPt, d, entities, 10000);
+                    getNearbyEntities(testPt, d, entities, testSize);
                     throw "fail";
                 }
             }
@@ -238,3 +291,51 @@ void SphereWorld::test()
         unregisterEntity(entities[i]);
 }
 
+
+void SphereWorld :: killAtLeastNumSegments(int minSegments) {
+}
+
+void SphereWorld::read(istream & in)
+{
+	pSpherePointFinder->clear();
+
+	in.read((char*)&mAgents,sizeof(mAgents));
+	in.read((char*)&mEntites,sizeof(mEntites));
+
+	mFreeSlots.empty();
+	mNumAgents = mMaxLiveAgentIndex = 0;
+
+	for (int i = 0; i < MAX_AGENTS; i++)
+    {
+		Agent & agent = mAgents[i];
+		if (mAgents[i].mStatus == eNonExistent) {
+			mFreeSlots.insert(i);
+		}
+		else {
+			++mNumAgents;
+
+			if (mAgents[i].mStatus == eAlive) {
+				mMaxLiveAgentIndex = i;
+			}
+
+			agent.mSegments = &this->mEntites[i*MAX_SEGMENTS];
+		
+			for (int j = 0; j < agent.mNumSegments; j++) {
+			
+				SphereEntity & entity = agent.mSegments[j];
+				entity.mSphereNext = NULL;
+				entity.mSpherePrev = NULL;
+				entity.mAgent = &agent;
+				entity.mWorld = this;
+				entity.mSpherePoint.x = -9999; // force registration
+				registerEntity(&entity);
+			}
+		}
+	}
+}
+
+void SphereWorld::write(ostream & out)
+{
+	out.write((char*)&mAgents,sizeof(mAgents));
+	out.write((char*)&mEntites,sizeof(mEntites));
+}

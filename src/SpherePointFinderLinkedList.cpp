@@ -18,7 +18,7 @@
 
 
 /**
- SpherePointFinderSpaceDivision
+ SpherePointFinderLinkedList
  
  A quick and dirty method of finding points on a sphere. The method is to carve up the cube
  containing the sphere into subdivisions (in this case, 80 x 80 x 80). Each subdivision (which
@@ -30,17 +30,24 @@
  needs to happen.
  **/
 
-#include "SpherePointFinderSpaceDivison.h"
+#include "SpherePointFinderLinkedList.h"
 
-SpherePointFinderSpaceDivision::SpherePointFinderSpaceDivision()
+const int kNumSubdivisions = 64;//32;
+
+#define ENTITY_INDEX(x,y,z) (x + y*kNumSubdivisions + z*kNumSubdivisions*kNumSubdivisions)
+
+SpherePointFinderLinkedList::SpherePointFinderLinkedList()
 {
-    for (int x = 0; x < NUM_SUBDIVISIONS; x++)
-        for (int y = 0; y < NUM_SUBDIVISIONS; y++)
-            for (int z = 0; z < NUM_SUBDIVISIONS; z++)
-                mPointsInSubspace[x][y][z] = 0;
+	mSphereEntities = new SphereEntityPtr[kNumSubdivisions*kNumSubdivisions*kNumSubdivisions];
+	memset(mSphereEntities, 0, sizeof(SphereEntityPtr)*kNumSubdivisions*kNumSubdivisions*kNumSubdivisions);
 }
 
-void SpherePointFinderSpaceDivision:: insert(SphereEntity * pEntity)
+void SpherePointFinderLinkedList::clear()
+{
+	memset(mSphereEntities, 0, sizeof(SphereEntityPtr)*kNumSubdivisions*kNumSubdivisions*kNumSubdivisions);
+}
+
+void SpherePointFinderLinkedList:: insert(SphereEntity * pEntity)
 {
 	if (pEntity->mSpherePrev || pEntity->mSphereNext)
 		remove(pEntity);
@@ -50,25 +57,29 @@ void SpherePointFinderSpaceDivision:: insert(SphereEntity * pEntity)
 	if (spherePoint != pEntity->mSpherePoint) {
 		pEntity->mSpherePoint = spherePoint;
 
+		int entityIndex = ENTITY_INDEX(spherePoint.x,spherePoint.y,spherePoint.z);
 		pEntity->mSpherePrev = NULL;
-		pEntity->mSphereNext = mPointsInSubspace[spherePoint.x][spherePoint.y][spherePoint.z];
+		pEntity->mSphereNext = mSphereEntities[entityIndex];
 		if (pEntity->mSphereNext != NULL) {
 			pEntity->mSphereNext->mSpherePrev = pEntity;
 		}
-		mPointsInSubspace[spherePoint.x][spherePoint.y][spherePoint.z] = pEntity;
+		mSphereEntities[entityIndex] = pEntity;
 	}
 }
 
-void SpherePointFinderSpaceDivision:: remove(SphereEntity * pEntity)
+void SpherePointFinderLinkedList:: remove(SphereEntity * pEntity)
 {
     Vector3 v = pEntity->mLocation;
     SphereEntityPoint3d spherePoint = convertToIntVector(v);
+
+	int entityIndex = ENTITY_INDEX(spherePoint.x,spherePoint.y,spherePoint.z);
 
 #ifdef _DEBUG
 	if (pEntity->mSpherePoint != spherePoint)
 		throw "Entity does not have mSpherePoint set correctly";
 
-	SphereEntity *pTest = mPointsInSubspace[spherePoint.x][spherePoint.y][spherePoint.z];
+	SphereEntity *pTest = mSphereEntities[entityIndex];
+
 	if (pTest->mSpherePrev != NULL)
 		throw "Head should have no prev";
 
@@ -86,8 +97,8 @@ void SpherePointFinderSpaceDivision:: remove(SphereEntity * pEntity)
 	SphereEntity * pNext = pEntity->mSphereNext;
 	SphereEntity * pPrev = pEntity->mSpherePrev;
 
-	if (mPointsInSubspace[spherePoint.x][spherePoint.y][spherePoint.z] == pEntity)
-		mPointsInSubspace[spherePoint.x][spherePoint.y][spherePoint.z] = pNext;
+	if (mSphereEntities[entityIndex] == pEntity)
+		mSphereEntities[entityIndex] = pNext;
 
 	if (pNext != NULL)
 		pNext->mSpherePrev = pPrev;
@@ -98,17 +109,17 @@ void SpherePointFinderSpaceDivision:: remove(SphereEntity * pEntity)
 	pEntity->mSpherePoint.reset();
 }
 
-SphereEntityPoint3d SpherePointFinderSpaceDivision :: convertToIntVector(Vector3 &v) const
+SphereEntityPoint3d SpherePointFinderLinkedList :: convertToIntVector(Vector3 &v) const
 {
 	SphereEntityPoint3d result;
-    result.x = max(min(NUM_SUBDIVISIONS - 1, int ((v.x + 1) / 2 * NUM_SUBDIVISIONS + .5)),0);
-    result.y = max(min(NUM_SUBDIVISIONS - 1, int ((v.y + 1) / 2 * NUM_SUBDIVISIONS + .5)),0);
-    result.z = max(min(NUM_SUBDIVISIONS - 1, int ((v.z + 1) / 2 * NUM_SUBDIVISIONS + .5)),0);
+    result.x = max(min(kNumSubdivisions - 1, int ((v.x + 1) / 2 * kNumSubdivisions + .5)),0);
+    result.y = max(min(kNumSubdivisions - 1, int ((v.y + 1) / 2 * kNumSubdivisions + .5)),0);
+    result.z = max(min(kNumSubdivisions - 1, int ((v.z + 1) / 2 * kNumSubdivisions + .5)),0);
 	return result;
 }
 
 
-void SpherePointFinderSpaceDivision:: moveEntity(SphereEntity * pEntity, Vector3 newLoc)
+void SpherePointFinderLinkedList:: moveEntity(SphereEntity * pEntity, Vector3 newLoc)
 {
     SphereEntityPoint3d oldV = convertToIntVector(pEntity->mLocation);
     SphereEntityPoint3d newV = convertToIntVector(newLoc);
@@ -125,17 +136,17 @@ void SpherePointFinderSpaceDivision:: moveEntity(SphereEntity * pEntity, Vector3
 	}
 }
 
-int SpherePointFinderSpaceDivision:: getNearbyEntities(SphereEntity * pNearEntity, float distance, SphereEntity **pResultArray, int maxResults /*= 16 */)
+int SpherePointFinderLinkedList:: getNearbyEntities(SphereEntity * pNearEntity, float distance, SphereEntity **pResultArray, int maxResults /*= 16 */)
 {
-    return getNearbyEntities(pNearEntity->mLocation, distance, pResultArray, maxResults, pNearEntity);
+	return getNearbyEntities(pNearEntity->mLocation, distance, pResultArray, maxResults, pNearEntity->mAgent);
 }
 
-int SpherePointFinderSpaceDivision::getNearbyEntities(Vector3 location, float distance, SphereEntity **pResultArray, int maxResults)
+int SpherePointFinderLinkedList::getNearbyEntities(Vector3 location, float distance, SphereEntity **pResultArray, int maxResults)
 {
     return getNearbyEntities(location, distance, pResultArray, maxResults, NULL);
 }
 
-int SpherePointFinderSpaceDivision::getNearbyEntities(Vector3 pt, float distance, SphereEntity **pResultArray, int maxResults, SphereEntity *pToExclude)
+int SpherePointFinderLinkedList::getNearbyEntities(Vector3 pt, float distance, SphereEntity **pResultArray, int maxResults, Agent *pAgentToExclude)
 {
     int result = 0;
     
@@ -155,10 +166,11 @@ int SpherePointFinderSpaceDivision::getNearbyEntities(Vector3 pt, float distance
         for (int y = fY; y <= tY; y++)
             for (int z = fZ; z <= tZ; z++)
             {
-				SphereEntityPtr pEntity = mPointsInSubspace[x][y][z];
+				int entityIndex = ENTITY_INDEX(x,y,z);
+				SphereEntityPtr pEntity = mSphereEntities[entityIndex];
 				while (pEntity != NULL) {
                 
-                    if (pToExclude != pEntity) {
+					if (pAgentToExclude == NULL || pAgentToExclude != pEntity->mAgent) {
 						Vector3 testPt = pEntity->mLocation;
                     
 						float d = calcDistance(pt, testPt);

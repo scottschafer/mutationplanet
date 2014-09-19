@@ -19,6 +19,21 @@ int Genome :: initialize(const char *pInstructions)
 	return i;
 }
 
+int Genome :: initializeHasExecutionType(const char *pInstructions)
+{
+	memset(mInstructions, 0, sizeof(mInstructions));
+
+	int i = 0;
+	while (*pInstructions)
+	{
+		mInstructions[i].instruction = *pInstructions++;
+		mInstructions[i].executeType = (eSegmentExecutionType) *pInstructions++;
+		++i;
+	}
+	return i;
+}
+
+
 int Genome :: initialize(const Instruction *pInstructions)
 {
 	memset(mInstructions, 0, sizeof(mInstructions));
@@ -48,7 +63,7 @@ const std::string Genome::toString()
 
 static eSegmentExecutionType getRandomExecutionType()
 {
-	int r = rand() % 5;
+	int r = rand() % 3;
 	switch (r) {
 	case 0:
 		return eIf;

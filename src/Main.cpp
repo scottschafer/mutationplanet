@@ -37,32 +37,12 @@
 #include "ScalableSlider.h"
 
 // indexes of special graphics in our mSegmentBatch array
-enum
-{
-    iHelpPage1 = 0,
-    iHelpPage2,
-    iHelpPage3,
-    iHelpPage4,
-    iHelpPage5,
-    iHelpClose,
-    
-    iSpriteSphere,
-    
-    iActiveSegment,
-    iGenericSegment,
-
-
-    iSegmentFrame,
-    iMoveArrow,
-
-	iSegmentIf = 200,
-	iSegmentIfNot,
-	iSegmentAlways
-};
 
 // Declare our game instance
 Main game;
-static SphereWorld world;
+SphereWorld Main :: world;
+
+static int mFollowingIndex;
 
 // for tracking the turns per second
 int numTurns = 0;
@@ -72,11 +52,25 @@ float totalElapsedTime = 0;
 pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
 bool threadAlive = false;
 
+
+LockWorldMutex::LockWorldMutex(bool bDoLock) : mDoLock(bDoLock)
+{
+	if (mDoLock)
+	    pthread_mutex_lock( &mutex1 );
+}
+
+LockWorldMutex::~LockWorldMutex()
+{
+	if (mDoLock)
+	    pthread_mutex_unlock( &mutex1 );
+}
+
+
 /**
  * When useGenomeColorMapping is on, draw critters with the same genome i the same color. This makes it easier
  * to visualize the dominance of one particular genome.
  */
-bool useGenomeColorMapping = false;
+bool useGenomeColorMapping = true;
 
 Vector4 getColorForGenome(std::string genome);
 Vector4 getColorForGenome(std::string genome)
@@ -114,9 +108,13 @@ Vector4 getColorForGenome(std::string genome)
 
 Main::Main()
 {
-    mIsShowingHelp = mShowingInsertCritter = false;
+    mIsShowingHelp = mShowingInsertCritter = mShowingLoadSave = false;
     mViewScale = 1;
-    Parameters::reset();
+	mCurBarriers = 0;
+    Parameters::instance.reset();
+	mFollowingIndex = -1;
+
+	_formSaveLoad = NULL;
         
     memset(mSegmentBatch, 0, sizeof(mSegmentBatch));
     for (int i = 0; i < sizeof(world.mAgents)/sizeof(world.mAgents[0]); i++)
@@ -131,7 +129,8 @@ Main::Main()
     }
 }
 
-inline Vector3 getRandomSpherePoint()
+Vector3 getRandomSpherePoint();
+Vector3 getRandomSpherePoint()
 {
     Vector3 v(UtilsRandom::getUnitRandom(), UtilsRandom::getUnitRandom(), UtilsRandom::getUnitRandom());
     v.normalize();
@@ -140,7 +139,7 @@ inline Vector3 getRandomSpherePoint()
 }
 
 bool gDecimateAgents = false;
-
+float energyGainMultiplier = 1;
 /**
  * The thread function that runs the logic of the world, including all critter processing
  **/
@@ -150,18 +149,32 @@ void * Main :: threadFunction(void*)
     while (threadAlive)
     {
         ++numTurns;
-        if (Parameters::speed == 0 || game.mShowingInsertCritter || game.mIsShowingHelp)
+        if (Parameters::instance.speed == 0 || game.mShowingInsertCritter || game.mIsShowingHelp || game.mShowingLoadSave)
         {
             // stopped
             usleep(100);
         }
         else
         {
-            pthread_mutex_lock( &mutex1 );
-            gDecimateAgents = (world.step() > 50000);
+			{
+				LockWorldMutex m;
+				int numSegments = world.step();
+				static int lastFollowing = -1;
+				mFollowingIndex = world.getTopCritterIndex();
 
-            pthread_mutex_unlock( &mutex1 );
-            unsigned int sleepTime = 50 * (10 - Parameters::speed);
+				if (numSegments > MAX_TOTAL_SEGMENTS) {
+					numSegments += 100;
+					while (numSegments > MAX_TOTAL_SEGMENTS) {
+						int i = UtilsRandom::getRangeRandom(0, world.getMaxLiveAgentIndex());
+						Agent & agent = world.getAgent(i);
+						if (agent.mStatus == eAlive) {
+							numSegments -= agent.mNumSegments;
+							world.killAgent(i);
+						}
+					}
+				}
+			}
+            unsigned int sleepTime = 20 * (10 - Parameters::instance.speed);
             sleepTime *= sleepTime;
             
             if (sleepTime)
@@ -194,6 +207,7 @@ SegmentResourceMapping arraySegments[] =
 
     iSpriteSphere, "res/sphere.png",
     iActiveSegment, "res/ActiveSegment.png",
+	iActiveSegmentConditionOff, "res/ActiveSegmentConditionOff.png",
     iGenericSegment, "res/segment.png",
     iSegmentFrame, "res/segmentFrame.png",
     iMoveArrow, "res/MoveArrow.png",
@@ -205,6 +219,7 @@ SegmentResourceMapping arraySegments[] =
     eBarrier1, "res/barrier.png",
 	eBarrier2, "res/barrier.png",
 	eBarrier3, "res/barrier.png",
+	eBarrier4, "res/divider.png",
     
     eInstructionMoveAndEat, "res/segment_M.png",
     eInstructionMove, "res/segment_n.png",
@@ -218,13 +233,13 @@ SegmentResourceMapping arraySegments[] =
     eInstructionTestNotSeeFood, "res/segment_test_not_see_food.png",
     eInstructionTestBlocked, "res/segment_test_blocked.png",
     eInstructionTestNotBlocked, "res/segment_test_not_blocked.png",
-    eInstructionTestOccluded, "res/segment.png",
+    eInstructionTestOccluded, "res/segment_test_occluded.png",
     
     eInstructionPhotosynthesize, "res/food.png",
     eInstructionFakePhotosynthesize, "res/segment_fakefood.png",
 
     eInstructionHyper, "res/segment_hyper.png",
-    eInstructionTestPreyedOn, "res/segment_ifHungry.png"
+    eInstructionTestPreyedOn, "res/segment_test_preyed_on.png"
 };
 
 /**
@@ -232,7 +247,9 @@ SegmentResourceMapping arraySegments[] =
  **/
 void Main::initialize()
 {
-    mUIScale = this->getWidth() / 1024;
+	world.test();
+
+	mUIScale = this->getWidth() / 1024;
     
     mHelpPageRect = Rectangle(0, -140 * mUIScale, 1024 * mUIScale, 1024 * mUIScale);
     mHelpCloseRect =  Rectangle(950 * mUIScale, 12 * mUIScale, 40 * mUIScale, 40 * mUIScale);
@@ -258,6 +275,7 @@ void Main::initialize()
     
 
     resetWorld();
+	//setBarriers(3, true);
     
     int rc1;
     
@@ -282,14 +300,9 @@ void Main::drawSplash(void* param)
  **/
 void Main::resetWorld()
 {
-    pthread_mutex_lock( &mutex1 );
+	LockWorldMutex m;
     
-    for (int i = 0; i < MAX_AGENTS; i++)
-    {
-        Agent & agent = world.mAgents[i];
-        if (agent.mStatus == eAlive)
-            world.killAgent(i);
-    }
+	world.clear();
     
     string genome;
     bool bAllowMutation = true;
@@ -300,11 +313,25 @@ void Main::resetWorld()
     //bAllowMutation = false;
 
 	if (false) {
+		vector<Instruction> instructions;
+
 		Agent *pAgent = world.createEmptyAgent();
-		genome = eInstructionMove;
-		genome += eInstructionPhotosynthesize;
-		pAgent->initialize(getRandomSpherePoint(), genome.c_str(), bAllowMutation);
+		bAllowMutation = false;
+		instructions.push_back(Instruction(eInstructionMove, eAlways));
+		instructions.push_back(Instruction(eInstructionMove, eIf));
+		instructions.push_back(Instruction(eInstructionMove, eNotIf));
+		instructions.push_back(Instruction(eInstructionSleep, eAlways));
+		instructions.push_back(Instruction(eInstructionMove, eAlways));
+		instructions.push_back(Instruction(eInstructionPhotosynthesize, eAlways));
+		instructions.push_back(Instruction(eInstructionPhotosynthesize, eAlways));
+		instructions.push_back(Instruction(eInstructionPhotosynthesize, eAlways));
+		instructions.push_back(Instruction(eInstructionPhotosynthesize, eAlways));
+		instructions.push_back(Instruction(eInstructionPhotosynthesize, eAlways));
+		instructions.push_back(Instruction(0, eAlways));
+
+		pAgent->initialize(getRandomSpherePoint(), instructions.data(), bAllowMutation);
 		pAgent->mEnergy = 100;
+		world.addAgentToWorld(pAgent);
 	}
 	else
 	if (false)
@@ -316,19 +343,20 @@ void Main::resetWorld()
 		for (int i = 0; i < 7000; i++) {
 			Agent *pAgent = world.createEmptyAgent();
 			if (i < maxMoveCritters) {
-				genome = eInstructionTestSeeFood;
-				genome += eInstructionTurnLeft;
-				genome += eInstructionMoveAndEat;
-				genome += eInstructionMove;
+				Instruction logicGenome[5];
+				logicGenome[0].instruction = eInstructionTestSeeFood;
+				logicGenome[0].executeType = eAlways;
+				logicGenome[1].instruction = eInstructionMoveAndEat;
+				logicGenome[1].executeType = eIf;
+				logicGenome[2].instruction = 0;
+				pAgent->initialize(getRandomSpherePoint(), logicGenome, bAllowMutation);
 			}
-			else
+			else {
 				genome = eInstructionPhotosynthesize;
-			pAgent->initialize(getRandomSpherePoint(), genome.c_str(), bAllowMutation);
-			if (i < maxMoveCritters) {
-				pAgent->mGenome[1].executeType = eNotIf;
-				pAgent->mGenome[2].executeType = eIf;
+				pAgent->initialize(getRandomSpherePoint(), genome.c_str(), bAllowMutation);
 			}
-			//pAgent->mEnergy = Parameters::extraSpawnEnergyPerSegment/2;// (i == 4999) ? Parameters::extraSpawnEnergyPerSegment/2 :  Parameters::cycleEnergyCost * 2;
+
+			//pAgent->mEnergy = Parameters::instance.extraSpawnEnergyPerSegment/2;// (i == 4999) ? Parameters::instance.extraSpawnEnergyPerSegment/2 :  Parameters::instance.cycleEnergyCost * 2;
 			// randomize the initial lifespan so they don't all die at once
 			//pAgent->mLifespan = UtilsRandom::getRangeRandom(pAgent->mLifespan/2, pAgent->mLifespan*2);
 			world.addAgentToWorld(pAgent);
@@ -345,37 +373,34 @@ void Main::resetWorld()
 			world.addAgentToWorld(pAgent);
 		}
 	}
-    pthread_mutex_unlock( &mutex1 );
 }
 
 void Main :: resetParameters()
 {
-    Parameters::reset();
+    Parameters::instance.reset();
     setControlValues();
     updateControlLabels();
 }
 
-void Main :: insertCritter()
-{
-	if (mInsertGenome.length()) {
-		pthread_mutex_lock( &mutex1 );
-		for (int i = 0; i < 500; i++)
-		{
-			Agent *pAgent = world.createEmptyAgent(true);
-			pAgent->initialize(getRandomSpherePoint(), mInsertGenome.c_str(), true);
-			world.addAgentToWorld(pAgent);
-		}
-		pthread_mutex_unlock( &mutex1 );
-	}
-}
 
 /**
  Turn on or off the barriers
  **/
+void Main :: onBarriers()
+{
+	if (mCurBarriers != (int)_barriersSlider->getValue()) {
+		mCurBarriers = _barriersSlider->getValue();
+		setBarriers(0, (mCurBarriers == 1));
+		setBarriers(1, (mCurBarriers == 2));
+		setBarriers(2, (mCurBarriers == 3));
+		updateControlLabels();
+	}
+}
+
 void Main :: setBarriers(int type, bool bOn)
 {
-    pthread_mutex_lock( &mutex1 );
-    static char barrierTypes[3] = { eBarrier1, eBarrier2, eBarrier3 };
+	LockWorldMutex m;
+    static char barrierTypes[4] = { eBarrier1, eBarrier2, eBarrier3, eBarrier4 };
     char barrierType = barrierTypes[type];
     
     if (! bOn)
@@ -411,7 +436,27 @@ void Main :: setBarriers(int type, bool bOn)
         
         if (type == 1)
         {
-            float barrierDistance = .05f;
+            float barrierDistance = .1f;
+			for (float y = -1; y < 1; y += barrierDistance) {
+				for (float x = -1; x < 1; x += barrierDistance) {
+					for (float z = -1; z < 1; z += barrierDistance) {
+					Vector3 v(x,y,z);
+					v.normalize();
+					if (y > 0)
+						continue;
+                    Agent *pAgent = world.createEmptyAgent(true);
+                    pAgent->initialize(v, genome.c_str(), true);
+                    world.addAgentToWorld(pAgent);
+                    pAgent->mStatus = eInanimate;
+                    pAgent->mEnergy = pAgent->getSpawnEnergy();
+					}
+				}
+			}
+		}
+
+		if (type == 2)
+		{
+            float barrierDistance = .1f;
             for (float a = -MATH_PI * .98f; a < MATH_PI * .98f; a += barrierDistance)
             {
                 for (int i = 0; i < 6; i++)
@@ -450,8 +495,23 @@ void Main :: setBarriers(int type, bool bOn)
                 }
             }
         }
+
+		if (type == 3)
+        {
+            float barrierDistance = .1f;
+            for (float a = -MATH_PI; a < MATH_PI; a += barrierDistance)
+            {
+                Agent *pAgent = world.createEmptyAgent(true);
+                
+                Vector3 v(cos(a),0,sin(a));
+                v.normalize();
+                pAgent->initialize(v, genome.c_str(), true);
+                world.addAgentToWorld(pAgent);
+                pAgent->mStatus = eInanimate;
+                pAgent->mEnergy = pAgent->getSpawnEnergy();
+            }
+		}
     }
-    pthread_mutex_unlock( &mutex1 );
 }
 
 void Main::finalize()
@@ -460,22 +520,27 @@ void Main::finalize()
     void *status;
     pthread_join (mThread, &status);
     
-    SAFE_RELEASE(_formAdvanced);
+    //SAFE_RELEASE(_formAdvanced);
     SAFE_RELEASE(_formMain);
 }
 
 void Main::update(float elapsedTime)
 {
-    _formMain->update(elapsedTime);
-    if (_showAdvanced->isChecked())
-        _formAdvanced->update(elapsedTime);
+	updateSaveLoad(elapsedTime);
+
+	_formMain->update(elapsedTime);
     
     _formHelp->update(elapsedTime);
     
-    if (mShowingInsertCritter)
-    {
+    if (mShowingInsertCritter) {
         _formInsertCritter->update(elapsedTime);
     }
+
+	if (mShowingLoadSave) {
+		_formSaveLoad->update(elapsedTime);
+	}
+
+	handleFollowCritter(elapsedTime);
 }
 
 /**
@@ -493,11 +558,36 @@ bool compareTopSpeciesFunc(const pair<std::string,int> &p1, const pair<std::stri
 
 float gTurnsPerSecond = 0;
 
+Rectangle Main :: getRectangleForPoint(Vector3 pt, float renderSize, float offsetX, float offsetY, float scaleSize)
+{
+    mViewRotateMatrix.transformPoint(&pt);
+    Matrix viewScaleMatrix;
+    pt.x *= mViewScale;
+    pt.y *= mViewScale;
+    pt.z *= mViewScale;
+                    
+    if (pt.z < 0)
+        return Rectangle(); // cheap backface clipping
+                    
+    // we use an orthogonal projection, but with some fakery to make it look more 3D
+    float cellSize = (Parameters::instance.getMoveDistance() * pt.z * 400 + 3)  * mUIScale;
+    float x = ((pt.x) * (pt.z/5 + 1)) * .98;
+    float y = ((pt.y) * (pt.z/5 + 1)) * .98;
+	float multSize = (1.0f + (mViewScale - 1.0f) / 6.0f) * .98f;
+    return Rectangle(offsetX + renderSize * (x + 1) / 2 - cellSize / 2,
+                                offsetY + renderSize * (y + 1) / 2 - cellSize / 2,
+                                cellSize * multSize * scaleSize, cellSize * multSize * scaleSize);
+}
+
 /**
  Render the world and the UI.
  */
 void Main::render(float elapsedTime)
 {
+	// locking the world to render it is safer, but has a speed penalty.
+	// Only do it if we are throttling the speed or are zoomed in
+	LockWorldMutex m(Parameters::instance.speed < 10 || mViewScale > 2);
+
 	try {
     // Clear the color and depth buffers
     clear(CLEAR_COLOR_DEPTH, Vector4::zero(), 1.0f, 0);
@@ -506,7 +596,7 @@ void Main::render(float elapsedTime)
 	for (i = 0; i < 255; i++)
 		mSegmentBatchCount[i] = reserveBatchCount;
 
-    for (int i = iActiveSegment; i < 255; i++)
+    for (int i = (iSpriteSphere+1); i < 255; i++)
         if (mSegmentBatch[i])
             mSegmentBatch[i]->start();
     
@@ -546,10 +636,26 @@ void Main::render(float elapsedTime)
         
         elapsedTimeSinceTally = 0;
     }
-    
+
+	for (float a = -MATH_PI; a < MATH_PI; a += .02f)
+    {
+        Vector3 v(cos(a),0,sin(a));
+        v.normalize();
+		Rectangle r = getRectangleForPoint(v, renderSize, offsetX, offsetY, 0.6f);
+		if (r.width == 0)
+			continue;
+		int iBatch = eBarrier4;
+
+        Rectangle src = mSegmentSrcRect[iBatch];
+        
+		Vector4 color(1,1,1, .3f);
+        draw(iBatch, r, src, color);
+	}
+
+
+
     // draw all the visible agents in two passes, first drawing the segments, then drawing the
     // ornaments
-    //pthread_mutex_lock( &mutex1 );
     for (int pass = 1; pass <= 2; pass++)
     {
         if (pass == 2 && mViewScale < 1.5)
@@ -560,7 +666,7 @@ void Main::render(float elapsedTime)
             Agent & agent = world.mAgents[i];
             if (agent.mStatus != eNonExistent)
             {
-                if ((agent.mStatus == eAlive) && (agent.mSleep != -1))
+				if ((agent.mStatus == eAlive) && (agent.mSleep != -1) && (agent.mDormant == 0))
                 {
                     int count = gMapSpeciesToCount[agent.mGenome];
                     ++count;
@@ -575,23 +681,34 @@ void Main::render(float elapsedTime)
                     
                     Vector3 pt = pEntity->mLocation;
 
-                    mViewRotateMatrix.transformPoint(&pt);
-                    Matrix viewScaleMatrix;
-                    pt.x *= mViewScale;
-                    pt.y *= mViewScale;
-                    pt.z *= mViewScale;
-                    
-                    if (pt.z < 0)
-                        continue; // cheap backface clipping
-                    
-                    // we use an orthogonal projection, but with some fakery to make it look more 3D
-                    float cellSize = (Parameters::getMoveDistance() * pt.z * 400 + 3)  * mUIScale;
-                    float x = ((pt.x) * (pt.z/5 + 1)) * .98;
-                    float y = ((pt.y) * (pt.z/5 + 1)) * .98;
-                    Rectangle dst = Rectangle(offsetX + renderSize * (x + 1) / 2 - cellSize / 2,
-                                              offsetY + renderSize * (y + 1) / 2 - cellSize / 2,
-                                              cellSize, cellSize);
-                    
+					Rectangle dst = getRectangleForPoint(pt, renderSize, offsetX, offsetY);
+					if (dst.width == 0)
+						continue;
+
+					if (i == mFollowingIndex && j == 0) {
+
+						Rectangle spotlight = getRectangleForPoint(agent.mSegments[0].mLocation, renderSize, offsetX, offsetY);
+						for (int k = 1; k < agent.mNumSegments; k++) {
+							Rectangle segmentRect = getRectangleForPoint(agent.mSegments[k].mLocation, renderSize, offsetX, offsetY);
+							Rectangle combined;
+							spotlight.combine(spotlight,segmentRect,&combined);
+							spotlight = combined;
+						}
+						float spotlightDiam = max(spotlight.width, spotlight.height) * 1.5;
+						float spotlightX = spotlight.x + spotlight.width / 2;
+						float spotlightY = spotlight.y + spotlight.height / 2;
+						spotlight.x = spotlightX - spotlightDiam/2;
+						spotlight.y = spotlightY - spotlightDiam/2;
+						spotlight.width = spotlight.height = spotlightDiam;
+
+						Vector4 color(1,1,.5f, .1f);
+						int iSpotlight = iGenericSegment;
+						Rectangle src = mSegmentSrcRect[iSpotlight];
+
+						draw(iSpotlight, spotlight, src, color);
+					}
+
+                    float cellSize = (Parameters::instance.getMoveDistance() * pt.z * 400 + 3)  * mUIScale;
                     float alpha = 1;
                     if (agent.mStatus == eAlive)
                         alpha = (float)agent.mEnergy/(float)agent.getSpawnEnergy();
@@ -602,7 +719,7 @@ void Main::render(float elapsedTime)
                     {
                         iBatch = iGenericSegment;
                         color = getColorForGenome(agent.mGenome);
-                        alpha = 1;
+						color.w = alpha;
                     }
                     else
                     {
@@ -619,30 +736,48 @@ void Main::render(float elapsedTime)
                     // if we're zoomed in, show an indicator around the active cell
                     if (pass == 2)
                     {
-                        if ((agent.mNumSegments > 1) && (j == (agent.mActiveSegment) % agent.mNumSegments))
+						if (!useGenomeColorMapping && agent.mStatus == eAlive) {
+							const Instruction & instruction = agent.mGenome.mInstructions[j];
+							if (InstructionSet::instructionSupportsConditions(instruction.instruction)) {
+								int iExecType = 0;
+								if (instruction.executeType == eIf)
+									iExecType = iSegmentIf;
+								else if (instruction.executeType == eNotIf)
+									iExecType = iSegmentIfNot;
+
+								Rectangle src = mSegmentSrcRect[iExecType];
+								if (iExecType != 0)
+			                        draw(iExecType, dst, src);
+							}
+						}
+
+						if ((agent.mNumSegments > 1) && (j == (agent.mActiveSegment + agent.mNumSegments - 1) % agent.mNumSegments))
                         {
                             Rectangle activeSegmentRect = dst;
-							Rectangle src = mSegmentSrcRect[iActiveSegment];
-                            activeSegmentRect.inflate(cellSize / 4, cellSize / 4);
-                            draw(iActiveSegment, activeSegmentRect, src, Vector4(1,1,1, 1));
+							int iSegmentFrame = agent.getCondition() ? iActiveSegment : iActiveSegmentConditionOff;
+							Rectangle src = mSegmentSrcRect[iSegmentFrame];
+                            activeSegmentRect.inflate(activeSegmentRect.width / 10, activeSegmentRect.height / 10);
+                            draw(iSegmentFrame, activeSegmentRect, src, Vector4(1,1,1, 1));
                         }
                         
                         // draw the move arrow
-                        if (agent.mIsMotile && (j == 0))
+                        if (agent.getIsMotile() && (j == 0))
                         {
                             Vector3 moveVector3 = agent.mMoveVector;
                             mViewRotateMatrix.transformPoint(&moveVector3);
                             Vector2 moveVector(moveVector3.x, moveVector3.y);
                             moveVector.normalize();
+							moveVector *= 2;
                             float rotation = atan2(moveVector.y,moveVector.x);
                             
-                            dst.inflate(cellSize*3/2, cellSize*3/2);
+							Rectangle moveArrowRect = dst;
+							moveArrowRect.inflate(moveArrowRect.width / 2, moveArrowRect.height / 2);
 							Rectangle src = mSegmentSrcRect[iMoveArrow];
                             
-                            Vector3 dstV(dst.x, dst.y,0);
+                            Vector3 dstV(moveArrowRect.x, moveArrowRect.y,0);
                             Vector2 rotPoint(0.5f, 0.5f);
                             rotation += 45 * MATH_PI / 180;
-                            draw(iMoveArrow, dstV, dst.width, dst.height, 0, 0, 1, 1, Vector4(1,1,1,1),
+                            draw(iMoveArrow, dstV, moveArrowRect.width, moveArrowRect.height, 0, 0, 1, 1, Vector4(1,1,1,1),
                                          rotPoint, rotation);
                             
                         }
@@ -651,7 +786,6 @@ void Main::render(float elapsedTime)
             }
         }
     }
-    //pthread_mutex_unlock( &mutex1 );
 
 	for (i = 0; i < 255; i++)
 		mSegmentBatchCount[i] -= reserveBatchCount;
@@ -699,7 +833,7 @@ void Main::render(float elapsedTime)
 				Rectangle src = mSegmentSrcRect[ch];
                 draw((int) ch, dst, src);
 
-				if (ch != eInstructionPhotosynthesize && ch != eInstructionFakePhotosynthesize && ch != eInstructionPhotosynthesizeLess)
+				if (InstructionSet::instructionSupportsConditions(ch))
 				{
 					int iExecType = 0;
 					SpriteBatch * pExecType = NULL;
@@ -715,7 +849,6 @@ void Main::render(float elapsedTime)
 					if (iExecType) {
 						Rectangle src = mSegmentSrcRect[iExecType];
 		                draw(iExecType, dst, src);
-						//_font->drawText("Y", dst.left(), dst.top(), Vector4(1,1,1,1));
 					}
 				}
 
@@ -735,19 +868,23 @@ void Main::render(float elapsedTime)
     }
     _font->finish();
 
-    for (int i = iActiveSegment; i < 255; i++)
+    for (int i = (iSpriteSphere+1); i < 255; i++)
         if (mSegmentBatch[i])
             mSegmentBatch[i]->finish();
     
     // Draw the UI.
     _formMain->draw();
-    if (_showAdvanced->isChecked())
-        _formAdvanced->draw();
+    //if (_showAdvanced->isChecked())
+    //    _formAdvanced->draw();
     
     _formHelp->draw();
     
     renderInsertCritter();
     renderHelp();
+
+	if (mShowingLoadSave) {
+		_formSaveLoad->draw();
+	}
 	}
 	catch (...)
 	{
@@ -755,55 +892,6 @@ void Main::render(float elapsedTime)
 	}
 }
 
-/**
- This renders the "Insert Critter" dialog. Since there's no image button in gameplay, we just draw the segments
- on top of it. Crude, but it works.
- */
-void Main::renderInsertCritter()
-{
-    if (mShowingInsertCritter)
-    {
-        for (int i = iSpriteSphere; i < 255; i++)
-            if (mSegmentBatch[i])
-                mSegmentBatch[i]->start();
-        _formInsertCritter->draw();
-        for (std::vector<Button*>::iterator i = mInsertInstructionButtons.begin(); i != mInsertInstructionButtons.end(); i++)
-        {
-            Button *pButton = *i;
-            SpriteBatch * pBatch = mSegmentBatch[pButton->getId()[0]];
-			if (! pBatch)
-				pBatch = mSegmentBatch[iGenericSegment];
-            Rectangle src(0,0,
-                          pBatch->getSampler()->getTexture()->getWidth(), pBatch->getSampler()->getTexture()->getHeight());
-            
-            Rectangle dst = pButton->getBounds();
-            dst.x += _formInsertCritter->getX() + 20 * mUIScale;
-            dst.y += _formInsertCritter->getY() + 18 * mUIScale;
-            dst.inflate(-6 * mUIScale,-6 * mUIScale);
-            pBatch->draw(dst, src);
-        }
-        
-        float x = mInsertCritterGenome->getX() + _formInsertCritter->getX() + 24 * mUIScale;
-        float y = mInsertCritterGenome->getY() + _formInsertCritter->getY() + 20 * mUIScale;
-        float w = 5 * mUIScale + mInsertCritterGenome->getWidth() / MAX_GENOME_LENGTH;
-        for (string::iterator i = mInsertGenome.begin(); i != mInsertGenome.end(); i++)
-        {
-            SpriteBatch * pBatch = mSegmentBatch[*i];
-            Rectangle src(0,0,
-                          pBatch->getSampler()->getTexture()->getWidth(), pBatch->getSampler()->getTexture()->getHeight());
-            
-            Rectangle dst(x, y, w, w);
-            dst.inflate(-6 * mUIScale, -6 * mUIScale);
-            pBatch->draw(dst, src);
-            
-            x += w - 6 * mUIScale;
-        }
-        
-        for (int i = iSpriteSphere; i < 255; i++)
-            if (mSegmentBatch[i])
-                mSegmentBatch[i]->finish();
-    }
-}
 
 /**
  Render the help tabs, with the inactive tabs shown in gray
@@ -852,11 +940,56 @@ void Main::keyEvent(Keyboard::KeyEvent evt, int key)
             case Keyboard::KEY_ESCAPE:
                 exit();
                 break;
+
+			case Keyboard::KEY_UP_ARROW:
+				mViewScale *= 1.1f;
+				break;
+
+			case Keyboard::KEY_DOWN_ARROW:
+				mViewScale *= .9f;
+				if (mViewScale < 1)
+					mViewScale = 1;
+				break;
         }
     }
 }
 
 static float gTouchStartViewScale;
+
+void Main::touchEvent(Touch::TouchEvent evt, float x, float y, unsigned int contactIndex)
+{
+   static bool down = false;
+    
+    static Quaternion initialRotation;
+    static Quaternion lastDragRotation;
+    
+    Vector2 sphereDisplayPoint(x - mSphereOffsetX, mRenderSphereSize - (y - mSphereOffsetY));
+    switch (evt)
+    {
+        case Touch::TOUCH_PRESS:
+            //if (! down)
+            {
+                gTouchStartViewScale = mViewScale;
+                _arcball.click(sphereDisplayPoint);
+                down = true;
+            }
+            break;
+            
+        case Touch::TOUCH_RELEASE:
+            down = false;
+            initialRotation = lastDragRotation;
+            break;
+            
+        case Touch::TOUCH_MOVE: {
+            gameplay::Quaternion q;
+            _arcball.drag(sphereDisplayPoint, &q);
+            
+            q.multiply(initialRotation);
+            lastDragRotation = q;
+            Matrix::createRotation(q, &mViewRotateMatrix);
+            break; }
+    };
+}
 
 void Main::touchEvent(Touch::TouchEvent evt, int x, int y, unsigned int contactIndex)
 {
@@ -892,37 +1025,7 @@ void Main::touchEvent(Touch::TouchEvent evt, int x, int y, unsigned int contactI
         return;
     }
     
-    static bool down = false;
-    
-    static Quaternion initialRotation;
-    static Quaternion lastDragRotation;
-    
-    Vector2 sphereDisplayPoint(x - mSphereOffsetX, mRenderSphereSize - (y - mSphereOffsetY));
-    switch (evt)
-    {
-        case Touch::TOUCH_PRESS:
-            if (! down)
-            {
-                gTouchStartViewScale = mViewScale;
-                _arcball.click(sphereDisplayPoint);
-                down = true;
-            }
-            break;
-            
-        case Touch::TOUCH_RELEASE:
-            down = false;
-            initialRotation = lastDragRotation;
-            break;
-            
-        case Touch::TOUCH_MOVE: {
-            gameplay::Quaternion q;
-            _arcball.drag(sphereDisplayPoint, &q);
-            
-            q.multiply(initialRotation);
-            lastDragRotation = q;
-            Matrix::createRotation(q, &mViewRotateMatrix);
-            break; }
-    };
+	touchEvent(evt, (float) x, (float) y, contactIndex);
 }
 
 void Main::gesturePinchEvent(int x, int y, float scale)
@@ -941,42 +1044,49 @@ void Main::gesturePinchEvent(int x, int y, float scale)
         mViewScale = .5;
 }
 
+const int FORM_HEIGHT_NO_ADVANCED = 316;
+const int FORM_HEIGHT_WITH_ADVANCED = 750;
 
 void Main::createUI()
 {
     // Create main form
-    _formMain = createForm(335, 340);
+    _formMain = createForm(340, FORM_HEIGHT_NO_ADVANCED);
     _formMain->setPosition(4 * mUIScale, 8 * mUIScale);
     
     _cellSizeSlider = createSliderControl(_formMain, "cellSize", "Cell size:", 1, 10, 1);
     _speedSlider = createSliderControl(_formMain, "speed", "Speed:", 0, 10, 1);
-    _mutationSlider = createSliderControl(_formMain, "mutation", "Mutation:", 0, 10);
-    createSpacer(_formMain, 5);
-    _barriers1 = createCheckboxControl(_formMain, "Barriers #1");
-    _barriers2 = createCheckboxControl(_formMain, "Barriers #2");
+    _mutationSlider = createSliderControl(_formMain, "mutation", "Mutation:", 0, 50);
+	_barriersSlider = createSliderControl(_formMain, "barriers", "Barriers:", 0, 3);
+        
+    //createSpacer(_formMain, 8);
+    _insertButton = createButton(_formMain, "Insert...");
+    _saveLoadButton = createButton(_formMain, "Save / Load / Reset...");
+	_followCritter = createCheckboxControl(_formMain, "Follow top critter");
+    //createSpacer(_formMain, 2);
     
     _showAdvanced = createCheckboxControl(_formMain, "Show advanced settings");
-    
-    createSpacer(_formMain, 15);
-    _resetWorldButton = createButton(_formMain, "Reset world");
-    createSpacer(_formMain, 4);
-    _insertButton = createButton(_formMain, "Insert...");
-    
+
+	createSpacer(_formMain, 10);
+	_formAdvanced = _formMain;
+	
     // Create advanced form, optionally shown
-    _formAdvanced = createForm(330, 380);
-    _formAdvanced->setPosition(_formAdvanced->getX() + 4 * mUIScale, 365 * mUIScale);
+    //_formAdvanced = createForm(340, 450);
+    //_formAdvanced->setPosition(_formAdvanced->getX() + 4 * mUIScale, 315 * mUIScale);
     
-    createControlHeader(_formAdvanced, "Energy cost / gain");
+    //createControlHeader(_formAdvanced, "Energy cost / gain");
     // _cycleEnergyCostSlider = createSliderControl(_formAdvanced, "cycleEnergyCost", "Cycle:", .5, 2);
-    _photoSynthesizeEnergyGainSlider = createSliderControl(_formAdvanced, "photoSynthesizeEnergyGain", "Photosynthesis:", 1, 2);
-    _moveEnergyCostSlider = createSliderControl(_formAdvanced, "moveEnergyCost", "Move:", 0, 15);
-    _moveAndEatEnergyCostSlider = createSliderControl(_formAdvanced, "moveAndEatEnergyCost", "Move & eat:", 0, 30);
-    
+    _extraSpawnEnergyPerSegmentSlider = createSliderControl(_formAdvanced,"extraSpawnEnergyPerSegment", "Spawn energy:", 50, 2000);
+	_deadCellDormancySlider = createSliderControl(_formAdvanced, "deadCellDormancy", "Sprout turns:", 100, 50000);
+	_photoSynthesizeEnergyGainSlider = createSliderControl(_formAdvanced, "photoSynthesizeEnergyGain", "Photosynthesis:", 1.0f, 2.0f);
+    //_photoSynthesizeBonusSlider = createSliderControl(_formAdvanced, "photoBonusGain", "Photo bonus:", 0, .5f);
+    _moveEnergyCostSlider = createSliderControl(_formAdvanced, "moveEnergyCost", "Move:", 0, 50);
+    _moveAndEatEnergyCostSlider = createSliderControl(_formAdvanced, "moveAndEatEnergyCost", "Move & eat:", 10, 100);
+    _mouthSizeSlider = createSliderControl(_formAdvanced, "mouthSize", "Mouth size:", .75f, 4.0f);
+
     //createControlHeader(_formAdvanced,"Energy to spawn");
-    _extraSpawnEnergyPerSegmentSlider = createSliderControl(_formAdvanced,"extraSpawnEnergyPerSegment", "Per cell:", 50, 2000);
     
     //createControlHeader(_formAdvanced,"Other");
-    _lookDistanceSlider = createSliderControl(_formAdvanced,"lookDistance", "Vision range:", 1, 30);
+    _lookDistanceSlider = createSliderControl(_formAdvanced,"lookDistance", "Vision range:", 1, 100);
     //createSpacer(_formAdvanced, 15);
     //_resetParametersButton = createButton(_formAdvanced, "Reset settings");
     
@@ -985,6 +1095,10 @@ void Main::createUI()
 	_digestionEfficiencySlider = createSliderControl(_formAdvanced, "digestionEfficiency", "Digestion:", 0.1, 1);
 
     _allowSelfOverlap = createCheckboxControl(_formAdvanced, "Allow self overlap");
+
+	_starveBecomeFood = createCheckboxControl(_formAdvanced, "Starve => food");
+	_cannibals = createCheckboxControl(_formAdvanced, "Allow cannibalism");
+	_allowOr =  createCheckboxControl(_formAdvanced, "Always If = Or");
 
     _formMain->setConsumeInputEvents(false);
     _formAdvanced->setConsumeInputEvents(false);
@@ -1001,40 +1115,16 @@ void Main::createUI()
     
     _helpButton = createButton(_formHelp, "What is this?");
     _colorCodeSpecies = createCheckboxControl(_formHelp, "Color-code species");
+	_colorCodeSpecies->setChecked(useGenomeColorMapping);
     _colorCodeSpecies->setFontSize(30 * mUIScale);
     _colorCodeSpecies->setTextAlignment(Font::ALIGN_VCENTER);
     
     // create insert critter form
-    _formInsertCritter = createForm(900, 310, false);
-    _formInsertCritter->setPosition((getWidth() - _formInsertCritter->getWidth()) / 2,
-                                    (getHeight() - _formInsertCritter->getHeight()) / 2);
-    
-    _formInsertCritter->setPosition(_formInsertCritter->getX(), -_formInsertCritter->getY());
-    
-    
-    mInsertOK = createButton(_formInsertCritter, "Insert x 500", "", Vector2(560,230), Vector2(180, 40));
-    mInsertCancel = createButton(_formInsertCritter, "Cancel", "", Vector2(740,230), Vector2(120, 40));
-    mInsertCritterGenome = createContainer(_formInsertCritter, true, Vector2(20,20), Vector2(720, 56));
-    mInsertClear = createButton(_formInsertCritter, "Clear", "", Vector2(755,28), Vector2(80, 40));
-    
-    set<char> availableInstructions = InstructionSet::getAllAvailableInstructions();
-    
-    float x = 20;
-    float y = 80;
-    for (set<char>::iterator i = availableInstructions.begin(); i != availableInstructions.end(); i++)
-    {
-        string s;
-        s = *i;
-        
-        Button * pInstruction = createButton(_formInsertCritter, " ", s.c_str(), Vector2(x, y), Vector2(60, 60));
-        mInsertInstructionButtons.push_back(pInstruction);
-        x += 60;
-    }
-    
-    createControlHeader(_formInsertCritter, "Click on the instructions above to build your genome, then press 'Insert x 500'.\nClick on 'What is this?' for a full description of each instruction.",
-                        Vector2(40,140), Vector2(900, 60), Vector4(1,1,1,1));
+	createInsertCritterForm();
 
-    setControlValues();
+	createLoadSaveForm();
+
+	setControlValues();
     updateControlLabels();
 }
 
@@ -1050,82 +1140,79 @@ void Main::controlEvent(Control* control, EventType evt)
                 resetWorld();
             else if (control == _resetParametersButton)
                 resetParameters();
+			else if (control == _saveLoadButton)
+				handleSaveLoad();
             else if (control == _helpButton)
             {
-                mIsShowingHelp = true;
-                _formHelp->setPosition(_formHelp->getX(), -_formHelp->getY());
-                mHelpPageIndex = 0;
+				this->launchURL("http://www.scottschaferenterprises.com/mutationplanet/support.html");
+                //mIsShowingHelp = true;
+                //_formHelp->setPosition(_formHelp->getX(), -_formHelp->getY());
+                //mHelpPageIndex = 0;
             }
-            else if (control == _insertButton)
-            {
-                mInsertGenome = "";
-                mShowingInsertCritter = true;
-                _formInsertCritter->setPosition(_formInsertCritter->getX(), -_formInsertCritter->getY());
-                mInsertOK->setPosition(mInsertOK->getX(), -mInsertOK->getY());
-            } else if (control == mInsertClear)
-            {
-                if (mInsertGenome.length())
-                {
-                    mInsertGenome = mInsertGenome.substr(0, mInsertGenome.length()-1);
-                    if (mInsertGenome.length() == 0)
-                        mInsertOK->setPosition(mInsertOK->getX(), -mInsertOK->getY());
-                }
-            } else if (control == mInsertCancel)
-            {
-                mShowingInsertCritter = false;
-                _formInsertCritter->setPosition(_formInsertCritter->getX(), -_formInsertCritter->getY());
-            } else if (control == mInsertOK)
-            {
-                insertCritter();
-                mShowingInsertCritter = false;
-                _formInsertCritter->setPosition(_formInsertCritter->getX(), -_formInsertCritter->getY());
-            } else if (find(mInsertInstructionButtons.begin(), mInsertInstructionButtons.end(),control) !=
-                       mInsertInstructionButtons.end())
-            {
-                if (mInsertGenome.length() < MAX_GENOME_LENGTH)
-                    mInsertGenome += control->getId();
-                if (mInsertGenome.length() == 1)
-                    mInsertOK->setPosition(mInsertOK->getX(), -mInsertOK->getY());
-            }
+			else {
+				if (! handleSaveLoadEvent(control, evt))
+					handleInsertCritterEvent(control, evt);
+			}
             break;
             
         case Listener::VALUE_CHANGED:
-            if (control == _colorCodeSpecies)
+			if (control == _showAdvanced) {
+				if (_showAdvanced->isChecked()) {
+					_formMain->setSize(_formMain->getWidth(), FORM_HEIGHT_WITH_ADVANCED * mUIScale);
+				}
+				else {
+					_formMain->setSize(_formMain->getWidth(), FORM_HEIGHT_NO_ADVANCED * mUIScale);
+				}
+				
+				Container *pMainContainer = (Container*)_formMain->getControl("main");
+				pMainContainer->setHeight(_formMain->getHeight());
+			}
+            else if (control == _colorCodeSpecies)
                 useGenomeColorMapping = _colorCodeSpecies->isChecked();
             else if (control == _speedSlider)
-                Parameters::speed = _speedSlider->getValue();
+                Parameters::instance.speed = _speedSlider->getValue();
             else if (control == _mutationSlider)
-                Parameters::mutationPercent = _mutationSlider->getValue();
+                Parameters::instance.mutationPercent = _mutationSlider->getValue();
             else if (control == _cellSizeSlider)
-                Parameters::cellSize = _cellSizeSlider->getValue();
+                Parameters::instance.cellSize = _cellSizeSlider->getValue();
 //            else if (control == _cycleEnergyCostSlider)
-//                Parameters::cycleEnergyCost = _cycleEnergyCostSlider->getValue();
+//                Parameters::instance.cycleEnergyCost = _cycleEnergyCostSlider->getValue();
             else if (control == _photoSynthesizeEnergyGainSlider)
-                Parameters::photoSynthesizeEnergyGain = _photoSynthesizeEnergyGainSlider->getValue();
+                Parameters::instance.photoSynthesizeEnergyGain = _photoSynthesizeEnergyGainSlider->getValue();
+			//else if (control == _photoSynthesizeBonusSlider)
+			//	Parameters::instance.photoSynthesizeBonus = _photoSynthesizeBonusSlider->getValue();
+			else if (control == _deadCellDormancySlider)
+				Parameters::instance.deadCellDormancy = _deadCellDormancySlider->getValue();
             else if (control == _moveEnergyCostSlider)
-                Parameters::moveEnergyCost = _moveEnergyCostSlider->getValue();
+                Parameters::instance.moveEnergyCost = _moveEnergyCostSlider->getValue();
             else if (control == _moveAndEatEnergyCostSlider)
-                Parameters::moveAndEatEnergyCost = _moveAndEatEnergyCostSlider->getValue();
+                Parameters::instance.moveAndEatEnergyCost = _moveAndEatEnergyCostSlider->getValue();
+			else if (control == _mouthSizeSlider)
+				Parameters::instance.mouthSize = _mouthSizeSlider->getValue();
             else if (control == _baseSpawnEnergySlider)
-                Parameters::baseSpawnEnergy = _baseSpawnEnergySlider->getValue();
+                Parameters::instance.baseSpawnEnergy = _baseSpawnEnergySlider->getValue();
             else if (control == _extraSpawnEnergyPerSegmentSlider)
-                Parameters::extraSpawnEnergyPerSegment = _extraSpawnEnergyPerSegmentSlider->getValue();
+                Parameters::instance.extraSpawnEnergyPerSegment = _extraSpawnEnergyPerSegmentSlider->getValue();
             else if (control == _lookDistanceSlider)
-                Parameters::lookDistance = _lookDistanceSlider->getValue();
+                Parameters::instance.lookDistance = _lookDistanceSlider->getValue();
             else if (control == _allowSelfOverlap)
-                Parameters::allowSelfOverlap = _allowSelfOverlap->isChecked();
+                Parameters::instance.allowSelfOverlap = _allowSelfOverlap->isChecked();
 			else if (control == _extraCyclesForMoveSlider)
-				Parameters::extraCyclesForMove = _extraCyclesForMoveSlider->getValue();
+				Parameters::instance.extraCyclesForMove = _extraCyclesForMoveSlider->getValue();
 			else if (control == _biteStrengthSlider)
-				Parameters::biteStrength = _biteStrengthSlider->getValue();
+				Parameters::instance.biteStrength = _biteStrengthSlider->getValue();
 			else if (control == _digestionEfficiencySlider)
-				Parameters::digestionEfficiency = _digestionEfficiencySlider->getValue();
-            else if (control == _barriers1)
-                setBarriers(0, _barriers1->isChecked());
-            else if (control == _barriers2)
-                setBarriers(1, _barriers2->isChecked());
-            else if (control == _barriers3)
-                setBarriers(2, _barriers3->isChecked());
+				Parameters::instance.digestionEfficiency = _digestionEfficiencySlider->getValue();
+			else if (control == _starveBecomeFood)
+				Parameters::instance.turnToFoodAfterDeath = _starveBecomeFood->isChecked();
+			else if (control == _cannibals)
+				Parameters::instance.cannibals = _cannibals->isChecked();
+			else if (control == _allowOr)
+				Parameters::instance.allowOr = _allowOr->isChecked();
+			else if (control == _barriersSlider)
+				onBarriers();
+			else if (control == _followCritter)
+				world.setAllowFollow(_followCritter->isChecked());
             updateControlLabels();
             break;
     }
@@ -1135,9 +1222,12 @@ void Main::controlEvent(Control* control, EventType evt)
 void Main :: updateControlLabel(std::string parameterId, const char *pFormat, ...)
 {
     Label * pLabel = (Label*)_formMain->getControl((parameterId + "Label").c_str());
-    if (! pLabel)
+    if (! pLabel && _formAdvanced)
         pLabel = (Label*)_formAdvanced->getControl((parameterId + "Label").c_str());
-    
+
+	if (! pLabel && _formSaveLoad)
+		pLabel = (Label*)_formSaveLoad->getControl((parameterId + "Label").c_str());
+		
     if (pLabel)
     {
         char buffer[1024];
@@ -1156,39 +1246,50 @@ void Main :: updateControlLabel(std::string parameterId, const char *pFormat, ..
 void Main::updateControlLabels()
 {
     
-    updateControlLabel("speed", "%d", Parameters::speed);
-    updateControlLabel("mutation", "%d%%", Parameters::mutationPercent);
-    updateControlLabel("cellSize", "%d", (int) Parameters::cellSize);
-//    updateControlLabel("cycleEnergyCost", "-%.1f", Parameters::cycleEnergyCost);
-    updateControlLabel("photoSynthesizeEnergyGain", "+%.1f", Parameters::photoSynthesizeEnergyGain);
-    updateControlLabel("moveEnergyCost", "-%.1f", Parameters::moveEnergyCost);
-    updateControlLabel("moveAndEatEnergyCost", "-%.1f", Parameters::moveAndEatEnergyCost);
-    updateControlLabel("baseSpawnEnergy", "%d", (int) Parameters::baseSpawnEnergy);
-    updateControlLabel("extraSpawnEnergyPerSegment", "%d", (int) Parameters::extraSpawnEnergyPerSegment);
-    updateControlLabel("lookDistance", "%d", Parameters::lookDistance);
-    updateControlLabel("extraCyclesForMove", "%d", Parameters::extraCyclesForMove);
-	updateControlLabel("biteStrength", "%d%%", (int)(Parameters::biteStrength * 100));
-	updateControlLabel("digestionEfficiency", "%d%%", (int)(Parameters::digestionEfficiency * 100));
+    updateControlLabel("speed", "%d", Parameters::instance.speed);
+    updateControlLabel("mutation", "%d%%", Parameters::instance.mutationPercent);
+	updateControlLabel("barriers", "%d", mCurBarriers);
+    updateControlLabel("cellSize", "%d", (int) Parameters::instance.cellSize);
+//    updateControlLabel("cycleEnergyCost", "-%.1f", Parameters::instance.cycleEnergyCost);
+    updateControlLabel("photoSynthesizeEnergyGain", "+%.1f", Parameters::instance.photoSynthesizeEnergyGain);
+	//updateControlLabel("photoBonusGain", "+%.2f", Parameters::instance.photoSynthesizeBonus);
+	updateControlLabel("deadCellDormancy", "%d", Parameters::instance.deadCellDormancy/100);
+    updateControlLabel("moveEnergyCost", "-%.1f", Parameters::instance.moveEnergyCost);
+    updateControlLabel("moveAndEatEnergyCost", "-%.1f", Parameters::instance.moveAndEatEnergyCost);
+    updateControlLabel("mouthSize", "%.1f", Parameters::instance.mouthSize);
+	updateControlLabel("baseSpawnEnergy", "%d", (int) Parameters::instance.baseSpawnEnergy);
+    updateControlLabel("extraSpawnEnergyPerSegment", "%d", (int) Parameters::instance.extraSpawnEnergyPerSegment);
+    updateControlLabel("lookDistance", "%d", Parameters::instance.lookDistance);
+    updateControlLabel("extraCyclesForMove", "%d", Parameters::instance.extraCyclesForMove);
+	updateControlLabel("biteStrength", "%d%%", (int)(Parameters::instance.biteStrength * 100));
+	updateControlLabel("digestionEfficiency", "%d%%", (int)(Parameters::instance.digestionEfficiency * 100));
 	
 }
 
 void Main::setControlValues()
 {
-    _speedSlider->setValue(Parameters::speed);
-    _mutationSlider->setValue(Parameters::mutationPercent);
-    _cellSizeSlider->setValue(Parameters::cellSize);
-    _photoSynthesizeEnergyGainSlider->setValue(Parameters::photoSynthesizeEnergyGain);
-    _moveEnergyCostSlider->setValue(Parameters::moveEnergyCost);
-    _moveAndEatEnergyCostSlider->setValue(Parameters::moveAndEatEnergyCost);
-//    _baseSpawnEnergySlider->setValue(Parameters::baseSpawnEnergy);
-    _extraSpawnEnergyPerSegmentSlider->setValue(Parameters::extraSpawnEnergyPerSegment);
-    _lookDistanceSlider->setValue(Parameters::lookDistance);
-    _allowSelfOverlap->setChecked(Parameters::allowSelfOverlap);
+    _speedSlider->setValue(Parameters::instance.speed);
+    _mutationSlider->setValue(Parameters::instance.mutationPercent);
+    _cellSizeSlider->setValue(Parameters::instance.cellSize);
+    _photoSynthesizeEnergyGainSlider->setValue(Parameters::instance.photoSynthesizeEnergyGain);
+//	_photoSynthesizeBonusSlider->setValue(Parameters::instance.photoSynthesizeBonus);
+	_deadCellDormancySlider->setValue(Parameters::instance.deadCellDormancy);
+    _moveEnergyCostSlider->setValue(Parameters::instance.moveEnergyCost);
+    _moveAndEatEnergyCostSlider->setValue(Parameters::instance.moveAndEatEnergyCost);
+    _mouthSizeSlider->setValue(Parameters::instance.mouthSize);
+//    _baseSpawnEnergySlider->setValue(Parameters::instance.baseSpawnEnergy);
+    _extraSpawnEnergyPerSegmentSlider->setValue(Parameters::instance.extraSpawnEnergyPerSegment);
+    _lookDistanceSlider->setValue(Parameters::instance.lookDistance);
+    _allowSelfOverlap->setChecked(Parameters::instance.allowSelfOverlap);
+	_starveBecomeFood->setChecked(Parameters::instance.turnToFoodAfterDeath);
+	_cannibals->setChecked(Parameters::instance.cannibals);
+	_allowOr->setChecked(Parameters::instance.allowOr);
+	_extraCyclesForMoveSlider->setValue(Parameters::instance.extraCyclesForMove);
+	_biteStrengthSlider->setValue(Parameters::instance.biteStrength);
+	_digestionEfficiencySlider->setValue(Parameters::instance.digestionEfficiency);
 
-	_extraCyclesForMoveSlider->setValue(Parameters::extraCyclesForMove);
-	_biteStrengthSlider->setValue(Parameters::biteStrength);
-	_digestionEfficiencySlider->setValue(Parameters::digestionEfficiency);
-    this->_formAdvanced->update(1);
+	_colorCodeSpecies->setChecked(useGenomeColorMapping);
+	this->_formAdvanced->update(1);
 }
 
 /**
@@ -1222,7 +1323,7 @@ Form * Main :: createForm(float width, float height, bool isLayoutVertical)
     return result;
 }
 
-void Main :: createControlHeader(Form *form, std::string text, Vector2 pos, Vector2 size, Vector4 textColor)
+Label * Main :: createControlHeader(Form *form, std::string text, Vector2 pos, Vector2 size, Vector4 textColor)
 {
     Theme::Style * pNoBorder = form->getTheme()->getStyle("noBorder");
     
@@ -1245,6 +1346,7 @@ void Main :: createControlHeader(Form *form, std::string text, Vector2 pos, Vect
     
     if (pos.x != -1)
         pLabel->setPosition(pos.x * mUIScale, pos.y * mUIScale);
+	return pLabel;
 }
 
 Container * Main :: createContainer(Form *form, bool border, Vector2 pos, Vector2 size)
@@ -1287,7 +1389,7 @@ Slider * Main :: createSliderControl(Form *form, std::string id, std::string lab
     Container *pMainContainer = (Container*)form->getControl("main");
     pContainer->setZIndex(pMainContainer->getControls().size());
     pMainContainer->addControl(pContainer);
-    pContainer->setSize(350 * mUIScale, 35 * mUIScale);
+    pContainer->setSize(350 * mUIScale, 31 * mUIScale);
     
     Label *pLabel = Label::create("", pNoBorder);
     pContainer->addControl(pLabel);
@@ -1315,6 +1417,35 @@ Slider * Main :: createSliderControl(Form *form, std::string id, std::string lab
     pSlider->addListener(this, Listener::VALUE_CHANGED);
     
     return pSlider;
+}
+
+
+Label * Main :: createLabel(Form *form, std::string text, const char * pId, Vector2 pos, Vector2 size)
+{
+	Vector4 textColor(1,1,1,1);
+	Theme::Style * pNoBorder = form->getTheme()->getStyle("noBorder");
+    
+    Container *pMainContainer = (Container*)form->getControl("main");
+    
+    if (size.x == -1)
+    {
+        size.x = 300;
+        size.y = (pMainContainer->getControls().size() ? 30 : 20);
+    }
+    
+	Label *pLabel = Label::create((string(pId)+"Label").c_str(), pNoBorder);
+    pLabel->setFontSize(pLabel->getFontSize()*mUIScale);
+    pLabel->setZIndex(pMainContainer->getControls().size());
+    pMainContainer->addControl(pLabel);
+    pLabel->setTextAlignment(Font::ALIGN_BOTTOM_LEFT);
+    pLabel->setText(text.c_str());
+    pLabel->setSize(size.x * mUIScale, size.y * mUIScale);
+    pLabel->setTextColor(textColor);
+    
+    if (pos.x != -1)
+        pLabel->setPosition(pos.x * mUIScale, pos.y * mUIScale);
+	
+	return pLabel;
 }
 
 CheckBox * Main :: createCheckboxControl(Form *form, std::string label, Vector2 pos, Vector2 size)
@@ -1365,6 +1496,7 @@ Button * Main :: createButton(Form *form, std::string label, const char * id, Ve
     pMainContainer->addControl(pButton);
     pButton->setText(label.c_str());
     pButton->setSize(size.x * mUIScale, size.y * mUIScale);
+	pButton->setMargin(0,0,0,0);
     
     pButton->addListener(this, Listener::CLICK);
     
@@ -1385,15 +1517,24 @@ SpriteBatch * Main :: getLegalSpriteBatch(int iBatch)
 		pResult = mSegmentBatch[iBatch];
 	}
 
-	if (mSegmentBatchCount[iBatch] >= 60000)
+	if (mSegmentBatchCount[iBatch] >= 20000)
+	{
+		pResult->finish();
+		pResult->start();
+		mSegmentBatchCount[iBatch] = 0;
 		return NULL;
+	}
 	++mSegmentBatchCount[iBatch];
 	return pResult;
 }
 
+void drawDot(const Rectangle& dst, const Vector4& color)
+{
+}
+
 void Main :: draw(int iBatch, const Rectangle& dst, const Rectangle& src, const Vector4& color)
 {
-	SpriteBatch * pBatch = getLegalSpriteBatch(iBatch);
+	SpriteBatch * pBatch = getLegalSpriteBatch(iBatch);	
 	if (pBatch)
 		pBatch->draw(dst, src, color);
 }
@@ -1456,4 +1597,119 @@ void Main :: draw(int iBatch, float x, float y, float z, float width, float heig
 	SpriteBatch * pBatch = getLegalSpriteBatch(iBatch);
 	if (pBatch)
 		pBatch->draw(x, y, z, width, height, u1, v1, u2, v2, color, positionIsCenter);
+}
+
+void Main :: handleFollowCritter(float elapsedTime)
+{
+	if (! world.isFollowing()) {
+		_followCritter->setChecked(false);
+		return;
+	}
+
+	if (! _followCritter->isChecked()) {
+		return;
+	}
+
+//	LockWorldMutex m;
+
+	mFollowingIndex = world.getTopCritterIndex();
+	if (mFollowingIndex == -1)
+		return;
+
+	Agent & agent = world.mAgents[mFollowingIndex];
+
+#if 0
+	if (loc.z < 0)
+		return;
+	
+	Vector3 axis;
+
+	Vector3::cross(loc, Vector3(0,0,1), &axis);
+
+	if (axis.lengthSquared() != 0)
+    {
+		axis.normalize();
+
+		Matrix m;
+		Quaternion q(axis, 1);
+		mViewRotateMatrix.createRotation(q, &mViewRotateMatrix);
+
+
+		/*
+            Vector3D vAxis = new Vector3D(axis.X, axis.Y, axis.Z);
+            Matrix3D m = Matrix3D.Identity;
+            Quaternion q = new Quaternion(vAxis, AngleFromZaxis);
+
+            m.RotateAt(q, centerPoint);
+            MatrixTransform3D mT = new MatrixTransform3D(m);
+
+            group.Children.Add(mT);
+
+            myModel.Transform = group;
+			*/
+        }
+
+#endif
+
+	float renderSize = std::min(getWidth(), getHeight()) * .9;
+    float offsetX = (getWidth() - renderSize) / 2;
+    float offsetY = (getHeight() - renderSize) / 2;
+
+	if (mViewScale < 2.0f) {
+		float scale = (1.0f + elapsedTime / 1000.0f);
+		mViewScale *= scale;
+	}
+
+	for (int loop = 0; loop < 4; loop++) {
+		Vector3 loc = agent.mSegments[0].mLocation;
+		Rectangle r = getRectangleForPoint(loc, renderSize, offsetX, offsetY, 1);
+
+		float scrollDelay = 2000.0f;
+		
+		if (r.width != 0 && (r.left() > 0) && (r.right() < getWidth()) && (r.top() > 0) && (r.bottom() < getHeight())) {
+			float rX = (r.left() + r.right()) / 2;
+			float rY = (r.top() + r.bottom()) / 2;
+			float dX = (rX - getWidth()) / 2;
+			float dY = (rY - getHeight()) / 2;
+
+			float delta = sqrtf(dX*dX + dY*dY);
+			if (delta < 10)
+				return;
+
+			dX = getWidth()/2;
+			dY = getHeight()/2;
+			float maxDelta = sqrtf(dX*dX + dY*dY);
+
+			scrollDelay *= maxDelta / delta;
+		}
+		//	break;
+
+		if (r.width == 0) {
+			loc.x = loc.y = 0;
+		}
+		else {
+			loc.x = r.left() + r.width / 2;
+			loc.y = r.top() + r.height / 2;
+		}
+
+		float xOff = (loc.x - getWidth()/2);
+		float yOff = (loc.y - getHeight()/2);
+	
+	
+		xOff *= elapsedTime/scrollDelay;
+		yOff *= elapsedTime/scrollDelay;
+
+		float x = getWidth() / 2;
+		float y = getHeight() / 2;
+
+		if (fabs(xOff) > 1 || fabs(yOff) > 1) {
+
+			touchEvent(Touch::TOUCH_PRESS, x, y, 0);
+
+			x -= xOff;
+			y -= yOff;
+			touchEvent(Touch::TOUCH_MOVE, x, y, 0);
+			touchEvent(Touch::TOUCH_RELEASE, x, y, 0);
+		}
+	}
 }

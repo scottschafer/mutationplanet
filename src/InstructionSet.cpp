@@ -55,7 +55,7 @@ void InstructionSet :: reset()
     setInstructionAvailable(eInstructionHyper, true);
     //setInstructionAvailable(eInstructionPhotosynthesizeLess, false);
 
-	//setInstructionAvailable(eInstructionFakePhotosynthesize, false);
+	//setInstructionAvailable(eInstructionFakePhotosynthesize, true);
 }
 
 char InstructionSet :: getRandomInstruction()
@@ -91,5 +91,5 @@ void InstructionSet :: setInstructionAvailable(char instruction, bool isAvailabl
 
 bool InstructionSet::instructionSupportsConditions(char instruction)
 {
-	return instruction != eInstructionPhotosynthesize;
+	return instruction != eInstructionPhotosynthesize && instruction != eInstructionFakePhotosynthesize;
 }
