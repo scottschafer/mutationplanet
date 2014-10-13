@@ -459,7 +459,7 @@ bool Agent::canEat(Agent * rhs)
 	return true;
 }
 
-#define USE_SQUARED_DISTANCE 1
+#define USE_SQUARED_DISTANCE 0
 /**
  Move a critter and optionally eat if we can
  */

@@ -26,9 +26,8 @@
 Parameters Parameters :: instance;
 
 Parameters :: Parameters() {
-	speed = 10;
-	mutationPercent = 15;
-	slowSideSpeed = 10;
+    speed = 2;//10;
+	mutationPercent = 0;
 
 	reset();
 }
@@ -45,9 +44,8 @@ float Parameters::getPhotosynthesizeBonus()
 
 void Parameters :: reset()
 {
-	slowSideSpeed = 10;
-    mutationPercent = 15;
-    moveEnergyCost = 5.0f;//3.5f;
+//    mutationPercent = 15;
+    moveEnergyCost = 2.0f;//3.5f;
     moveAndEatEnergyCost = 50;
     photoSynthesizeEnergyGain = 2.0f; //3.5f;
     digestionEfficiency = .9f;

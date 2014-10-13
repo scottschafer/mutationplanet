@@ -73,7 +73,7 @@ inline long curMS() {
     return clock() / (CLOCKS_PER_SEC/1000);
 }
 
-long killMS = -1;
+long killMS = 0;
 
 LockWorldMutex::LockWorldMutex(bool bDoLock) : mDoLock(bDoLock)
 {
@@ -595,28 +595,25 @@ void Main::render(float elapsedTime)
         mSegmentBatch[iSpriteSphere]->draw(Rectangle(mSphereOffsetX, mSphereOffsetY, mRenderSphereSize, mRenderSphereSize), Rectangle(0,0,1024,1024));
         mSegmentBatch[iSpriteSphere]->finish();
 
-        if (killMS < 0)
-            killMS = curMS() + 1000;
-        
-        const float flashTime = 1000;
-        const float flashTimePeak = 700;
+        const float flashTime = 2000;
+        const float flashTimePeak = 1200;
         
         if (killMS) {
             
             float elapsedTime = curMS() - killMS;
             if ((elapsedTime < 0) || (elapsedTime > flashTime)) {
                 killMS = 0;
+
             }
             else {
                 float f = (elapsedTime < flashTimePeak) ? (elapsedTime / flashTimePeak) : ((flashTime - elapsedTime) / (flashTime - flashTimePeak));
                 
-                float expand = mRenderSphereSize / 50.0f * f;
-                float redX = mSphereOffsetX - expand;
-                float redY = mSphereOffsetY - expand;
-                float sphereSize = mRenderSphereSize + expand + expand;
+                float dim = mRenderSphereSize * (3.5 + f) / 4;
+                float redX = mSphereOffsetX + mRenderSphereSize / 2 - dim/2;
+                float redY = mSphereOffsetY + mRenderSphereSize / 2 - dim/2;
                 
                 mSegmentBatch[iSpriteSphereRed]->start();
-                mSegmentBatch[iSpriteSphereRed]->draw(Rectangle(redX, redY, sphereSize, sphereSize), Rectangle(0,0,1024,1024), Vector4(1,1,1,f));
+                mSegmentBatch[iSpriteSphereRed]->draw(Rectangle(redX, redY, dim, dim), Rectangle(0,0,1024,1024), Vector4(1,1,1,f * .65f));
                 mSegmentBatch[iSpriteSphereRed]->finish();
             }
         }
@@ -717,8 +714,18 @@ void Main::render(float elapsedTime)
 
                         float cellSize = (Parameters::instance.getMoveDistance() * pt.z * 400 + 3)  * mUIScale;
                         float alpha = 1;
+                        
                         if (agent.mStatus == eAlive)
                             alpha = (float)agent.mEnergy/(float)agent.getSpawnEnergy();
+                        if (alpha > 1) alpha = 1;
+                        
+                        float x = ((dst.left() + dst.right()) / 2 - (mSphereOffsetX + mRenderSphereSize / 4)) / mRenderSphereSize;
+                        float y = ((dst.top() + dst.bottom()) / 2 - (mSphereOffsetY + mRenderSphereSize / 4)) / mRenderSphereSize;
+                        float delta = 1.0f - Vector2(x, y).length();
+                        delta *= delta;
+                        
+                        alpha *= delta;
+                        
                         Vector4 color(1,1,1, alpha);
                         
                         int iBatch;
@@ -1030,8 +1037,8 @@ void Main::createUI()
     _extraSpawnEnergyPerSegmentSlider = createSliderControl(_formAdvanced,"extraSpawnEnergyPerSegment", "Spawn energy:", 50, 2000);
 	_deadCellDormancySlider = createSliderControl(_formAdvanced, "deadCellDormancy", "Sprout turns:", 100, 50000);
 	_photoSynthesizeEnergyGainSlider = createSliderControl(_formAdvanced, "photoSynthesizeEnergyGain", "Photosynthesis:", 1.0f, 5.0f);
-    _moveEnergyCostSlider = createSliderControl(_formAdvanced, "moveEnergyCost", "Move:", 0, 50);
-    _moveAndEatEnergyCostSlider = createSliderControl(_formAdvanced, "moveAndEatEnergyCost", "Move & eat:", 10, 100);
+    _moveEnergyCostSlider = createSliderControl(_formAdvanced, "moveEnergyCost", "Move:", 0, 10);
+    _moveAndEatEnergyCostSlider = createSliderControl(_formAdvanced, "moveAndEatEnergyCost", "Move & eat:", 0, 50);
     _mouthSizeSlider = createSliderControl(_formAdvanced, "mouthSize", "Mouth size:", .75f, 4.0f);
 
     _lookDistanceSlider = createSliderControl(_formAdvanced,"lookDistance", "Vision range:", 1, 100);

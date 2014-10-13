@@ -30,7 +30,6 @@ public:
     int speed;
     int mutationPercent;
     float cellSize;
-    int slowSideSpeed;
 
     // energy cost / gain
     float moveAndEatEnergyCost;
