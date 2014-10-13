@@ -1,0 +1,365 @@
+<!--[if IE 9]>
+ <html class="lt-ie10" lang="en" >
+ <![endif]-->
+
+<html class="no-js" lang="en" data-useragent=
+    "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)" xmlns=
+    "http://www.w3.org/1999/xhtml">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="keywords" content="Artifical Life, Simulation" />
+        
+        <title>Genealogy</title>
+        <script src="[[res_path]]/js/jquery-1.9.0-min.js" type="text/javascript"></script>
+
+        <style type="text/css">
+            #background {
+                position: absolute;
+                width: 100%;
+                background: #f0f9ff; /* Old browsers */
+                background: -moz-linear-gradient(top,  #f0f9ff 0%, #cbebff 47%, #a1dbff 100%); /* FF3.6+ */
+                background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f0f9ff), color-stop(47%,#cbebff), color-stop(100%,#a1dbff)); /* Chrome,Safari4+ */
+                background: -webkit-linear-gradient(top,  #f0f9ff 0%,#cbebff 47%,#a1dbff 100%); /* Chrome10+,Safari5.1+ */
+                background: -o-linear-gradient(top,  #f0f9ff 0%,#cbebff 47%,#a1dbff 100%); /* Opera 11.10+ */
+                background: -ms-linear-gradient(top,  #f0f9ff 0%,#cbebff 47%,#a1dbff 100%); /* IE10+ */
+                background: linear-gradient(to bottom,  #f0f9ff 0%,#cbebff 47%,#a1dbff 100%); /* W3C */
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f0f9ff', endColorstr='#a1dbff',GradientType=0 ); /* IE6-9 */
+            }
+            .critter {
+                font-size: 9px;
+                vertical-align: bottom;
+                position: absolute;
+                border-color: black;
+                border-style: solid;
+                width: [[critter_width]]px;
+                height: [[critter_height]]px;
+                text-align: center;
+                background-color: lightgray;
+                box-shadow: 4px 4px 8px #888888;
+            }
+            .population {
+                text-align: right;
+                bottom: 1px;
+                position: absolute;
+                right: 4px;
+                -webkit-margin-after: 0px;
+                font-size: 12px;
+            }
+            .critter.alive {
+                background-color: lightgreen;
+            }
+            .segment {
+                position: absolute;
+                width: [[segment_width]]px;
+                height: [[segment_height]]px;
+                background-size: contain;
+            }
+            .connector {
+                position: absolute;
+                background-color: green;
+            }
+            #genealogy {
+                background-color: white;
+                position:absolute;
+                border: 1px;
+                border-style: solid;
+            }
+            #connectors {
+                position:absolute;
+                border: 1px;
+            }
+            #timeline {
+                position: absolute;
+                background-color: white;
+                border: 1px;
+                border-style: solid;
+            }
+            #timelineZoomIn {
+                width: 30px;
+                margin-left: 15px;
+            }
+            #timelineZoomOut {
+                width: 30px;
+                margin-left: 5px;
+            }
+            .timelineEntry {
+                width: 52px;
+                position: absolute;
+                text-align: right;
+            }
+            .segment.segment__1 {
+                background-image: url("[[res_path]]/segment_exec_always.png");
+            }
+            .segment.segment__Y {
+                background-image: url("[[res_path]]/segment_exec_if.png");
+            }
+            .segment.segment__N {
+                background-image: url("[[res_path]]/segment_exec_no.png");
+            }
+            .segment.segment_a {
+                background-image: url("[[res_path]]/food.png");
+            }
+            .segment.segment_b {
+                background-image: url("[[res_path]]/segment_M.png");
+            }
+            .segment.segment_c {
+                background-image: url("[[res_path]]/segment_n.png");
+            }
+            .segment.segment_d {
+                background-image: url("[[res_path]]/segment_hyper.png");
+            }
+            .segment.segment_e {
+                background-image: url("[[res_path]]/segment_Z.png");
+            }
+            .segment.segment_f {
+                background-image: url("[[res_path]]/segment_lt.png");
+            }
+            .segment.segment_g {
+                background-image: url("[[res_path]]/segment_rt.png");
+            }
+            .segment.segment_h {
+                background-image: url("[[res_path]]/segment_[.png");
+            }
+            .segment.segment_i {
+                background-image: url("[[res_path]]/segment_].png");
+            }
+            .segment.segment_j {
+                background-image: url("[[res_path]]/segment_test_see_food.png");
+            }
+            .segment.segment_k {
+                background-image: url("[[res_path]]/segment_test_blocked.png");
+            }
+            .segment.segment_l {
+                background-image: url("[[res_path]]/segment_test_occluded.png");
+            }
+            .segment.segment_m {
+                background-image: url("[[res_path]]/segment_test_preyed_on.png");
+            }
+            .segment.segment_n {
+                background-image: url("[[res_path]]/segment_anchor.png");
+            }
+
+        </style>
+        
+        <script language="javascript" type="text/javascript">
+            var generation_height = 65;
+            var turn_height_multiplier = 0.05;
+            var generationalView = 1;
+            var connectorWidth = 4;
+            var critters;
+
+            var critterInfoMap = {};
+
+            $(function() {
+                critters = $(".critter");
+                critters.each(function(index, value) {
+                    var critter = $(value);
+                    var info = {};
+                    var left = parseInt(critter.css("left"));
+                    var top = parseInt(critter.css("top"));
+                    var width = parseInt(critter.css("width"));
+                    var height = parseInt(critter.css("height"));
+                    info.critter = critter;
+                    info.bounds = { left: left, top: top, right: (left + width), bottom: (top + height), width: width, height: height};
+                    info.genome = critter.attr("data-genome"); 
+                    info.generation = critter.attr("data-generation"); 
+                    info.firstTurn = critter.attr("data-turn-appeared");
+                    info.children = $('div[data-parent-genome="' + info.genome + '"]');
+
+                    critterInfoMap[critter[0].id] = info;
+                });
+
+                function setCritterPosition(e, x, y) {
+                    var info = critterInfoMap[e[0].id];
+                    e.css("left", x + "px");
+                    e.css("top", y + "px")
+                    info.bounds.left = x;
+                    info.bounds.top = y;
+                    info.bounds.right = x + info.bounds.width;
+                    info.bounds.bottom = y + info.bounds.height;
+                }
+
+                var connectorsHtml = "";
+
+                function connect(parent, child) {
+                    function addConnectorRect(x,y, w, h) {
+                        if (w < 0) {
+                            x += w;
+                            w = -w;
+                        }
+                        if (h < 0) {
+                            y += h;
+                            h = -h;
+                        }
+                        connectorsHtml += "<div class='connector' style='left:" + x + "px;top:" + y + "px;width:" + w + "px;height:" + h + "px'><\/div>";
+                    }
+                    var parentBounds = critterInfoMap[parent[0].id].bounds;//getBounds(parent);
+                    var childBounds = critterInfoMap[child[0].id].bounds;//getBounds(child);
+
+                    var px = (parentBounds.left + parentBounds.right) / 2;
+                    var cx = (childBounds.left + childBounds.right) / 2;
+                    var ty = parentBounds.bottom + connectorWidth + 2;
+                    var by = childBounds.top;
+                    if (px == cx) {
+                        addConnectorRect(px, ty, connectorWidth, by - ty);
+                    }
+                    else {
+                        var lh = ( generation_height - (parentBounds.bottom - parentBounds.top)) / 3;
+                        addConnectorRect(px, ty, connectorWidth, lh);
+                        addConnectorRect(px, ty + lh, cx - px, connectorWidth);
+                        addConnectorRect(cx, ty + lh, connectorWidth, by - ty - lh);
+                    }
+                }
+
+                function buildConnectors(parentCritters) {
+                    if (! parentCritters) {
+                        parentCritters = $('div[data-generation="0"]');
+                    }
+
+                    parentCritters.each(function(index, value) {
+                        var critter = $(value);
+                        var critterInfo = critterInfoMap[value.id];
+                        var genome = critterInfo.genome;//critter.attr("data-genome");
+                        var children = critterInfo.children;//$('div[data-parent-genome="' + genome + '"]');
+
+                        children.each(function(iChild, domChild) {
+                            var child = $(domChild);
+                            connect(critter, child);
+                            buildConnectors(children);
+                        });
+                    });
+                }
+
+                function updateView() {
+                    connectorsHtml = "";
+                    $("#toggleView").text(generationalView ? "Switch to Timeline View" : "Switch to Generational View");
+                    $("#timelineZoomIn").css("display", generationalView ? "none" : "inline-block");
+                    $("#timelineZoomOut").css("display", generationalView ? "none" : "inline-block");
+
+                    var totalBounds = null;
+
+                    var margin = 10;
+                    var timelineWidth = 65;
+                    var lastTurn = 0;
+
+                    critters.each(function(index, value) {
+                        var critter = $(value);
+                        var critterInfo = critterInfoMap[value.id];
+                        var y;
+                        var x = critterInfo.bounds.left;
+                        if (! window.hasPerformedInitialUpdate) {
+                            x += margin;
+                        }
+                        if (generationalView) {
+                            y = critterInfo.generation * generation_height;
+                        }
+                        else {
+                            var turn = critterInfo.firstTurn;
+                            lastTurn = Math.max(lastTurn, turn);
+                            y = turn * turn_height_multiplier;
+                            if (y > 0) {
+                                y += generation_height;
+                            }
+                        }
+
+                        y += margin;
+                        setCritterPosition(critter, x, y);
+
+                        var critterBounds = critterInfo.bounds;
+                        if (totalBounds == null) {
+                            totalBounds = critterBounds;
+                        }
+                        else {
+                            totalBounds = {
+                                left: Math.min(totalBounds.left, critterBounds.left),
+                                top: Math.min(totalBounds.top, critterBounds.top),
+                                right: Math.max(totalBounds.right, critterBounds.right),
+                                bottom: Math.max(totalBounds.bottom, critterBounds.bottom)
+                            }
+                        }
+                    });
+
+                    var genealogy = $("#genealogy");
+                    genealogy.css("width", (totalBounds.right - totalBounds.left + margin * 3) + "px");
+                    genealogy.css("height", (totalBounds.bottom - totalBounds.top + margin * 3) + "px");
+
+                    var height = Math.max($(window).height(), (genealogy.offset().top + genealogy.height() + margin * 4));
+                    $("#background").css("height", height + "px");
+                    buildConnectors();
+                    $("#connectors").html(connectorsHtml);
+                    window.hasPerformedInitialUpdate = true;
+
+                    if (generationalView) {
+                        $("#genealogy").css("left", "4px");
+                        $("#timeline").css("display", "none");
+                    }
+                    else {
+                        $("#genealogy").css("left", (4 + timelineWidth) + "px");
+                        $("#timeline").css("display", "block");
+                        $("#timeline").css("width", timelineWidth + "px");
+                        $("#timeline").css("height", $("#genealogy").css("height"));
+                        $("#timeline").children(".timelineEntry").remove();
+                        var step = 25 / turn_height_multiplier;
+                        step = 100 * (Math.max(1, parseInt(step/100 + .5)));
+
+                        var turn = -step;
+                        var timelineHtml = "";
+                        while (turn != lastTurn) {
+                            turn += step;
+                            turn = Math.min(turn, lastTurn);
+                            if ((turn + step) < lastTurn || (turn == lastTurn)) {
+                                var y = turn * turn_height_multiplier;
+                                y += generation_height;
+                                timelineHtml += "<div class='timelineEntry' style='top:" + y + "px'>" + parseInt(turn) + "<\/div>";
+                            }
+                        }
+                        $("#timeline").append(timelineHtml);
+                    }
+                    $("#connectors").css("left", $("#genealogy").css("left"));
+                    $("#connectors").css("top", $("#genealogy").css("top"));
+                    $("#connectors").css("width", $("#genealogy").css("width"));
+                    $("#connectors").css("height", $("#genealogy").css("height"));
+                }
+
+                $("#toggleView").click(function() {
+                    generationalView = ! generationalView;
+                    updateView();
+                });
+
+
+                $("#timelineZoomIn").click(function() {
+                    turn_height_multiplier *= 1.1;
+                    updateView();
+                });
+
+
+                $("#timelineZoomOut").click(function() {
+                    turn_height_multiplier *= .9;
+                    updateView();
+                });
+
+                updateView();
+            });
+        </script>
+    </head>
+    
+    <body style="width:100%; height:100%; background-color:white">
+        
+        <div id="background"></dib>
+        <h1>Genealogy</h1>
+        
+        <p>This graph shows the ancestoral tree for the five most populous critters. Each box contains a unique genome which is exactly one mutation away from its parent's genome. A mutation will randomly insert, remove or change an instruction. Green boxes represent genomes that are still represented by a population, while gray boxes are extinct.</p>
+        <button id="toggleView">Timeline View</button><button id="timelineZoomIn">+</button><button id="timelineZoomOut">-</button><br />
+        <br />
+        
+        <div id="timeline"><p>&nbsp;<b><u>Turn #</u></b></p></div>
+        
+        <div id="genealogy">
+            [[contents]]
+        </div>
+
+        <div id="connectors"></div>
+
+    </body>
+</html>

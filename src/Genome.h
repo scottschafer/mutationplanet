@@ -3,26 +3,41 @@
 
 #include "Constants.h"
 #include "InstructionSet.h"
-#include "Instruction.h"
+//#include "Instruction.h"
+
 
 class Genome {
 public:
 	Genome();
 
 	int initialize(const char *pInstructions);
-	int initializeHasExecutionType(const char *pInstructions);
-	int initialize(const Instruction *pInstructions);
 
 	Genome mutate();
-
-	Instruction & operator [](int i) { return mInstructions[i]; }
-	operator std::string() { return toString(); }
-	const std::string toString();
-
-    Instruction mInstructions[MAX_SEGMENTS + 1];
+    
+    eSegmentExecutionType getExecType(int i) {
+        return (eSegmentExecutionType) (mInstructions[i] & eExecTypeMask);
+    }
+    
+    char getInstruction(int i) {
+        return (mInstructions[i] & eInstructionMask);
+    }
+    
+    bool isFixed(int i) {
+        return (mInstructions[i] & eFixed) != 0;
+    }
+    operator const char *() const { return mInstructions; }
+    
+    Genome& operator =(const Genome &rhs) {
+        memcpy(mInstructions,rhs.mInstructions, sizeof(mInstructions));
+        return *this;
+    }
+    
+private:
+    char mInstructions[MAX_GENOME_LENGTH + 1];
 };
 
-inline const bool operator == (Genome const& lhs, Genome const& rhs) { return memcmp(lhs.mInstructions, rhs.mInstructions, sizeof(lhs.mInstructions)) == 0; }
-inline const bool operator != (Genome const& lhs, Genome const& rhs) { return memcmp(lhs.mInstructions, rhs.mInstructions, sizeof(lhs.mInstructions)) != 0; }
-inline const bool operator < (Genome const& lhs, Genome const& rhs) { return memcmp(lhs.mInstructions, rhs.mInstructions, sizeof(lhs.mInstructions)) == -1; }
+inline const bool operator == (Genome const& lhs, Genome const& rhs) { return strcmp((const char *)lhs, (const char *)rhs) == 0; }
+inline const bool operator != (Genome const& lhs, Genome const& rhs) { return strcmp((const char *)lhs, (const char *)rhs) != 0; }
+inline const bool operator < (Genome const& lhs, Genome const& rhs)  { return strcmp((const char *)lhs, (const char *)rhs) == -1; }
+
 #endif

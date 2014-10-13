@@ -28,6 +28,7 @@
 #include "InstructionSet.h"
 #include "Constants.h"
 
+eSegmentExecutionType getRandomExecutionType();
 eSegmentExecutionType getRandomExecutionType()
 {
 	int r = rand() % 5;
@@ -41,6 +42,7 @@ eSegmentExecutionType getRandomExecutionType()
 	}
 };
 
+int strlen(const Instruction *pIn);
 int strlen(const Instruction *pIn)
 {
 	int result = 0;
@@ -49,11 +51,13 @@ int strlen(const Instruction *pIn)
 	return result;
 }
 
+void strcpy(Instruction *pDest, const Instruction *pSrc);
 void strcpy(Instruction *pDest, const Instruction *pSrc)
 {
 	memcpy (pDest, pSrc, MAX_GENOME_LENGTH * sizeof(Instruction));
 }
 
+Instruction randomInstruction();
 Instruction randomInstruction()
 {
 	Instruction result;

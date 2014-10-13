@@ -142,7 +142,7 @@ void Main :: handleSaveLoad()
 
 void Main :: handleSave(int i)
 {
-    pthread_mutex_lock( &mutex1 );
+    LockWorldMutex m;
 	ofstream out;
 	char fileName[200];
 	sprintf(fileName, "World %d", i);
@@ -155,13 +155,13 @@ void Main :: handleSave(int i)
 	out.write((char*)&version, sizeof(version));
 
 	out.write((char*)&Parameters::instance, sizeof(Parameters));
+
 	world.write(out);
-	pthread_mutex_unlock( &mutex1 );
 }
 
 void Main :: handleLoad(int i)
 {
-    pthread_mutex_lock( &mutex1 );
+    LockWorldMutex m;
 	world.clear();
 
 	ifstream in;
@@ -182,5 +182,4 @@ void Main :: handleLoad(int i)
 
 	setControlValues();
 	updateControlLabels();
-	pthread_mutex_unlock( &mutex1 );
 }

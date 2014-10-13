@@ -28,7 +28,7 @@ Parameters Parameters :: instance;
 Parameters :: Parameters() {
 	speed = 10;
 	mutationPercent = 15;
-	slowSideSpeed = 4;
+	slowSideSpeed = 10;
 
 	reset();
 }
@@ -40,32 +40,30 @@ float Parameters::getMoveDistance()
 
 float Parameters::getPhotosynthesizeBonus()
 {
-	return photoSynthesizeEnergyGain - 1.0;
+    return photoSynthesizeEnergyGain;// - 1.0;
 }
 
 void Parameters :: reset()
 {
-	slowSideSpeed = 4;
-    mutationPercent = 25;
-    moveEnergyCost = 4;
-    moveAndEatEnergyCost = 60;//6;
-    photoSynthesizeEnergyGain = 2.0f;//8;
-	//photoSynthesizeBonus = 1.0f;
-    digestionEfficiency = 1.0f;
-	biteStrength = 1.0f;
+	slowSideSpeed = 10;
+    mutationPercent = 15;
+    moveEnergyCost = 5.0f;//3.5f;
+    moveAndEatEnergyCost = 50;
+    photoSynthesizeEnergyGain = 2.0f; //3.5f;
+    digestionEfficiency = .9f;
+    biteStrength = 2.0f;//1.3f;
     deadCellDormancy = 10000; // turns before a "dead" cell (such as left by a critter that starved) turns into a live photo cell
     baseSpawnEnergy = 0;
-    extraSpawnEnergyPerSegment = 1000;
-    sleepTimeAfterBeingSpawned = 0;//20;
-    
+    extraSpawnEnergyPerSegment = 1500;
+    sleepTimeAfterBeingSpawned = 0;
     baseLifespan = 0;
     extraLifespanPerSegment = 10000;
     cellSize = 4;
-    extraCyclesForMove = 5;
+    extraCyclesForMove = 3;
     allowSelfOverlap = false;
-    lookDistance = 30;
+    lookDistance = 40;
 
-    sleepTime = 20;
+    sleepTime = 10;
 	unexecutedTurnCost = .1f;
 
 	turnToFoodAfterDeath = true;
@@ -74,53 +72,5 @@ void Parameters :: reset()
 	lookSpread = 1.02f;
 
 	cannibals = 1;
-	allowOr = true;
+	allowOr = false;
 }
-
-/*
-// global
-int Parameters :: speed = 10;
-int Parameters :: mutationPercent;
-int Parameters :: slowSideSpeed = 4;
-
-// energy cost / gain
-float Parameters :: moveEnergyCost;
-float Parameters :: moveAndEatEnergyCost;
-float Parameters :: photoSynthesizeEnergyGain;
-float Parameters :: unexecutedTurnCost;
-float Parameters :: digestionEfficiency;
-float Parameters :: biteStrength;
-int Parameters :: deadCellDormancy;
-
-// spawn energy
-float Parameters :: baseSpawnEnergy;
-float Parameters :: extraSpawnEnergyPerSegment;
-int Parameters :: sleepTimeAfterBeingSpawned;
-
-// lifespan
-float Parameters :: baseLifespan;
-float Parameters :: extraLifespanPerSegment;
-
-// moving
-float Parameters :: cellSize;
-int Parameters :: extraCyclesForMove;
-bool Parameters:: allowSelfOverlap;
-
-// looking
-int Parameters :: lookDistance;
-
-// sleep
-int Parameters :: sleepTime;
-
-int Parameters :: turnToFoodAfterDeath;
-
-//float Parameters :: photoSynthesizeBonus;
-
-float Parameters :: mouthSize;
-float Parameters :: lookSpread;
-
-int Parameters :: cannibals;
-
-int Parameters :: allowOr;
-
-*/

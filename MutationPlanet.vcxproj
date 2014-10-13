@@ -1,14 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="DebugMem|BlackBerry">
-      <Configuration>DebugMem</Configuration>
-      <Platform>BlackBerry</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="DebugMem|BlackBerrySimulator">
-      <Configuration>DebugMem</Configuration>
-      <Platform>BlackBerrySimulator</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="DebugMem|Win32">
       <Configuration>DebugMem</Configuration>
       <Platform>Win32</Platform>
@@ -17,14 +9,6 @@
       <Configuration>DebugMem</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|BlackBerry">
-      <Configuration>Debug</Configuration>
-      <Platform>BlackBerry</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|BlackBerrySimulator">
-      <Configuration>Debug</Configuration>
-      <Platform>BlackBerrySimulator</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
@@ -32,14 +16,6 @@
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|BlackBerry">
-      <Configuration>Release</Configuration>
-      <Platform>BlackBerry</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|BlackBerrySimulator">
-      <Configuration>Release</Configuration>
-      <Platform>BlackBerrySimulator</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
@@ -51,74 +27,48 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{E3966560-AFCF-4BD0-A742-26278CC552B2}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>sample00-mesh</RootNamespace>
+    <RootNamespace>MutationPlanet</RootNamespace>
+    <ProjectGuid>{30BEE126-8B04-4F96-84A1-30CBF8B3E491}</ProjectGuid>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|BlackBerry'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|BlackBerrySimulator'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|BlackBerry'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|BlackBerrySimulator'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|BlackBerry'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|BlackBerrySimulator'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -129,22 +79,10 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|BlackBerry'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|BlackBerrySimulator'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|BlackBerry'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|BlackBerrySimulator'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -153,94 +91,42 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|BlackBerry'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|BlackBerrySimulator'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>false</LinkIncremental>
+    <LinkIncremental>true</LinkIncremental>
     <OutDir>$(Configuration)\</OutDir>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
     <CustomBuildBeforeTargets>
     </CustomBuildBeforeTargets>
-    <IntDir>$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(Configuration)\</OutDir>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
     <CustomBuildBeforeTargets />
-    <IntDir>$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|BlackBerry'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>Device-$(Configuration)\</OutDir>
-    <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <CustomBuildBeforeTargets />
-    <IntDir>Device-$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|BlackBerrySimulator'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>Simulator\</OutDir>
-    <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <CustomBuildBeforeTargets />
-    <IntDir>Simulator\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(Configuration)\</OutDir>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
     <CustomBuildBeforeTargets />
-    <IntDir>$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(Configuration)\</OutDir>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
     <CustomBuildBeforeTargets />
-    <IntDir>$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|BlackBerry'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>Device-$(Configuration)\</OutDir>
-    <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <CustomBuildBeforeTargets />
-    <IntDir>Device-$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|BlackBerrySimulator'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>Simulator\</OutDir>
-    <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <CustomBuildBeforeTargets />
-    <IntDir>Simulator\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(Configuration)\</OutDir>
     <CustomBuildBeforeTargets>
     </CustomBuildBeforeTargets>
-    <IntDir>$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(Configuration)\</OutDir>
     <CustomBuildBeforeTargets />
-    <IntDir>$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|BlackBerry'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>Device-$(Configuration)\</OutDir>
-    <CustomBuildBeforeTargets />
-    <IntDir>Device-$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|BlackBerrySimulator'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>Simulator\</OutDir>
-    <CustomBuildBeforeTargets />
-    <IntDir>Simulator\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -248,20 +134,17 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_ITERATOR_DEBUG_LEVEL=0;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./src/pthread;../gameplay/src;../external-deps/bullet/include;../external-deps/lua/include;../external-deps/openal/include/AL;../external-deps/oggvorbis/include;../external-deps/libpng/include;../external-deps/zlib/include;../external-deps/glew/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\external-deps\lua\include;..\external-deps\bullet\include;..\gameplay\src;..\external-deps\openal\include\AL;..\external-deps\oggvorbis\include;..\external-deps\png\include;..\external-deps\zlib\include;..\external-deps\glew\include</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>pthreadVC2.lib;lua.lib;OpenAL32.lib;OpenGL32.lib;GLU32.lib;glew32.lib;libpng14.lib;zlib.lib;gameplay.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../external-deps/lua/lib/windows/x86;../external-deps/bullet/lib/windows/x86;../external-deps/openal/lib/windows/x86;../external-deps/oggvorbis/lib/windows/x86;../external-deps/glew/lib/windows/x86;../external-deps/libpng/lib/windows/x86;../external-deps/zlib/lib/windows/x86;../gameplay/windows/x86/$(Configuration);./src/pthread</AdditionalLibraryDirectories>
+      <AdditionalDependencies>lua.lib;OpenAL32.lib;OpenGL32.lib;GLU32.lib;glew32.lib;libpng.lib;zlib.lib;gameplay.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\external-deps\lua\lib\windows\x86;..\external-deps\bullet\lib\windows\x86;..\external-deps\openal\lib\windows\x86;..\external-deps\oggvorbis\lib\windows\x86;..\external-deps\glew\lib\windows\x86;..\external-deps\png\lib\windows\x86;..\external-deps\zlib\lib\windows\x86;..\gameplay\windows\x86\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
     <CustomBuildStep>
       <Command>
       </Command>
@@ -270,6 +153,10 @@
       <Outputs>
       </Outputs>
     </CustomBuildStep>
+    <PreBuildEvent>
+      <Command>xcopy ..\gameplay\res\shaders res\shaders\* /s /y /d
+xcopy ..\gameplay\res\ui res\ui\* /s /y /d</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -277,21 +164,17 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_ITERATOR_DEBUG_LEVEL=0;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../gameplay/src;../../external-deps/bullet/include;../../external-deps/lua/include;../../external-deps/openal/include/AL;../../external-deps/oggvorbis/include;../../external-deps/libpng/include;../../external-deps/zlib/include;../../external-deps/glew/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\external-deps\lua\include;..\external-deps\bullet\include;..\gameplay\src;..\external-deps\openal\include\AL;..\external-deps\oggvorbis\include;..\external-deps\png\include;..\external-deps\zlib\include;..\external-deps\glew\include</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>lua.lib;OpenAL32.lib;OpenGL32.lib;GLU32.lib;glew32.lib;libpng14.lib;zlib.lib;gameplay.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../external-deps/lua/lib/windows/x64;../../external-deps/bullet/lib/windows/x64;../../external-deps/openal/lib/windows/x64;../../external-deps/oggvorbis/lib/windows/x64;../../external-deps/glew/lib/windows/x64;../../external-deps/libpng/lib/windows/x64;../../external-deps/zlib/lib/windows/x64;../../gameplay/windows/x64/$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>lua.lib;OpenAL32.lib;OpenGL32.lib;GLU32.lib;glew32.lib;libpng.lib;zlib.lib;gameplay.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\external-deps\lua\lib\windows\x64;..\external-deps\bullet\lib\windows\x64;..\external-deps\openal\lib\windows\x64;..\external-deps\oggvorbis\lib\windows\x64;..\external-deps\glew\lib\windows\x64;..\external-deps\png\lib\windows\x64;..\external-deps\zlib\lib\windows\x64;..\gameplay\windows\x64\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
     <CustomBuildStep>
       <Command>
       </Command>
@@ -300,67 +183,10 @@
       <Outputs>
       </Outputs>
     </CustomBuildStep>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|BlackBerry'">
-    <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_ITERATOR_DEBUG_LEVEL=0;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../external-deps/bullet/include;../../gameplay/src;../../external-deps/lua/include;../../external-deps/openal/include/AL;../../external-deps/oggvorbis/include;../../external-deps/libpng/include;../../external-deps/zlib/include;../../external-deps/glew/include</AdditionalIncludeDirectories>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalOptions>-mfpu=neon %(AdditionalOptions)</AdditionalOptions>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>GLESv2;EGL;screen;m;png14;pps;bps;gestures;OpenAL;asound;gameplay;bullet;vorbis;lua</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../external-deps/lua/lib/blackberry/arm;../../external-deps/bullet/lib/blackberry/arm;../../external-deps/oggvorbis/lib/blackberry/arm;../../gameplay/Device-$(Configuration)</AdditionalLibraryDirectories>
-    </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
-    <CustomBuildStep>
-      <Command>
-      </Command>
-      <Message>
-      </Message>
-      <Outputs>
-      </Outputs>
-    </CustomBuildStep>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|BlackBerrySimulator'">
-    <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_ITERATOR_DEBUG_LEVEL=0;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../external-deps/bullet/include;../../gameplay/src;../../external-deps/lua/include;../../external-deps/openal/include/AL;../../external-deps/oggvorbis/include;../../external-deps/libpng/include;../../external-deps/zlib/include;../../external-deps/glew/include</AdditionalIncludeDirectories>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>GLESv2;EGL;screen;m;png14;pps;bps;gestures;OpenAL;asound;gameplay;bullet;vorbis;lua</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../external-deps/lua/lib/blackberry/x86;../../external-deps/bullet/lib/blackberry/x86;../../external-deps/oggvorbis/lib/blackberry/x86;../../gameplay/Simulator</AdditionalLibraryDirectories>
-    </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
-    <CustomBuildStep>
-      <Command>
-      </Command>
-      <Message>
-      </Message>
-      <Outputs>
-      </Outputs>
-    </CustomBuildStep>
+    <PreBuildEvent>
+      <Command>xcopy ..\gameplay\res\shaders res\shaders\* /s /y /d
+xcopy ..\gameplay\res\ui res\ui\* /s /y /d</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|Win32'">
     <ClCompile>
@@ -368,8 +194,8 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_ITERATOR_DEBUG_LEVEL=0;WIN32;_DEBUG;_WINDOWS;GAMEPLAY_MEM_LEAK_DETECTION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../gameplay/src;../../external-deps/bullet/include;../../external-deps/lua/include;../../external-deps/openal/include/AL;../../external-deps/oggvorbis/include;../../external-deps/libpng/include;../../external-deps/zlib/include;../../external-deps/glew/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;GP_USE_MEM_LEAK_DETECTION;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\external-deps\lua\include;..\external-deps\bullet\include;..\gameplay\src;..\external-deps\openal\include\AL;..\external-deps\oggvorbis\include;..\external-deps\png\include;..\external-deps\zlib\include;..\external-deps\glew\include</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <ShowIncludes>false</ShowIncludes>
       <PreprocessToFile>false</PreprocessToFile>
@@ -378,13 +204,9 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>lua.lib;OpenAL32.lib;OpenGL32.lib;GLU32.lib;glew32.lib;libpng14.lib;zlib.lib;gameplay.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../external-deps/lua/lib/windows/x86;../../external-deps/bullet/lib/windows/x86;../../external-deps/openal/lib/windows/x86;../../external-deps/oggvorbis/lib/windows/x86;../../external-deps/glew/lib/windows/x86;../../external-deps/libpng/lib/windows/x86;../../external-deps/zlib/lib/windows/x86;../../gameplay/windows/x86/$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>lua.lib;OpenAL32.lib;OpenGL32.lib;GLU32.lib;glew32.lib;libpng.lib;zlib.lib;gameplay.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\external-deps\lua\lib\windows\x86;..\external-deps\bullet\lib\windows\x86;..\external-deps\openal\lib\windows\x86;..\external-deps\oggvorbis\lib\windows\x86;..\external-deps\glew\lib\windows\x86;..\external-deps\png\lib\windows\x86;..\external-deps\zlib\lib\windows\x86;..\gameplay\windows\x86\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
     <CustomBuildStep>
       <Command>
       </Command>
@@ -393,6 +215,10 @@
       <Outputs>
       </Outputs>
     </CustomBuildStep>
+    <PreBuildEvent>
+      <Command>xcopy ..\gameplay\res\shaders res\shaders\* /s /y /d
+xcopy ..\gameplay\res\ui res\ui\* /s /y /d</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|x64'">
     <ClCompile>
@@ -400,8 +226,8 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_ITERATOR_DEBUG_LEVEL=0;WIN32;_DEBUG;_WINDOWS;GAMEPLAY_MEM_LEAK_DETECTION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../gameplay/src;../../external-deps/bullet/include;../../external-deps/lua/include;../../external-deps/openal/include/AL;../../external-deps/oggvorbis/include;../../external-deps/libpng/include;../../external-deps/zlib/include;../../external-deps/glew/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;GP_USE_MEM_LEAK_DETECTION;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\external-deps\lua\include;..\external-deps\bullet\include;..\gameplay\src;..\external-deps\openal\include\AL;..\external-deps\oggvorbis\include;..\external-deps\png\include;..\external-deps\zlib\include;..\external-deps\glew\include</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <ShowIncludes>false</ShowIncludes>
       <PreprocessToFile>false</PreprocessToFile>
@@ -410,13 +236,9 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>lua.lib;OpenAL32.lib;OpenGL32.lib;GLU32.lib;glew32.lib;libpng14.lib;zlib.lib;gameplay.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../external-deps/lua/lib/windows/x64;../../external-deps/bullet/lib/windows/x64;../../external-deps/openal/lib/windows/x64;../../external-deps/oggvorbis/lib/windows/x64;../../external-deps/glew/lib/windows/x64;../../external-deps/libpng/lib/windows/x64;../../external-deps/zlib/lib/windows/x64;../../gameplay/windows/x64/$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>lua.lib;OpenAL32.lib;OpenGL32.lib;GLU32.lib;glew32.lib;libpng.lib;zlib.lib;gameplay.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\external-deps\lua\lib\windows\x64;..\external-deps\bullet\lib\windows\x64;..\external-deps\openal\lib\windows\x64;..\external-deps\oggvorbis\lib\windows\x64;..\external-deps\glew\lib\windows\x64;..\external-deps\png\lib\windows\x64;..\external-deps\zlib\lib\windows\x64;..\gameplay\windows\x64\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
     <CustomBuildStep>
       <Command>
       </Command>
@@ -425,71 +247,10 @@
       <Outputs>
       </Outputs>
     </CustomBuildStep>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|BlackBerry'">
-    <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_ITERATOR_DEBUG_LEVEL=0;WIN32;_DEBUG;_WINDOWS;GAMEPLAY_MEM_LEAK_DETECTION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../external-deps/bullet/include;../../gameplay/src;../../external-deps/lua/include;../../external-deps/openal/include/AL;../../external-deps/oggvorbis/include;../../external-deps/libpng/include;../../external-deps/zlib/include;../../external-deps/glew/include</AdditionalIncludeDirectories>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <ShowIncludes>false</ShowIncludes>
-      <PreprocessToFile>false</PreprocessToFile>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalOptions>-mfpu=neon %(AdditionalOptions)</AdditionalOptions>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>GLESv2;EGL;screen;m;png14;pps;bps;gestures;OpenAL;asound;gameplay;bullet;vorbis;lua</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../external-deps/lua/lib/blackberry/arm;../../external-deps/bullet/lib/blackberry/arm;../../external-deps/oggvorbis/lib/blackberry/arm;../../gameplay/Device-$(Configuration)</AdditionalLibraryDirectories>
-    </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
-    <CustomBuildStep>
-      <Command>
-      </Command>
-      <Message>
-      </Message>
-      <Outputs>
-      </Outputs>
-    </CustomBuildStep>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|BlackBerrySimulator'">
-    <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_ITERATOR_DEBUG_LEVEL=0;WIN32;_DEBUG;_WINDOWS;GAMEPLAY_MEM_LEAK_DETECTION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../external-deps/bullet/include;../../gameplay/src;../../external-deps/lua/include;../../external-deps/openal/include/AL;../../external-deps/oggvorbis/include;../../external-deps/libpng/include;../../external-deps/zlib/include;../../external-deps/glew/include</AdditionalIncludeDirectories>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <ShowIncludes>false</ShowIncludes>
-      <PreprocessToFile>false</PreprocessToFile>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>GLESv2;EGL;screen;m;png14;pps;bps;gestures;OpenAL;asound;gameplay;bullet;vorbis;lua</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../external-deps/lua/lib/blackberry/x86;../../external-deps/bullet/lib/blackberry/x86;../../external-deps/oggvorbis/lib/blackberry/x86;../../gameplay/Simulator</AdditionalLibraryDirectories>
-    </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
-    <CustomBuildStep>
-      <Command>
-      </Command>
-      <Message>
-      </Message>
-      <Outputs>
-      </Outputs>
-    </CustomBuildStep>
+    <PreBuildEvent>
+      <Command>xcopy ..\gameplay\res\shaders res\shaders\* /s /y /d
+xcopy ..\gameplay\res\ui res\ui\* /s /y /d</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -499,21 +260,17 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./src/pthread;../gameplay/src;../external-deps/bullet/include;../external-deps/lua/include;../external-deps/openal/include/AL;../external-deps/oggvorbis/include;../external-deps/libpng/include;../external-deps/zlib/include;../external-deps/glew/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\external-deps\lua\include;..\external-deps\bullet\include;..\gameplay\src;..\external-deps\openal\include\AL;..\external-deps\oggvorbis\include;..\external-deps\png\include;..\external-deps\zlib\include;..\external-deps\glew\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>pthreadVC2.lib;lua.lib;OpenAL32.lib;OpenGL32.lib;GLU32.lib;glew32.lib;libpng14.lib;zlib.lib;gameplay.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>./src/pthread;../external-deps/lua/lib/windows/x86;../external-deps/bullet/lib/windows/x86;../external-deps/openal/lib/windows/x86;../external-deps/oggvorbis/lib/windows/x86;../external-deps/glew/lib/windows/x86;../external-deps/libpng/lib/windows/x86;../external-deps/zlib/lib/windows/x86;../gameplay/windows/x86/$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>lua.lib;OpenAL32.lib;OpenGL32.lib;GLU32.lib;glew32.lib;libpng.lib;zlib.lib;gameplay.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\external-deps\lua\lib\windows\x86;..\external-deps\bullet\lib\windows\x86;..\external-deps\openal\lib\windows\x86;..\external-deps\oggvorbis\lib\windows\x86;..\external-deps\glew\lib\windows\x86;..\external-deps\png\lib\windows\x86;..\external-deps\zlib\lib\windows\x86;..\gameplay\windows\x86\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
     <CustomBuildStep>
       <Command>
       </Command>
@@ -522,6 +279,10 @@
       <Outputs>
       </Outputs>
     </CustomBuildStep>
+    <PreBuildEvent>
+      <Command>xcopy ..\gameplay\res\shaders res\shaders\* /s /y /d
+xcopy ..\gameplay\res\ui res\ui\* /s /y /d</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -531,21 +292,17 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../gameplay/src;../../external-deps/bullet/include;../../external-deps/lua/include;../../external-deps/openal/include/AL;../../external-deps/oggvorbis/include;../../external-deps/libpng/include;../../external-deps/zlib/include;../../external-deps/glew/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\external-deps\lua\include;..\external-deps\bullet\include;..\gameplay\src;..\external-deps\openal\include\AL;..\external-deps\oggvorbis\include;..\external-deps\png\include;..\external-deps\zlib\include;..\external-deps\glew\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>lua.lib;OpenAL32.lib;OpenGL32.lib;GLU32.lib;glew32.lib;libpng14.lib;zlib.lib;gameplay.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../external-deps/lua/lib/windows/x64;../../external-deps/bullet/lib/windows/x64;../../external-deps/openal/lib/windows/x64;../../external-deps/oggvorbis/lib/windows/x64;../../external-deps/glew/lib/windows/x64;../../external-deps/libpng/lib/windows/x64;../../external-deps/zlib/lib/windows/x64;../../gameplay/windows/x64/$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>lua.lib;OpenAL32.lib;OpenGL32.lib;GLU32.lib;glew32.lib;libpng.lib;zlib.lib;gameplay.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\external-deps\lua\lib\windows\x64;..\external-deps\bullet\lib\windows\x64;..\external-deps\openal\lib\windows\x64;..\external-deps\oggvorbis\lib\windows\x64;..\external-deps\glew\lib\windows\x64;..\external-deps\png\lib\windows\x64;..\external-deps\zlib\lib\windows\x64;..\gameplay\windows\x64\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
     <CustomBuildStep>
       <Command>
       </Command>
@@ -554,118 +311,43 @@
       <Outputs>
       </Outputs>
     </CustomBuildStep>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|BlackBerry'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../external-deps/bullet/include;../../gameplay/src;../../external-deps/lua/include;../../external-deps/openal/include/AL;../../external-deps/oggvorbis/include;../../external-deps/libpng/include;../../external-deps/zlib/include;../../external-deps/glew/include</AdditionalIncludeDirectories>
-      <AdditionalOptions>-mfpu=neon %(AdditionalOptions)</AdditionalOptions>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>GLESv2;EGL;screen;m;png14;pps;bps;gestures;OpenAL;asound;gameplay;bullet;vorbis;lua</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../external-deps/lua/lib/blackberry/arm;../../external-deps/bullet/lib/blackberry/arm;../../external-deps/oggvorbis/lib/blackberry/arm;../../gameplay/Device-$(Configuration)</AdditionalLibraryDirectories>
-    </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
-    <CustomBuildStep>
-      <Command>
-      </Command>
-      <Message>
-      </Message>
-      <Outputs>
-      </Outputs>
-    </CustomBuildStep>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|BlackBerrySimulator'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../external-deps/bullet/include;../../gameplay/src;../../external-deps/lua/include;../../external-deps/openal/include/AL;../../external-deps/oggvorbis/include;../../external-deps/libpng/include;../../external-deps/zlib/include;../../external-deps/glew/include</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>GLESv2;EGL;screen;m;png14;pps;bps;gestures;OpenAL;asound;gameplay;bullet;vorbis;lua</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../external-deps/lua/lib/blackberry/x86;../../external-deps/bullet/lib/blackberry/x86;../../external-deps/oggvorbis/lib/blackberry/x86;../../gameplay/Simulator</AdditionalLibraryDirectories>
-    </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
-    <CustomBuildStep>
-      <Command>
-      </Command>
-      <Message>
-      </Message>
-      <Outputs>
-      </Outputs>
-    </CustomBuildStep>
+    <PreBuildEvent>
+      <Command>xcopy ..\gameplay\res\shaders res\shaders\* /s /y /d
+xcopy ..\gameplay\res\ui res\ui\* /s /y /d</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="..\..\gameplay\res\logo_powered_white.png" />
-    <None Include="bar-descriptor.xml" />
+    <None Include="bar-descriptor.xml">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="game.config" />
     <None Include="icon.png" />
-    <None Include="res\arial.ttf" />
-    <None Include="res\arial40.gpb" />
-    <None Include="res\duck-diffuse.png" />
-    <None Include="res\duck.dae" />
-    <None Include="res\duck.gpb" />
-    <None Include="res\duck.material" />
-    <None Include="res\grid.material" />
+    <None Include="res\demo.fbx" />
+    <None Include="res\demo.gpb" />
+    <None Include="res\demo.material" />
+    <None Include="res\demo.scene" />
+    <None Include="res\shaders\colored.frag" />
+    <None Include="res\shaders\colored.vert" />
+    <None Include="res\shaders\font.frag" />
+    <None Include="res\shaders\font.vert" />
+    <None Include="res\shaders\form.frag" />
+    <None Include="res\shaders\form.vert" />
+    <None Include="res\shaders\lighting.frag" />
+    <None Include="res\shaders\lighting.vert" />
+    <None Include="res\shaders\skinning-none.vert" />
+    <None Include="res\shaders\skinning.vert" />
+    <None Include="res\shaders\sprite.frag" />
+    <None Include="res\shaders\sprite.vert" />
+    <None Include="res\shaders\terrain.frag" />
+    <None Include="res\shaders\terrain.vert" />
+    <None Include="res\shaders\textured.frag" />
+    <None Include="res\shaders\textured.vert" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Agent.cpp" />
-    <ClCompile Include="src\arcball.cpp" />
-    <ClCompile Include="src\Genome.cpp" />
-    <ClCompile Include="src\InstructionSet.cpp" />
     <ClCompile Include="src\Main.cpp" />
-    <ClCompile Include="src\Main_InsertCritter.cpp" />
-    <ClCompile Include="src\Main_SaveLoad.cpp" />
-    <ClCompile Include="src\Parameters.cpp" />
-    <ClCompile Include="src\ScalableSlider.cpp" />
-    <ClCompile Include="src\SpherePointFinderLinkedList.cpp" />
-    <ClCompile Include="src\SphereWorld.cpp" />
-    <ClCompile Include="src\UtilsGenome.cpp" />
-    <ClCompile Include="src\UtilsRandom.cpp" />
-    <ClCompile Include="src\win.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Agent.h" />
-    <ClInclude Include="src\arcball.h" />
-    <ClInclude Include="src\BaseSpherePointFinder.h" />
-    <ClInclude Include="src\Constants.h" />
-    <ClInclude Include="src\Genome.h" />
-    <ClInclude Include="src\Instruction.h" />
-    <ClInclude Include="src\InstructionSet.h" />
     <ClInclude Include="src\Main.h" />
-    <ClInclude Include="src\Parameters.h" />
-    <ClInclude Include="src\pthread\pthread.h" />
-    <ClInclude Include="src\ScalableSlider.h" />
-    <ClInclude Include="src\SphereEntity.h" />
-    <ClInclude Include="src\SpherePointFinderLinkedList.h" />
-    <ClInclude Include="src\SphereWorld.h" />
-    <ClInclude Include="src\UtilsGenome.h" />
-    <ClInclude Include="src\UtilsRandom.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

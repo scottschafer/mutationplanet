@@ -36,7 +36,9 @@ public:
     void touchEvent(Touch::TouchEvent evt, int x, int y, unsigned int contactIndex);
 	void touchEvent(Touch::TouchEvent evt, float x, float y, unsigned int contactIndex);
     void gesturePinchEvent(int x, int y, float scale);
-
+    
+    void safeExit(void);
+    
 protected:
 
     /**
@@ -60,7 +62,6 @@ protected:
      */
     void render(float elapsedTime);
     void renderInsertCritter();
-    void renderHelp();
     
     Rectangle scaleUI(Rectangle);
 	Rectangle getRectangleForPoint(Vector3 point, float renderSize, float offsetX, float offsetY, float scaleSize = 1);
@@ -97,7 +98,7 @@ protected:
                                 Vector2 pos = Vector2(-1,-1),
                                 Vector2 size = Vector2(-1,-1));
     
-    Form * createForm(float width, float height, bool isLayoutVertical = true);
+    Form * createForm(float width, float height, bool isLayoutVertical = true, bool framing = true);
 
 	void createInsertCritterForm();
 	void handleInsertCritterEvent(Control* control, EventType evt);
@@ -111,7 +112,9 @@ protected:
 	bool handleSaveLoadEvent(Control* control, EventType evt);
 	void updateSaveLoad(float elapsed);
 
-	void renderSegment(std::string segment, Rectangle dstRect);
+    void handleGenealogy();
+    
+	void renderSegment(char segment, Rectangle dstRect);
 
     void updateControlLabel(std::string parameterId, const char *pFormat, ...);
 
@@ -144,6 +147,8 @@ private:
     void draw(int iBatch, float x, float y, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, const Rectangle& clip);
     void draw(int iBatch, float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, bool positionIsCenter = false);
 
+    void openURL(const char *pPath, bool externalBrowser = false);
+    
 private:
 	static SphereWorld world;
 	int mCurBarriers;
@@ -161,6 +166,7 @@ private:
     Form* _formMain;
     Form* _formAdvanced;
     Form* _formHelp;
+    Form* _formClose;
     
     bool    mShowingInsertCritter;
 	bool	mShowingLoadSave;
@@ -170,10 +176,12 @@ private:
     Font* _font;
 
     Button * _saveLoadButton;
+    Button * _genealogyButton;
 	Button * _resetWorldButton;
     Button * _resetParametersButton;
     Button * _insertButton;
     Button * _helpButton;
+    Button * _closeButton;
     
     CheckBox * _showAdvanced;
     CheckBox * _followCritter;
@@ -214,11 +222,7 @@ private:
     Button * mInsertCancel;
     std::string mInsertGenome;
     
-    // help
-    bool mIsShowingHelp;
-    int mHelpPageIndex;
-    Rectangle mHelpPageRect;
-    Rectangle mHelpCloseRect;
+    bool mShowingWebPage;
     
     SpriteBatch * mSegmentBatch[255];
     int mSegmentBatchCount[255];
@@ -227,14 +231,8 @@ private:
 
 enum
 {
-    iHelpPage1 = 0,
-    iHelpPage2,
-    iHelpPage3,
-    iHelpPage4,
-    iHelpPage5,
-    iHelpClose,
-    
-    iSpriteSphere,
+    iSpriteSphere = 0,
+    iSpriteSphereRed,
     
     iGenericSegment,
 

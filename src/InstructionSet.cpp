@@ -36,26 +36,24 @@ static std::set<char> allAvailableInstructions;
 
 void InstructionSet :: reset()
 {
-    setInstructionAvailable(eInstructionMove, true);
+    setInstructionAvailable(eInstructionPhotosynthesize, true);
     setInstructionAvailable(eInstructionMoveAndEat, true);
+    setInstructionAvailable(eInstructionMove, true);
+    setInstructionAvailable(eInstructionHyper, true);
+    setInstructionAvailable(eInstructionSleep, true);
     
     setInstructionAvailable(eInstructionTurnLeft, true);
     setInstructionAvailable(eInstructionTurnRight, true);
     setInstructionAvailable(eInstructionHardTurnLeft, true);
     setInstructionAvailable(eInstructionHardTurnRight, true);
-    setInstructionAvailable(eInstructionSleep, true);
     setInstructionAvailable(eInstructionTestSeeFood, true);
     setInstructionAvailable(eInstructionTestBlocked, true);
 	setInstructionAvailable(eInstructionTestPreyedOn, true);
 	setInstructionAvailable(eInstructionTestOccluded, true);
-    //setInstructionAvailable(eInstructionTestNotSeeFood, false);
-    //setInstructionAvailable(eInstructionTestNotBlocked, false);
-    setInstructionAvailable(eInstructionPhotosynthesize, true);
 
-    setInstructionAvailable(eInstructionHyper, true);
-    //setInstructionAvailable(eInstructionPhotosynthesizeLess, false);
+    setInstructionAvailable(eInstructionSetAnchored, true);
+//    setInstructionAvailable(eInstructionClearAnchored, true);
 
-	//setInstructionAvailable(eInstructionFakePhotosynthesize, true);
 }
 
 char InstructionSet :: getRandomInstruction()
@@ -91,5 +89,5 @@ void InstructionSet :: setInstructionAvailable(char instruction, bool isAvailabl
 
 bool InstructionSet::instructionSupportsConditions(char instruction)
 {
-	return instruction != eInstructionPhotosynthesize && instruction != eInstructionFakePhotosynthesize;
+	return instruction != eInstructionPhotosynthesize /*&& instruction != eInstructionFakePhotosynthesize */;
 }

@@ -29,20 +29,48 @@
 #include "SpherePointFinderSpaceDivison.h"
 #include "SpherePointFinderLinkedList.h"
 
-static BaseSpherePointFinder * pSpherePointFinder = NULL;
+template<class K, class V>
+void writeMap(std::map<K,V> & m, ostream & out) {
+    int s = m.size();
+    out << s << '\n';
+    for (typename std::map<K,V>::iterator i = m.begin(); i != m.end(); i++ ) {
+        out << i->first << '\n';
+        out << i->second << '\n';
+    }
+}
+
+template<class K, class V>
+void readMap(std::map<K,V> & m, istream & in) {
+    
+    m.clear();
+    int s;
+    in >> s;
+    
+    while (s-- > 0) {
+        K k;
+        V v;
+        in >> k;
+        in >> v;
+        m[k] = v;
+    }
+}
+
+static SpherePointFinderLinkedList spherePointFinder;
+//static BaseSpherePointFinder * pSpherePointFinder = NULL;
 static SphereWorld * pInstance = NULL;
 
 
 SphereWorld::SphereWorld()
 {
-	pSpherePointFinder = new SpherePointFinderLinkedList();
+    if (pInstance)
+        throw "already inited";
+
+//    pSpherePointFinder = new SpherePointFinderLinkedList();
 
     mMaxLiveAgentIndex = -1;
     mNumAgents = 0;
 	mAllowFollow = false;
-
-    if (pInstance)
-        throw "already inited";
+    mCurrentTurn = 0;
     
     for (int i = 0; i < MAX_AGENTS; i++)
     {
@@ -61,7 +89,11 @@ void SphereWorld :: clear()
             killAgent(i);
     }
 	mNumAgents = mMaxLiveAgentIndex = 0;
+    mCurrentTurn = 0;
 	mFreeSlots.clear();
+    
+    mChildToParentGenomes.clear();
+    mGenomeToFirstTurn.clear();
 }
 
 
@@ -115,10 +147,7 @@ Agent * SphereWorld :: createEmptyAgent(bool killIfNecessary /* = true */)
     
     Agent *pResult = NULL;
     int index = requestFreeAgentSlot();
-	if (index == -1)
-	{
-		printf("WTF");
-	}
+
     if (index != -1)
     {
         pResult = &mAgents[index];
@@ -166,6 +195,8 @@ void SphereWorld :: killAgent(int agentIndex)
  **/
 int SphereWorld :: step()
 {
+    ++mCurrentTurn;
+    
 	if (mTopCritterIndex != -1 && mAgents[mTopCritterIndex].mStatus != eAlive)
 		mTopCritterIndex = -1;
 
@@ -196,34 +227,39 @@ int SphereWorld :: step()
 	return result;
 }
 
+//int getNearbyEntities(SphereEntity * pNearEntity, float distance, SphereEntity **pResultArray, int maxResults = 16);
+//int getNearbyEntities(const Vector3 & location, float distance, SphereEntity **pResultArray, int maxResults = 16);
+//int getNearbyEntities(const Vector3 & location, float distance, SphereEntity **pResultArray, int maxResults, Agent *pExclude);
+
+
 int SphereWorld::getNearbyEntities(SphereEntity * pNearEntity, float distance, SphereEntity **pResultArray, int maxResults /*= 16 */)
 {
-    return pSpherePointFinder->getNearbyEntities(pNearEntity, distance, pResultArray, maxResults);
+    return spherePointFinder.getNearbyEntities(pNearEntity, distance, pResultArray, maxResults);
 }
 
-int SphereWorld::getNearbyEntities(Vector3 location, float distance, SphereEntity **pResultArray, int maxResults /* = 16 */)
+int SphereWorld::getNearbyEntities(const Vector3 & location, float distance, SphereEntity **pResultArray, int maxResults /* = 16 */)
 {
-    return pSpherePointFinder->getNearbyEntities(location, distance, pResultArray, maxResults);
+    return spherePointFinder.getNearbyEntities(location, distance, pResultArray, maxResults);
 }
 
-int SphereWorld::getNearbyEntities(Vector3 location, float distance, SphereEntity **pResultArray, int maxResults /* = 16 */, Agent *pExclude /* = null */)
+int SphereWorld::getNearbyEntities(const Vector3 & location, float distance, SphereEntity **pResultArray, int maxResults /* = 16 */, Agent *pExclude /* = null */)
 {
-    return pSpherePointFinder->getNearbyEntities(location, distance, pResultArray, maxResults, pExclude);
+    return spherePointFinder.getNearbyEntities(location, distance, pResultArray, maxResults, pExclude);
 }
 
 void SphereWorld :: registerEntity(SphereEntity *pEntity)
 {
-    pSpherePointFinder->insert(pEntity);
+    spherePointFinder.insert(pEntity);
 }
 
 void SphereWorld :: unregisterEntity(SphereEntity *pEntity)
 {
-    pSpherePointFinder->remove(pEntity);
+    spherePointFinder.remove(pEntity);
 }
 
 void SphereWorld :: moveEntity(SphereEntity *pEntity, Vector3 newLoc)
 {
-    pSpherePointFinder->moveEntity(pEntity, newLoc);
+    spherePointFinder.moveEntity(pEntity, newLoc);
 }
 
 /**
@@ -236,7 +272,7 @@ void SphereWorld::test()
 	srand(0);
     std::vector<SphereEntity*> entities;
     size_t i;
-	size_t testSize = 100;
+	size_t testSize = 1000;
 
     for (i = 0; i < testSize; i++)
     {
@@ -251,7 +287,7 @@ void SphereWorld::test()
     
     for (i = 0; i < entities.size(); i++)
     {
-		printf("looking for %d\n", i);
+		printf("looking for %d\n", (int)i);
 
         SphereEntity * pEntity = entities[i];
         for (int j = 0; j < 4; j++)
@@ -292,12 +328,22 @@ void SphereWorld::test()
 }
 
 
-void SphereWorld :: killAtLeastNumSegments(int minSegments) {
+void SphereWorld :: killAtLeastNumSegments(int toKill, int excludingAgent) {
+    while (toKill > 0) {
+        
+        int i = UtilsRandom::getRangeRandom(0, getMaxLiveAgentIndex());
+        if (i == excludingAgent) continue;
+        Agent & agent = getAgent(i);
+        if (agent.mStatus == eAlive) {
+            toKill -= agent.mNumSegments;
+            killAgent(i);
+        }
+    }
 }
 
 void SphereWorld::read(istream & in)
 {
-	pSpherePointFinder->clear();
+	spherePointFinder.clear();
 
 	in.read((char*)&mAgents,sizeof(mAgents));
 	in.read((char*)&mEntites,sizeof(mEntites));
@@ -332,10 +378,123 @@ void SphereWorld::read(istream & in)
 			}
 		}
 	}
+    readMap(mChildToParentGenomes, in);
+    readMap(mGenomeToFirstTurn, in);
 }
+
+std::map<std::string, std::string> mChildToParentGenomes;
+std::map<std::string, long> mGenomeToFirstTurn;
+
 
 void SphereWorld::write(ostream & out)
 {
-	out.write((char*)&mAgents,sizeof(mAgents));
+    pruneTree();
+
+    out.write((char*)&mAgents,sizeof(mAgents));
 	out.write((char*)&mEntites,sizeof(mEntites));
+    writeMap(mChildToParentGenomes, out);
+    writeMap(mGenomeToFirstTurn, out);
+}
+
+void SphereWorld::registerMutation(const char * newGenome, const char * parentGenome)
+{
+    std::string genome(newGenome);
+    map<string,string>::iterator it = mChildToParentGenomes.find(genome);
+    if (it == mChildToParentGenomes.end()) {
+        
+        for (it = mChildToParentGenomes.begin(); it != mChildToParentGenomes.end(); it++)
+            if (it->second == newGenome)
+                return;
+        
+        mChildToParentGenomes[genome] = parentGenome;
+        mGenomeToFirstTurn[genome] = mCurrentTurn;
+    }
+}
+
+std::string SphereWorld::getParentGenome(const char * pGenome)
+{
+    string genome(pGenome);
+    map<string,string>::iterator it = mChildToParentGenomes.find(genome);
+    if (it == mChildToParentGenomes.end())
+        return "";
+    else
+        return it->second;
+}
+
+long SphereWorld::getFirstTurn(const char * pGenome)
+{
+    string genome(pGenome);
+    map<string, long>::iterator it = mGenomeToFirstTurn.find(genome);
+    if (it == mGenomeToFirstTurn.end())
+        return 0;
+    else
+        return it->second;
+}
+
+static bool compareTopSpeciesFunc(const pair<string,int> &p1, const pair<string,int> &p2);
+static bool compareTopSpeciesFunc(const pair<string,int> &p1, const pair<string,int> &p2)
+{
+    return p1.second > p2.second;
+}
+
+void SphereWorld::sampleTopSpecies()
+{
+    map<string, int> mapSpeciesToCount;
+    pruneTree(mapSpeciesToCount);
+    
+    mTopSpecies.clear();
+
+    for (map<string, int>::iterator i = mapSpeciesToCount.begin(); i != mapSpeciesToCount.end(); i++)
+        mTopSpecies.push_back(*i);
+    
+    sort(mTopSpecies.begin(), mTopSpecies.end(), compareTopSpeciesFunc);
+}
+    
+void SphereWorld :: pruneTree() {
+    map<string, int> mapSpeciesToCount;
+    pruneTree(mapSpeciesToCount);
+}
+
+static int pruned = 0;
+
+void SphereWorld::pruneTree(map<string, int> & mapSpeciesToCount) {
+    
+    // first collect all living genomes
+    mLivingGenomes.clear();
+    set<string> unprunableGenomes;
+    
+    for (int i = 0; i <= mMaxLiveAgentIndex; i++)
+    {
+        Agent & agent = mAgents[i];
+        
+        if (agent.mStatus == eAlive && agent.mSleep != -1) {
+            string genome (agent.mGenome);
+            mLivingGenomes.insert(genome);
+            
+            int count = mapSpeciesToCount[genome];
+            ++count;
+            mapSpeciesToCount[genome] = count;
+            
+            string unprunableGenome = genome;
+            while (unprunableGenomes.find(unprunableGenome) == unprunableGenomes.end()) {
+                unprunableGenomes.insert(unprunableGenome);
+                unprunableGenome = mChildToParentGenomes[unprunableGenome];
+            }
+        }
+    }
+    
+    std::list< std::map<string,string>::iterator > iteratorList;
+    for (map<string,string>::iterator i = mChildToParentGenomes.begin(); i != mChildToParentGenomes.end(); i++) {
+        if (unprunableGenomes.find(i->first) == unprunableGenomes.end() && unprunableGenomes.find(i->second) == unprunableGenomes.end()) {
+            iteratorList.push_back(i);
+        }
+    }
+    
+    for(map<string,string>::iterator i : iteratorList){
+        mChildToParentGenomes.erase(i);
+        ++pruned;
+    }
+    
+    if (iteratorList.size() > 0)
+        printf("---- total pruned count = %d\n", pruned);
 }

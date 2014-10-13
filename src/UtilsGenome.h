@@ -12,7 +12,7 @@
 #include <iostream>
 
 #include "Constants.h"
-#include "Instruction.h"
+//#include "Instruction.h"
 
 using namespace std;
 

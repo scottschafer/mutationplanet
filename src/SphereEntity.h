@@ -3,13 +3,15 @@
 //  MutationPlanet
 //
 //  Created by Scott Schafer on 9/11/12.
-//  Copyright (c) 2012 SlideRocket. All rights reserved.
+//  Copyright (c) 2012 Scott Schafer. All rights reserved.
 //
 
 #ifndef MutationPlanet_SphereEntity_h
 #define MutationPlanet_SphereEntity_h
 
 #include "gameplay.h"
+#include "Constants.h"
+
 using namespace gameplay;
 using namespace std;
 
@@ -19,10 +21,25 @@ class SpherePointFinderSpaceDivision;
 
 class SphereEntityPoint3d {
 public:
-	SphereEntityPoint3d() {
-		x = y = z = 0;
-	}
+    SphereEntityPoint3d() {
+        x = y = z = 0;
+    }
+    
+    static inline int toIntCoordinate(float v) { return max(min(NUM_SUBDIVISIONS - 1, int ((v + 1) / 2 * NUM_SUBDIVISIONS + .5f)),0); }
 
+    
+    SphereEntityPoint3d(float x, float y, float z) {
+        this->x = toIntCoordinate(x); //max(min(kNumSubdivisions - 1, int ((x + 1) / 2 * kNumSubdivisions + .5)),0);
+        this->y = toIntCoordinate(y); //max(min(kNumSubdivisions - 1, int ((y + 1) / 2 * kNumSubdivisions + .5)),0);
+        this->z = toIntCoordinate(z); //max(min(kNumSubdivisions - 1, int ((z + 1) / 2 * kNumSubdivisions + .5)),0);
+    }
+    
+    SphereEntityPoint3d(const Vector3 & v) {
+        this->x = toIntCoordinate(v.x); //max(min(kNumSubdivisions - 1, int ((x + 1) / 2 * kNumSubdivisions + .5)),0);
+        this->y = toIntCoordinate(v.y); //max(min(kNumSubdivisions - 1, int ((y + 1) / 2 * kNumSubdivisions + .5)),0);
+        this->z = toIntCoordinate(v.z); //max(min(kNumSubdivisions - 1, int ((z + 1) / 2 * kNumSubdivisions + .5)),0);
+    }
+    
 	void reset() {
 		x = y = z = 0;
 	}
@@ -57,7 +74,6 @@ public:
     Vector3 mLocation;
     char    mType;
     bool mIsOccluded;
-    bool mIsAnchored;
     SphereWorld *mWorld;
 
 	SphereEntity * mSpherePrev, *mSphereNext;

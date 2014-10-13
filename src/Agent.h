@@ -11,7 +11,7 @@
 
 #include "constants.h"
 #include "gameplay.h"
-#include "instruction.h"
+//#include "instruction.h"
 #include "Genome.h"
 
 
@@ -33,7 +33,9 @@ enum {
 	BIT_IS_MOTILE = 16,
 	BIT_IS_HYPER = 32,
 	BIT_WAS_EATEN = 64,
-	BIT_WAS_PREYED_ON = 128
+	BIT_WAS_PREYED_ON = 128,
+    BIT_ANCHORED = 256
+
 };
 
 
@@ -44,7 +46,6 @@ class Agent
 public:
     Agent();
     void initialize(Vector3 pt, const char *pGenome, bool allowMutation);
-    void initialize(Vector3 pt, const Instruction *pGenome, bool allowMutation);
 
     void step(SphereWorld * pWorld);
 
@@ -55,14 +56,14 @@ public:
     void sleep();
     bool testIsFacingFood(SphereWorld *pWorld);
     void spawnIfAble(SphereWorld * pWorld);
-    float  getSpawnEnergy();
-	void advanceOnTestFail();
+    float getSpawnEnergy() { return mSpawnEnergy; }
     
 private:
 	void computeSpawnEnergy();
 
 private:
 	bool canEat(Agent *);
+    bool getMoveLocations(Vector3 *);
 
 public:
 
@@ -114,27 +115,21 @@ public:
 	int getWasEaten() { return mFlags & BIT_WAS_EATEN; }
 	void setWasEaten() { mFlags |= BIT_WAS_EATEN; }
 	void clearWasEaten() { mFlags &= ~BIT_WAS_EATEN; }
-
-	int getWasPreyedOn() { return mFlags & BIT_WAS_PREYED_ON; }
-	void setWasPreyedOn() { mFlags |= BIT_WAS_PREYED_ON; }
-	void clearWasPreyedOn() { mFlags &= ~BIT_WAS_PREYED_ON; }
-
-	/*
-	bool	mCondition;
-	bool	mDefaultCondition;
-    bool    mAllowMutate;
-    bool    mWasBlocked;
-    bool    mIsMotile;
-	bool	mIsHyper;
-	bool	mWasEaten;
-	bool	mWasPreyedOn;
-	*/
+    
+    int getWasPreyedOn() { return mFlags & BIT_WAS_PREYED_ON; }
+    void setWasPreyedOn() { mFlags |= BIT_WAS_PREYED_ON; }
+    void clearWasPreyedOn() { mFlags &= ~BIT_WAS_PREYED_ON; }
+    
+    int getIsAnchored() { return mFlags & BIT_ANCHORED; }
+    void setIsAnchored() { mFlags |= BIT_ANCHORED; }
+    void clearIsAnchored() { mFlags &= ~BIT_ANCHORED; }
 
     // segments
     int     mNumSegments;
     int     mActiveSegment;
     SphereEntity *mSegments;
-	Genome	mGenome;
+    Genome	mGenome;
+    Genome	mParentGenome;
 
 	int		mNumOccludedPhotosynthesize;
 	int		mNumNonOccludedPhotosynthesize;

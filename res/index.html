@@ -1,0 +1,282 @@
+<!doctype html>
+<!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
+<html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="keywords" content="Artifical Life, Simulation">
+    <title>MutationPlanet</title>
+      
+    <script src="js/jquery-1.9.0-min.js" ></script>
+
+  </head>
+
+  <style>
+  .mutationPlanet {
+    /*color: #663300;
+    font-weight: bold; */
+  }
+  
+  h1, h2 {
+    font-family: "Arial Black", "Arial Bold", Gadget, sans-serif;
+  }
+
+  h1 {
+    -webkit-margin-before: 0.3em;
+    -webkit-margin-after: .5em;
+    font-size:48px
+  }
+
+  h2 {
+    -webkit-margin-after: 0.2em;
+  }
+
+  body {
+    height:100%;
+    background-color:#e8e4d4;
+    margin: 0px;
+    padding: 10px;
+  }
+
+  td {
+    padding-right: 10px;
+    padding-bottom: 10px;
+    vertical-align: top;
+    padding-top: inherit;
+  }
+
+  tr {
+    border-spacing: 20px;
+    padding-top: inherit;
+  }
+
+  .segment_icon, .segment_icon_conditional {
+    margin-top: -20px;
+    border: 10px;
+  }
+  .segment_icon_conditional {
+    position: relative;
+    left: -64px;
+  }
+
+  .conditional_label {
+    text-indent: -40px;
+  }
+
+  </style>
+
+  <script>
+    $(function() {
+
+      var headerSpans = $("h1").children("span");
+
+        var styles = [
+          { name: "text-shadow", value: "0px 0px 2px rgba(255,192,32,1)"},
+          { name: "text-shadow", value: "-2px -2px 2px rgba(255,192,32,1)"},
+          { name: "text-shadow", value: "-2px 0px 2px rgba(255,192,32,1)"},
+          { name: "text-shadow", value: "0px -2px 2px rgba(255,192,32,1)"},
+          { name: "text-shadow", value: "0px 2px 2px rgba(255,192,32,1)"},
+          { name: "text-shadow", value: "2px 2px 2px rgba(255,192,32,1)"},
+          { name: "text-shadow", value: "2px 0px 2px rgba(255,192,32,1)"},
+          { name: "color", value: "darkbrown"},
+          { name: "color", value: "darkblue"},
+          { name: "color", value: "darkgreen"},
+          { name: "color", value: "darkred"},
+          { name: "color", value: "#663300"},
+          { name: "color", value: "black"}
+        ];
+
+      function setStyleOnHeaderChar(iChar, iStyle) {
+
+        $(headerSpans[iChar]).css(styles[iStyle].name, styles[iStyle].value);
+      }
+
+      function mutate() {
+        setTimeout(mutate, 50);
+
+        var i = parseInt(Math.random() * headerSpans.length);
+        var j = parseInt(Math.random() * styles.length);
+
+        $(headerSpans[i]).css(styles[j].name, styles[j].value);
+      }
+
+
+      for (var i = 0; i < headerSpans.length; i++) {
+        setStyleOnHeaderChar(i, 0);
+      }
+
+      setTimeout(mutate, 1000);
+    });
+
+  </script>
+  <body>
+    
+    <h1>
+      <span>M</span><span>u</span><span>t</span><span>a</span><span>t</span><span>i</span><span>o</span><span>n</span><span>P</span><span>l</span><span>a</span><span>n</span><span>e</span><span>t</span>
+
+      <section style="float:right;font-size:18px;font-weight:normal;padding-top:12px"><i> a biologically-inspired evolutionary simulation<br>by Scott Schafer</i></section>
+    </h1>
+
+    <p>All living things, including yourself, have some basic similarities. They all consume energy, whether that energy comes from sunlight, other chemical sources of energy such as undersea volcanic vents or from eating other organisms. All organisms have behaviors and physical traits that is governed by their genetic code. All living things reproduce (or at least, their parent/parents did), creating new organisms with genetic information that is passed down from the parent or parents. Finally, no organism will always make a perfect copy of itself. The duplication errors are known as mutations. Mutations are usually harmless or harmful, but they may occasionally result in traits that help the new organism to survive, reproduce and pass those traits on. This raises the question: <b>is mutation a bug or a feature?</b><p>
+
+    <p><span class="mutationPlanet">MutationPlanet</span> does not attempt to simulate actual biology on a chemical level, but its simulated "critters" are loosely patterned after asexually reproducing bacteria. Each critter has a simple genetic code which governs its physical form and behavior. They gain energy by either photosynthesizing or by eating another critter that is photosynthesizing. If a critter gains enough energy, it produces an offspring containing a copy of the genetic code with the possibility of a single mutation. Over time this can lead to some interesting adaptive behavior. Critters lose energy every turn (the unit of time in the simulation), and if they run out of energy they die and become "food" (more on this later).</p>
+
+    <h2>Getting Started</h2>
+    <p>When you first start this simulation, you will see a bunch of green dots on a sphere. The sphere is the "planet" on which the critters live, and the green dots are simple critters. You can rotate the sphere by touching and dragging it, and can zoom in and out using a pinch gesture.</p>
+
+    <p>The <b>Speed:</b> slider in the upper-left allows you to control the speed of the simulation, from 0 (stopped) to 10 (run as fast as possible). Use the slider to increase the speed and the green dots will spread out to cover most of the planet. The "Top Species" list on the right displays all the unique genomes (a "species") of all currently living critters along with their population, in order of most populous to least. The green dots are actually very simple critters that gain energy through virtual photosynthesis.</p>
+
+    <p>Note that their population will never exceed 15,000 critters. This is a limit imposed by the simulation - this simulated world cannot support more than 15,000 critters (which could cause earlier versions of this simulation to crash). When the population gets close to the limit, critters will be killed off at random so this limit is not exceeded. Unless you have mutation turned completely off, predatators will keep the population well below this point.</p>
+    <div style="background-color:black;padding:20px">
+      <div style="display: block;margin-left: auto;margin-right: auto;width:600px">
+        <img src="help/SphereNoMutate3.gif"></img>
+        <img src="help/TopSpeciesNoMutate.gif" style="vertical-align:top"></img>
+      </div>
+    </div>
+
+    <br>
+    <p>The planet is divided into two equal halves (marked by a dotted blue line). One side is "slower" than the other - that is, any critter that has its head over the dotted blue line into the "slow" half will operate at a much slower speed than the other half. This is partly to simulate different environments (you could think of this as a colder area), partly to allow viewing behaviors more easily and partly to avoid mass extinctions.</b>
+
+    <p>You can rotate the planet by dragging it and zoom in and out using pinch gestures. But there won't much to see until you enable mutation.</p>
+
+    <h2>Enter the Critter</h2>
+
+    <p>You've already met one of the simplest critters, which is a single cell containing the Photosynthesize instruction. These the green dots that you've already seen.</p>
+
+    <p>Biological organisms use a long-chain molecule known as DNA, a chemical compound that contains the genetic instructions needed to develop and direct the activities of every organism. DNA molecules are made of two twisting, paired strands. Each strand is made of four chemical units, called nucleotide bases. The bases are adenine (A), thymine (T), guanine (G) and cytosine (C). <a href="http://www.genome.gov/11006943">Read more about it here.</a></p>
+
+    <p>Critters have a much shorter and simplified genetic code. Their code is a sequence of from one to fifteen instructions. Each instruction in the code creates a cell in the critter that "contains" that instruction. In the case of the "Photosynthesis" instruction, this creates a special photosynthesis cell which is vulnerable to attack. The possible instructions are shown below:</p>
+
+    <table >
+      <tbody style="padding-top: 20px;">
+       <tr> <td><img class="segment_icon" src="food.png"></td>  <td>Photosynthesize</td>  <td>Gains energy every turn, but is subject to being eaten.</td> </tr>
+
+       <tr> <td><img class="segment_icon" src="segment_M.png"></td>  <td>Move &amp; eat</td>  <td>Moves the critter in the direction its head is oriented. If it moves onto another critter's Photosynthesize cell, it will gain energy from that critter (and be blocked from moving until that critter moves away or dies).</td> </tr>
+
+       <tr> <td><img class="segment_icon" src="segment_n.png"></td>  <td>Move</td>  <td>This is similar to Move &amp; Eat, but it uses less energy and will not eat a Photosynthesize cell.</td> </tr>
+
+        <tr> <td><img class="segment_icon" src="segment_lt.png"></td>  <td>Slight left</td> <td>Turns the critter's head 30 degrees to the left, affecting subsequent look and move instructions.</td> </tr>
+
+        <tr> <td><img class="segment_icon" src="segment_rt.png"></td>  <td>Slight right</td> <td>Turns the critter's head 30 degrees to the right.</td> </tr>
+
+        <tr> <td><img class="segment_icon" src="segment_[.png"></td>  <td>Hard left</td>  <td>Turns the critter's head 30 degrees to the right.</td> </tr>
+
+        <tr> <td><img class="segment_icon" src="segment_].png"></td> <td>Hard right</td> <td>Turns the critter's head 30 degrees to the left.</td> </tr>
+
+        <tr> <td><img class="segment_icon" src="segment_hyper.png"></td> <td>Hyper</td> <td>Switches a critter into a mode in which its instructions are executed more quickly (and causing it to expend more energy). This mode is reset after executing its last instruction.</td> </tr>
+
+        <tr> <td><img class="segment_icon" src="segment_Z.png"></td> <td>Sleep</td> <td>Puts a critter to sleep for a period of time. While sleeping it uses less energy.</td> </tr>
+
+        <tr> <td><img class="segment_icon" src="segment_test_see_food.png"></td> <td>? Food</td> <td>Sets the critter's condition to True if its head is facing the Photosynthesize cell of another critter (in a direct line, with no intervening obstacles, and less than Vision Distance away); otherwise the condition is set to False.</td> </tr>
+
+        <tr> <td><img class="segment_icon" src="segment_test_blocked.png"></td> <td>? Blocked</td> <td>Sets the critter's condition to True if the last time it attempted to move it was successful, or False if the last time it attempted to move it was blocked.</td> </tr>
+
+        <tr> <td><img class="segment_icon" src="segment_test_occluded.png"></td> <td>? Overlap</td> <td>Sets the critter's condition to True if any of its cells are overlapping, otherwise False.</td> </tr>
+
+        <tr> <td><img class="segment_icon" src="segment_test_preyed_on.png"></td> <td>? Preyed on</td> <td>Sets the critter's condition to True if another critter executed a Move &amp; Eat to prey on a Photosyntehsize cell of this critter, otherwise False.</td> </tr>
+
+        <section style="float:right;background-color:black"><img src="help/Critter10trimmed.gif"></img></section>
+
+        </tbody>
+      </table>
+
+    <p><h2 style="display:inline-block">Conditions</h2><span style="vertical-align:text-bottom;padding-left:40px"><i>Just Dropped In (To See What Condition My Condition Was In) -  Mickey Newbury</i></span></p>
+
+    <p>Critters have a simple condition that can be set to True or False. It is initially False and will only change if set to True by one of instructions described above (note that all the instructions that set the condition begin with ?). With the exception of the Photosynthesize instruction, every instruction can set to execute conditionally, indicated by a T or F in the bottom left of the instruction. For example:</p>
+
+    <table style="padding-left:60px">
+      <tbody  style="padding-top: 20px;">
+       <tr> <td><img class="segment_icon" src="segment_lt.png"></td> <td class="conditional_label">Always turn.</td> </tr>
+       <tr> <td><img class="segment_icon" src="segment_lt.png"><img class="segment_icon_conditional" src="segment_exec_if.png"></td> <td  class="conditional_label">Turn only if the condition is True.</td> </tr>
+       <tr> <td><img class="segment_icon" src="segment_lt.png"><img class="segment_icon_conditional" src="segment_exec_no.png"></td> <td  class="conditional_label">Turn only if the condition is False.</td> </tr>
+      </tbody>
+    </table>
+
+    <p>Random combinations of instructions can produce adaptive behavior: for example, a critter can first look ahead to see if it is facing food and turn only if the condition (set by the "? Food" instuction) is False. Conditional instructions may themselves execute conditionally.</p>
+
+    <h2>Critters in the Wild</h2>
+    <p>A complete list of all critter attributes is shown below:</p>
+
+    <table>
+      <tbody>        
+       <tr> <td style="width:140px">Genome</td> <td>A sequence of one to fifteen instructions, each of which (except the Photosynthesize instruction) may execute conditionally.</td> </tr>
+       <tr> <td>Energy</td> <td>The critter's current energy. If it reaches zero, the critter dies. If it exceeds a threshhold (discussed later), it will reproduce.</td> </tr>
+       <tr> <td>Head orientation</td> <td>A critter's first cell is considered its head. It can point in any direction (newly spawned critters will have their heads oriented in a random direction). The Turn instructions will rotate the head relative to its current orientation.</td> </tr>
+       <tr> <td>Hyper mode</td> <td>When a critter is in hyper mode, it executes its instructions more quickly, using more energy in the process.</td> </tr>
+       <tr> <td>Sleep mode</td> <td>When critter is asleep, it does not execute any instruction and uses much less energy.</td> </tr>
+       <tr> <td>Current instruction</td> <td>A critter has a current instruction, which is initially the first instruction. Every turn when a critter is not sleeping, it executes the current instruction (skipping it if it has an unmet condition) and advances to the next instruction. After executing the last instruction, hyper mode is switched off and the current instruction is reset to the first instruction.</td> </tr>
+      </tbody>
+    </table>
+
+    <p>Every turn, each critter is given the opportunity to execute its next instruction. While sleeping, it will not execute any instructions and if in hyper mode, it will execute several instructions in a single turn. A critter gains energy every turn for every non-overlapped Photosynthesize cell, even if currently sleeping. Critters also lose one point of energy every turn, although successful critters will on average gain more energy through photosynthesizing and/or eating than they lose.</p>
+
+    <p>Although every turn costs a critter a certain amount of energy, the two Move instructions cost an additional amount of energy. If a critter's energy ever goes to zero, it immediately dies and each of its segments becomes inactive Photosynthesize cells. These will become active after a certain number of turns and begin to reproduce.</p>
+
+    <p>Critters cannot move over other critters. They can, however, move over themselves if the Advanced setting "Allow self overlap" is turned on.</p>
+
+    <p>When a critter accumulates enough energy to reproduce, it produces an offspring with either an exact copy of its genome or a copy containing a single mutation. If the parent critter has never moved (as in the case of a critter with a single Photosynthesize instuction), the offspring will be placed a small random distance away. If the parent critter has moved, the offspring will be placed immediately behind the critter's last instruction. Reproduction costs energy (if you have children you will know this), so the parent's energy is halved and the offspring recieves the other half of the parent's energy.</p>
+
+    <p>The energy threshhold for reproduction is determined by multiplying a critter's number of segments by an advanced setting ("Spawn energy"). This means that a critter with two segments needs twice the energy to reproduce as a critter with one segment. It also means that it will have twice the energy after it reproduces as the single segmented critter.</p>
+
+    <p>A newly spawned critter will have all its segments in the same location. The segments of critters that have more than one segment are considered "overlapped". Overlapped cells do not photosynthesize. Without this rule, the world would be quickly overrun with critters that were nothing but a long sequence of Photosynthesize cells.</p>
+
+    <h2>Ready for their close-up</h2>
+    
+    <p>If you zoom into the world above 200% magnfication, the critters are shown with additional information. Critters that contain a Move or Move &amp; Eat instruction will have a blue arrow on their head segment to indicate their orientation. The active segment will be shown outlined in green if the critter's condition is True, or red if the critter's condition is False. It may be helpful at this point to turn off "Color-code species" (in the lower-right of the screen). When this is on, unique genome sequences are assigned colors at random to make it easier to visualize different species populations, and all segments of critters belonging to that genome are drawn in that color (except for their Photosynthesize cells, which are always green). When "Color-code species" is off, cells are drawn with their instructions.</p>
+
+    <p>As a critter's energy approaches zero, it is displayed as more and more transparent until it literally fades away and becomes food. This allows you to quickly gauges a critter's health.</p>
+
+    <p>The "Follow top critter" feature is extremely helpful for visualizing the life of a critter. When you check this, the simulation will follow the movements of the critter with the highest energy at the time this box was checked. It will continue to follow the same critter until you either uncheck the box or the critter being followed dies. The checkbox will then automatically uncheck itself.</p>
+
+    <p>You may want to also slow down the speed of the simulation to gain a better understanding of what critters are doing.</p>
+
+    <h2>What you can do</h2>
+
+    <p>Here are some of the things you can do in MutationPlanet:</p>
+    <ul>
+      <li>Create your own critters using the Insert... feature.</li>
+      <li>Explore the evolutionary tree of living critters using the Genealogy.. feature.</li>
+      <li>Explore how changing the environment affects the evolution of the critters.</li>
+    </ul>
+
+    <h2>MutationPlanet Settings</h2>
+    <table>
+      <tbody>        
+       <tr> <td style="width:140px">Cell size</td> <td>The size of all segments of all critters. A smaller size means there can be a higher population density.</td> </tr>
+       <tr> <td>Speed</td> <td>Allows adjusting the speed of the simulation from 0 (stopped) to 10 (running as fast as possible).</td> </tr>
+       <tr> <td>Mutation</td> <td>Adjusts the probability that an offspring of a critter will have a single mutation (an instruction randomly added, removed or changed) in its genome.</td> </tr>
+       <tr> <td>Barriers</td> <td>Use to select various barriers that the critters cannot move over.</td> </tr>
+
+       <tr> <td><b><i>&nbsp;&nbsp;<u>Advanced setings</u></i></b></td></tr>
+       <tr> <td>Spawn energy</td> <td>The amount of energy, per segment, that a critter needs to have an offspring.</td> </tr>
+       <tr> <td>Sprout turns</td> <td>When a critter dies, and its segments become dormant Photosynthesize cells, the number of turns before these dormant cells become active Photosynthesize critters.</td> </tr>
+       <tr> <td>Photosynthesis</td> <td>The amount of energy produced by each Photosynthesize cell.</td> </tr>
+       <tr> <td>Move</td> <td>The additional energy cost of executing a Move instruction.</td> </tr>
+       <tr> <td>Move &amp; Eat</td> <td>The additional energy cost of executing a Move &amp; Eat instruction</td> </tr>
+       <tr> <td>Mouth size</td> <td>Controls how close (in cell size units) the head of a critter executing a Move &amp; Eat instruction needs to be to a Photosynthesize cell of another critter to eat it.</td> </tr>
+       <tr> <td>Move delay</td> <td>The additional number of turns after executing a Move or Move &amp; Eat instructions before a critter executes the next instruction.</td> </tr>
+       <tr> <td>Bite strength</td> <td>When one critter executes a Move &amp; Eat instruction to move onto a Photosynthesize segment of another critter, how much energy is subtracted from the critter containing the Photosynthesize segment.</td> </tr>
+       <tr> <td>Digestion</td> <td>The percentage of the energy subtracted from the bitten critter that the biting critter receives.</td> </tr>
+       <tr> <td>Allow self overlap</td> <td>When on, critters are allowed to move over their own cells. As noted previously, overlapping cells cannot photosynthesize.</td> </tr>
+       <tr> <td>Starve =&gt; food</td> <td>Controls whether critters who starve to death become dormant Photosynthesize cells.</td> </tr>
+       <tr> <td>Allow cannibalism</td> <td>If off, critters who share the same genome will not eat each other, and not see each others' Photosynthesize segments as food.</td> </tr>
+
+      </tbody>
+    </table>
+
+    <p>As humans have done for millennia, you can affect the evolution of critters by changing their environment. 
+    <p>The unit of time in MutationPlanet is a "turn". The amount of time a "turn" in Mutation</p>
+
+    <h2>The Critter Lifecycle</h2>
+    <p>A complete list of all attributes of critters is shown below:</p>
+
+
+    <h2>Glossary</h2>
+    <table>
+      <tbody>        
+       <tr> <td style="width:140px">Turn</td> <td>The basic unit of time in MutationPlanet is a "turn". The amount of time a "turn" in Mutation.</td> </tr>
+      </tbody>
+    </table>
+  </body>
+
+</html>

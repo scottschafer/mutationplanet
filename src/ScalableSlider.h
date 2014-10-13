@@ -9,7 +9,7 @@
 #ifndef __MutationPlanet__ScalableSlider__
 #define __MutationPlanet__ScalableSlider__
 
-#include "Base.h"
+//#include "Base.h"
 #include "Theme.h"
 #include "Properties.h"
 #include "Button.h"

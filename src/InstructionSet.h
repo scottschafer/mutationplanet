@@ -12,32 +12,43 @@
 #include <iostream>
 #include <set>
 
+enum eSegmentExecutionType {
+    eExecTypeMask = 224,
+    
+    eAlways = 128,
+    eIf = 64,
+    eNotIf = 0,
+    eOr = 224
+};
+
+enum eFixed {
+    eFixed = 32
+};
+
 enum eInstructions
 {
-    eBarrier1 = '.',
-    eBarrier2 = ',',
-    eBarrier3 = '_',
-    eBarrier4 = '-',
-    eInstructionMoveAndEat = 'M',
-    eInstructionMove = 'n',
-    eInstructionTurnLeft = '<',
-    eInstructionTurnRight = '>',
-    eInstructionHardTurnLeft = '[',
-    eInstructionHardTurnRight = ']',
-    eInstructionSleep = 'Z',
-    eInstructionTestSeeFood = 'F',
-    eInstructionTestBlocked = 'B',
-    eInstructionTestNotSeeFood = 'f',
-    eInstructionTestNotBlocked = 'b',
-    eInstructionTestPreyedOn = 'p',
-    eInstructionTestOccluded = 'o',
-    eInstructionPhotosynthesize = '*',
-    eInstructionFakePhotosynthesize = '+',
-	eInstructionEndIf = '|',
-	eInstructionHyper = 'H',
-	eInstructionPhotosynthesizeLess = 'x',
-	eInstructionClearCondition = '0'
-
+    eInstructionMask = 31,
+    
+    eBarrier1 = 5,
+    eBarrier2,
+    eBarrier3,
+    eBarrier4,
+    
+    eInstructionPhotosynthesize,
+    eInstructionMoveAndEat,
+    eInstructionMove,
+    eInstructionHyper,
+    eInstructionSleep,
+    eInstructionTurnLeft,
+    eInstructionTurnRight,
+    eInstructionHardTurnLeft,
+    eInstructionHardTurnRight,
+    eInstructionTestSeeFood,
+    eInstructionTestBlocked,
+    eInstructionTestPreyedOn,
+    eInstructionTestOccluded,
+    eInstructionSetAnchored,
+    eInstructionClearAnchored
 };
 
 

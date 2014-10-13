@@ -7,58 +7,8 @@ Genome::Genome()
 
 int Genome :: initialize(const char *pInstructions)
 {
-	memset(mInstructions, 0, sizeof(mInstructions));
-
-	int i = 0;
-	while (pInstructions[i])
-	{
-		mInstructions[i].instruction = pInstructions[i];
-		mInstructions[i].executeType = eAlways;
-		++i;
-	}
-	return i;
-}
-
-int Genome :: initializeHasExecutionType(const char *pInstructions)
-{
-	memset(mInstructions, 0, sizeof(mInstructions));
-
-	int i = 0;
-	while (*pInstructions)
-	{
-		mInstructions[i].instruction = *pInstructions++;
-		mInstructions[i].executeType = (eSegmentExecutionType) *pInstructions++;
-		++i;
-	}
-	return i;
-}
-
-
-int Genome :: initialize(const Instruction *pInstructions)
-{
-	memset(mInstructions, 0, sizeof(mInstructions));
-
-	int i = 0;
-	while (pInstructions[i].instruction)
-	{
-		mInstructions[i] = pInstructions[i];
-		++i;
-	}
-	return i;
-}
-
-
-const std::string Genome::toString()
-{
-	std::string r;
-	for (int i = 0; i <= MAX_SEGMENTS; i++)
-	{
-		if (! mInstructions[i].instruction)
-			break;
-		r += (char) mInstructions[i].executeType;
-		r += mInstructions[i].instruction;
-	}
-	return r;
+    strcpy(mInstructions, pInstructions);
+    return strlen(mInstructions);
 }
 
 static eSegmentExecutionType getRandomExecutionType()
@@ -74,27 +24,26 @@ static eSegmentExecutionType getRandomExecutionType()
 	}
 }
 
-static Instruction randomInstruction()
+static char randomInstruction()
 {
-	Instruction result;
-	result.instruction = InstructionSet::getRandomInstruction();
-	if (InstructionSet::instructionSupportsConditions(result.instruction))
-		result.executeType = getRandomExecutionType();
-	else
-		result.executeType = eAlways;
-	return result;
+	char result = InstructionSet::getRandomInstruction();
+	if (InstructionSet::instructionSupportsConditions(result))
+        result |= (char)getRandomExecutionType();
+
+//    if (UtilsRandom::getRangeRandom(0, 3) == 0)
+//        result |= eFixed;
+    
+    return result;
 }
 
 Genome Genome :: mutate()
 {
 	Genome result;
-	result.initialize("");
-	Instruction * pOut = result.mInstructions;
-	Instruction * pIn = mInstructions;
+    char * pIn = mInstructions;
+    char * pOut = result.mInstructions;
+    
 
-	int length = 0;
-	while (mInstructions[length].instruction)
-		++length;
+    int length = strlen(pIn);
 
     int mutationType = (int) UtilsRandom::getRangeRandom(0, 2);
 
@@ -105,7 +54,7 @@ Genome Genome :: mutate()
             if (length < (MAX_GENOME_LENGTH-1))
             {
                 // insert a new random instruction
-                Instruction insertInstruction = randomInstruction();
+                char insertInstruction = randomInstruction();
                 int insertPosition = (int) UtilsRandom::getRangeRandom(0,length);
                 while (length-- > 0)
                 {
@@ -115,7 +64,7 @@ Genome Genome :: mutate()
                 }
                 if (! insertPosition)
                     *pOut++ = insertInstruction;
-				(*pOut).instruction = 0;
+				(*pOut) = 0;
             }
             else
             {
@@ -125,17 +74,18 @@ Genome Genome :: mutate()
             
         case 1: {
             // modify an instruction randomly
-            Instruction mutateInstruction = randomInstruction();
+            char mutateInstruction = randomInstruction();
             int charPosition = (int) UtilsRandom::getRangeRandom(0,length-1);
 			memcpy(pOut, pIn, sizeof(mInstructions));
-			if (UtilsRandom::getRangeRandom(0, 1)) {
-				pOut[charPosition].instruction = mutateInstruction.instruction;
-				if (! InstructionSet::instructionSupportsConditions(pOut[charPosition].instruction))
-					pOut[charPosition].executeType = eAlways;
-			}
-			else
-				if (InstructionSet::instructionSupportsConditions(pOut[charPosition].instruction))
-					pOut[charPosition].executeType = mutateInstruction.executeType;
+
+            char existing = pOut[charPosition];
+            if (InstructionSet::instructionSupportsConditions(existing) && UtilsRandom::getRangeRandom(0, 1)) {
+                pOut[charPosition] = (existing & eInstructionMask) | (mutateInstruction & eExecTypeMask);
+            }
+            else {
+                pOut[charPosition] = (existing & eExecTypeMask) | (mutateInstruction & eInstructionMask);
+            }
+
             break; }
             
         case 2: {
@@ -147,14 +97,14 @@ Genome Genome :: mutate()
             else
             {
                 int charPosition = (int) UtilsRandom::getRangeRandom(0,length-1);
-				while ((*pIn).instruction)
+				while ((*pIn))
                 {
                     if (!charPosition)
                         ++pIn;
                     --charPosition;
                     *pOut++ = *pIn++;
                 }
-				(*pOut).instruction = 0;
+				(*pOut) = 0;
             }
             break; }
     }

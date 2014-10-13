@@ -1,0 +1,239 @@
+<!--[if IE 9]>
+ <html class="lt-ie10" lang="en" >
+ <![endif]-->
+
+<html class="no-js" lang="en" data-useragent=
+    "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)" xmlns=
+    "http://www.w3.org/1999/xhtml">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="keywords" content="Artifical Life, Simulation" />
+        
+        <title>Genealogy</title>
+        <script src="[[res_path]]/js/jquery-1.9.0-min.js" type="text/javascript"></script>
+        <script src="[[res_path]]/js/jquery-ui-1.9.2.min.js" type="text/javascript"></script>
+        <script src="[[res_path]]/js/jquery.jsPlumb-1.6.4-min.js" type="text/javascript"></script>
+
+        <style type="text/css">
+            .critter {
+                font-size: 9px;
+                vertical-align: bottom;
+                position: absolute;
+                border-color: black;
+                border-style: solid;
+                width: [[critter_width]]px;
+                height: [[critter_height]]px;
+                text-align: center;
+                background-color: lightgray;
+                box-shadow: 8px 8px 4px #888888;
+            }
+            .population {
+                text-align: right;
+                bottom: 1px;
+                position: absolute;
+                right: 4px;
+                -webkit-margin-after: 0px;
+                font-size: 12px;
+            }
+            .critter.alive {
+                background-color: lightgreen;
+            }
+            .segment {
+                position: absolute;
+                width: [[segment_width]]px;
+                height: [[segment_height]]px;
+                background-size: contain;
+            }
+            .connector {
+                position: absolute;
+                background-color: black;
+            }
+            .genealogy {
+                position:absolute;
+                border: 10px;
+                width: 100%;
+            }
+            .segment.segment_1 {
+                background-image: url("[[res_path]]/segment_exec_always.png");
+            }
+            .segment.segment_Y {
+                background-image: url("[[res_path]]/segment_exec_if.png");
+            }
+            .segment.segment_N {
+                background-image: url("[[res_path]]/segment_exec_no.png");
+            }
+            .segment.segment_a {
+                background-image: url("[[res_path]]/food.png");
+            }
+            .segment.segment_b {
+                background-image: url("[[res_path]]/segment_M.png");
+            }
+            .segment.segment_c {
+                background-image: url("[[res_path]]/segment_n.png");
+            }
+            .segment.segment_d {
+                background-image: url("[[res_path]]/segment_hyper.png");
+            }
+            .segment.segment_e {
+                background-image: url("[[res_path]]/segment_Z.png");
+            }
+            .segment.segment_f {
+                background-image: url("[[res_path]]/segment_lt.png");
+            }
+            .segment.segment_g {
+                background-image: url("[[res_path]]/segment_rt.png");
+            }
+            .segment.segment_h {
+                background-image: url("[[res_path]]/segment_[.png");
+            }
+            .segment.segment_i {
+                background-image: url("[[res_path]]/segment_].png");
+            }
+            .segment.segment_j {
+                background-image: url("[[res_path]]/segment_test_see_food.png");
+            }
+            .segment.segment_k {
+                background-image: url("[[res_path]]/segment_test_blocked.png");
+            }
+            .segment.segment_l {
+                background-image: url("[[res_path]]/segment_test_occluded.png");
+            }
+            .segment.segment_m {
+                background-image: url("[[res_path]]/segment_test_preyed_on.png");
+            }
+        </style>
+        
+        <script language="javascript" type="text/javascript">
+            var generation_height = [[generation_height]];
+            var turn_height_multiplier = [[turn_height_multiplier]];
+            var generationalView = 1;
+            var connectorWidth = 4;
+
+            $(function() {
+                jsPlumb.getInstance({ container:"connectors" } );
+
+                function getBounds(e) {
+                    var pos = e.position();
+                    var w = e.width();
+                    var h = e.height();
+                    return { left: pos.left, top: pos.top, right:(pos.left + w), bottom:(pos.top + h) };
+                }
+
+                function addConnectorRect(x,y, w, h) {
+                    if (w < 0) {
+                        x += w;
+                        w = -w;
+                    }
+                    if (h < 0) {
+                        y += h;
+                        h = -h;
+                    }
+                    //x -= connectorWidth / 2;
+                    //y -= connectorWidth / 2;
+                    var html = "<div class='connector' style='left:" + x + "px;top:" + y + "px;width:" + w + "px;height:" + h + "px'><\/div>";
+                    $(".genealogy").append(html);
+                }
+
+
+                function connect(parent, child) {
+                    if (true) {
+                        var parentBounds = getBounds(parent);
+                        var childBounds = getBounds(child);
+
+                        var px = (parentBounds.left + parentBounds.right) / 2;
+                        var cx = (childBounds.left + childBounds.right) / 2;
+                        var ty = parentBounds.bottom + connectorWidth;
+                        var by = childBounds.top;
+                        if (px == cx) {
+                            addConnectorRect(px, ty, connectorWidth, by - ty);
+                        }
+                        else {
+                            var lh = ( generation_height - (parentBounds.bottom - parentBounds.top)) / 2;
+                            addConnectorRect(px, ty, connectorWidth, lh);
+                            addConnectorRect(px, ty + lh, cx - px, connectorWidth);
+                            addConnectorRect(cx, ty + lh, connectorWidth, by - ty - lh);
+                        }
+                    }
+                    else {
+                        jsPlumb.connect({
+                            source:parent.attr("id"),
+                            target:child.attr("id"),
+                            anchors:[ "BottomCenter", "TopCenter" ],
+                            Connector : [ "Bezier", { curviness:10 } ],
+                            endpoints:["Blank", "Blank" ]}
+                        );
+                    }
+                }
+
+                function buildConnectors(parentCritters) {
+                    if (! parentCritters) {
+                        $("#connectors").children().remove();
+                        $(".genealogy").children(".connector").remove();
+                        parentCritters = $('div[data-generation="0"]');
+                    }
+
+                    parentCritters.each(function(index, value) {
+                        var critter = $(value);
+                        var genome = critter.attr("data-genome");
+                        var children = $('div[data-parent-genome="' + genome + '"]');
+
+
+                        children.each(function(iChild, domChild) {
+                            var child = $(domChild);
+                            connect(critter, child);
+                            buildConnectors(children);
+                        });
+                    });
+                }
+
+                function updateView() {
+                    $("#toggleView").text(generationalView ? "Switch to Timeline View" : "Switch to Generational View");
+                    $(".critter").each(function(index, value) {
+                        var critter = $(value);
+                        var y;
+                        if (generationalView) {
+                            y = parseInt(critter.attr("data-generation")) * generation_height;
+                        }
+                        else {
+                            y = parseInt(critter.attr("data-turn-appeared")) * turn_height_multiplier;
+                            if (y > 0) {
+                                y += generation_height;
+                            }
+                        }
+                        critter.css("top", y + "px");
+                    });
+                    buildConnectors();
+                }
+
+                $("#toggleView").click(function() {
+                    generationalView = ! generationalView;
+                    updateView();
+                });
+
+                updateView();
+            });
+            </script>
+    </head>
+    
+    <body style="width:100%; height:100%; background-color:white">
+        <h1>Genealogy</h1>
+        
+        <p>This graph shows the gene tree for the five most populous critters. Living
+        ancestoral forms are shown in green boxes while extinct forms are shown in gray
+        boxes.</p><button id="toggleView">Timeline View</button><br />
+        <br />
+        
+        <div id="connectors"></div>
+        
+        <div class="genealogy">
+            [[contents]] <!--
+                          <br>
+                          <br>
+                          <a href="javascript:emailCurrentPage()">
+                          Mail this page!
+                          </a>
+                          -->
+        </div>
+    </body>
+</html>

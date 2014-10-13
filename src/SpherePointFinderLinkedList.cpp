@@ -32,19 +32,18 @@
 
 #include "SpherePointFinderLinkedList.h"
 
-const int kNumSubdivisions = 64;//32;
-
-#define ENTITY_INDEX(x,y,z) (x + y*kNumSubdivisions + z*kNumSubdivisions*kNumSubdivisions)
+#define ENTITY_INDEX(x,y,z) (x + y*NUM_SUBDIVISIONS + z*NUM_SUBDIVISIONS*NUM_SUBDIVISIONS)
+static inline int toIntCoordinate(float v) { return max(min(NUM_SUBDIVISIONS - 1, int ((v + 1) / 2 * NUM_SUBDIVISIONS + .5f)),0); }
 
 SpherePointFinderLinkedList::SpherePointFinderLinkedList()
 {
-	mSphereEntities = new SphereEntityPtr[kNumSubdivisions*kNumSubdivisions*kNumSubdivisions];
-	memset(mSphereEntities, 0, sizeof(SphereEntityPtr)*kNumSubdivisions*kNumSubdivisions*kNumSubdivisions);
+	mSphereEntities = new SphereEntityPtr[NUM_SUBDIVISIONS*NUM_SUBDIVISIONS*NUM_SUBDIVISIONS];
+	memset(mSphereEntities, 0, sizeof(SphereEntityPtr)*NUM_SUBDIVISIONS*NUM_SUBDIVISIONS*NUM_SUBDIVISIONS);
 }
 
 void SpherePointFinderLinkedList::clear()
 {
-	memset(mSphereEntities, 0, sizeof(SphereEntityPtr)*kNumSubdivisions*kNumSubdivisions*kNumSubdivisions);
+	memset(mSphereEntities, 0, sizeof(SphereEntityPtr)*NUM_SUBDIVISIONS*NUM_SUBDIVISIONS*NUM_SUBDIVISIONS);
 }
 
 void SpherePointFinderLinkedList:: insert(SphereEntity * pEntity)
@@ -53,7 +52,7 @@ void SpherePointFinderLinkedList:: insert(SphereEntity * pEntity)
 		remove(pEntity);
 
     Vector3 v = pEntity->mLocation;
-    SphereEntityPoint3d spherePoint = convertToIntVector(v);
+    SphereEntityPoint3d spherePoint(v);
 	if (spherePoint != pEntity->mSpherePoint) {
 		pEntity->mSpherePoint = spherePoint;
 
@@ -70,7 +69,7 @@ void SpherePointFinderLinkedList:: insert(SphereEntity * pEntity)
 void SpherePointFinderLinkedList:: remove(SphereEntity * pEntity)
 {
     Vector3 v = pEntity->mLocation;
-    SphereEntityPoint3d spherePoint = convertToIntVector(v);
+    SphereEntityPoint3d spherePoint(v);
 
 	int entityIndex = ENTITY_INDEX(spherePoint.x,spherePoint.y,spherePoint.z);
 
@@ -109,20 +108,23 @@ void SpherePointFinderLinkedList:: remove(SphereEntity * pEntity)
 	pEntity->mSpherePoint.reset();
 }
 
+//result.x = max(min(NUM_SUBDIVISIONS - 1, int ((v.x + 1) / 2 * NUM_SUBDIVISIONS + .5)),0);
+
+/*
 SphereEntityPoint3d SpherePointFinderLinkedList :: convertToIntVector(Vector3 &v) const
 {
 	SphereEntityPoint3d result;
-    result.x = max(min(kNumSubdivisions - 1, int ((v.x + 1) / 2 * kNumSubdivisions + .5)),0);
-    result.y = max(min(kNumSubdivisions - 1, int ((v.y + 1) / 2 * kNumSubdivisions + .5)),0);
-    result.z = max(min(kNumSubdivisions - 1, int ((v.z + 1) / 2 * kNumSubdivisions + .5)),0);
+    result.x = max(min(NUM_SUBDIVISIONS - 1, int ((v.x + 1) / 2 * NUM_SUBDIVISIONS + .5)),0);
+    result.y = max(min(NUM_SUBDIVISIONS - 1, int ((v.y + 1) / 2 * NUM_SUBDIVISIONS + .5)),0);
+    result.z = max(min(NUM_SUBDIVISIONS - 1, int ((v.z + 1) / 2 * NUM_SUBDIVISIONS + .5)),0);
 	return result;
 }
-
+*/
 
 void SpherePointFinderLinkedList:: moveEntity(SphereEntity * pEntity, Vector3 newLoc)
 {
-    SphereEntityPoint3d oldV = convertToIntVector(pEntity->mLocation);
-    SphereEntityPoint3d newV = convertToIntVector(newLoc);
+    SphereEntityPoint3d oldV(pEntity->mLocation);
+    SphereEntityPoint3d newV(newLoc);
     
     if (oldV != newV)
     {
@@ -136,31 +138,35 @@ void SpherePointFinderLinkedList:: moveEntity(SphereEntity * pEntity, Vector3 ne
 	}
 }
 
-int SpherePointFinderLinkedList:: getNearbyEntities(SphereEntity * pNearEntity, float distance, SphereEntity **pResultArray, int maxResults /*= 16 */)
+/*
+int SpherePointFinderLinkedList:: getNearbyEntities(SphereEntity * pNearEntity, float distance, SphereEntity **pResultArray, int maxResults )
 {
 	return getNearbyEntities(pNearEntity->mLocation, distance, pResultArray, maxResults, pNearEntity->mAgent);
 }
 
-int SpherePointFinderLinkedList::getNearbyEntities(Vector3 location, float distance, SphereEntity **pResultArray, int maxResults)
+int SpherePointFinderLinkedList::getNearbyEntities(const Vector3 & location, float distance, SphereEntity **pResultArray, int maxResults)
 {
     return getNearbyEntities(location, distance, pResultArray, maxResults, NULL);
 }
+*/
 
-int SpherePointFinderLinkedList::getNearbyEntities(Vector3 pt, float distance, SphereEntity **pResultArray, int maxResults, Agent *pAgentToExclude)
+int SpherePointFinderLinkedList::getNearbyEntities(const Vector3 &pt, float distance, SphereEntity **pResultArray, int maxResults, Agent *pAgentToExclude)
 {
     int result = 0;
     
     // detemine the cube to search
     
-	SphereEntityPoint3d c1 = convertToIntVector(Vector3(pt.x-distance, pt.y-distance,pt.z-distance));
-	SphereEntityPoint3d c2 = convertToIntVector(Vector3(pt.x+distance, pt.y+distance,pt.z+distance));
+//    Vector3 v1
+//    Vector3 v2
+//	SphereEntityPoint3d c1(pt.x-distance, pt.y-distance,pt.z-distance);
+//	SphereEntityPoint3d c2(pt.x+distance, pt.y+distance,pt.z+distance);
     
-    int fX = c1.x;
-    int tX = c2.x;
-    int fY = c1.y;
-    int tY = c2.y;
-    int fZ = c1.z;
-    int tZ = c2.z;
+    int fX = toIntCoordinate(pt.x - distance); //c1.x;
+    int tX = toIntCoordinate(pt.x + distance); //c2.x;
+    int fY = toIntCoordinate(pt.y - distance); //c1.y;
+    int tY = toIntCoordinate(pt.y + distance); //c2.y;
+    int fZ = toIntCoordinate(pt.z - distance); //c1.z;
+    int tZ = toIntCoordinate(pt.z + distance); //c2.z;
     
     for (int x = fX; x <= tX; x++)
         for (int y = fY; y <= tY; y++)

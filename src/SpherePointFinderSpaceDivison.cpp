@@ -141,8 +141,10 @@ int SpherePointFinderSpaceDivision::getNearbyEntities(Vector3 pt, float distance
     
     // detemine the cube to search
     
-	SphereEntityPoint3d c1 = convertToIntVector(Vector3(pt.x-distance, pt.y-distance,pt.z-distance));
-	SphereEntityPoint3d c2 = convertToIntVector(Vector3(pt.x+distance, pt.y+distance,pt.z+distance));
+    Vector3 v1(pt.x-distance, pt.y-distance,pt.z-distance);
+    Vector3 v2(pt.x+distance, pt.y+distance,pt.z+distance);
+	SphereEntityPoint3d c1 = convertToIntVector(v1);
+	SphereEntityPoint3d c2 = convertToIntVector(v2);
     
     int fX = c1.x;
     int tX = c2.x;

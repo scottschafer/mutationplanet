@@ -17,7 +17,7 @@ using namespace gameplay;
 using namespace std;
 
 
-class SpherePointFinderLinkedList : public BaseSpherePointFinder
+class SpherePointFinderLinkedList// : public BaseSpherePointFinder
 {
 public:
     SpherePointFinderLinkedList();
@@ -26,14 +26,16 @@ public:
     void insert(SphereEntity *);
     void remove(SphereEntity *);
     void moveEntity(SphereEntity *, Vector3);
-    
-    int getNearbyEntities(SphereEntity * pNearEntity, float distance, SphereEntity **pResultArray, int maxResults = 16);
-    int getNearbyEntities(Vector3 location, float distance, SphereEntity **pResultArray, int maxResults = 16);
-    int getNearbyEntities(Vector3 location, float distance, SphereEntity **pResultArray, int maxResults, Agent *pExclude);
 
-private:
-	SphereEntityPoint3d convertToIntVector(Vector3 &v) const;
-    //SetEntityPtr getEntitySet(int x, int y, int z, bool createIfNULL = true);
+    int getNearbyEntities(const Vector3 &pt, float distance, SphereEntity **pResultArray, int maxResults = 16, Agent *pExclude = NULL);
+
+    int getNearbyEntities(SphereEntity * pNearEntity, float distance, SphereEntity **pResultArray, int maxResults = 16) {
+        return getNearbyEntities(pNearEntity->mLocation, distance, pResultArray, maxResults, pNearEntity->mAgent);
+    }
+    
+//    int getNearbyEntities(const Vector3 & location, float distance, SphereEntity **pResultArray, int maxResults = 16) {
+//        return getNearbyEntities(location.x, location.y, pNearEntity->mLocation.z, distance, pResultArray, maxResults, pNearEntity->mAgent);
+//    }
 
 private:
     SphereEntityPtr *mSphereEntities;
