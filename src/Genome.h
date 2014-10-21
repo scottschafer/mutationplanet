@@ -22,9 +22,6 @@ public:
         return (mInstructions[i] & eInstructionMask);
     }
     
-    bool isFixed(int i) {
-        return (mInstructions[i] & eFixed) != 0;
-    }
     operator const char *() const { return mInstructions; }
     
     Genome& operator =(const Genome &rhs) {

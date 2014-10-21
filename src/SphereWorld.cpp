@@ -26,7 +26,7 @@
 #include "SphereWorld.h"
 #include "Agent.h"
 #include "UtilsRandom.h"
-#include "SpherePointFinderSpaceDivison.h"
+//#include "SpherePointFinderSpaceDivison.h"
 #include "SpherePointFinderLinkedList.h"
 
 template<class K, class V>
@@ -262,17 +262,37 @@ void SphereWorld :: moveEntity(SphereEntity *pEntity, Vector3 newLoc)
     spherePointFinder.moveEntity(pEntity, newLoc);
 }
 
+#define TRACE_TEST if(false)TRACE
+
 /**
  Used to test the point finding utility
  **/
 void SphereWorld::test()
 {
-	//return;
-
+	return;
 	srand(0);
     std::vector<SphereEntity*> entities;
     size_t i;
 	size_t testSize = 1000;
+    SphereEntityPtr results[1000];
+
+	//testPt = (0.310198,-0.572352,-0.980855), pEntity->mLocation = (0.296304,-0.528855,-0.997681), distance = 0.043497
+#if 0
+	SphereEntity * pEntity = new SphereEntity();
+    pEntity->mLocation = Vector3(0.296304f,-0.528855f,-0.997681f);
+    registerEntity(pEntity);
+
+	Vector3 testPt(0.310198f,-0.572352f,-0.980855f);
+
+	float distance = calcDistance(testPt, pEntity->mLocation);//.distance(pEntity->mLocation);
+
+    int numEntities = getNearbyEntities(testPt, distance, results);
+                
+	if (! numEntities) {
+		throw "blah";
+	}
+#else
+
 
     for (i = 0; i < testSize; i++)
     {
@@ -280,33 +300,44 @@ void SphereWorld::test()
         
         SphereEntity * pEntity = new SphereEntity();
         pEntity->mLocation = v;
-        registerEntity(pEntity);
+        //registerEntity(pEntity);
         
         entities.push_back(pEntity);
     }
     
     for (i = 0; i < entities.size(); i++)
     {
-		printf("looking for %d\n", (int)i);
+		TRACE_TEST("looking for %d\n", (int)i);
 
         SphereEntity * pEntity = entities[i];
+		registerEntity(pEntity);
+		//spherePointFinder.insert(pEntity);
+
         for (int j = 0; j < 4; j++)
         {
-            float d = UtilsRandom::getRangeRandom(0.01f, .1f);
             for (int k = 0; k < 4; k++)
             {
-                Vector3 testPt = pEntity->mLocation;
+		        float d = UtilsRandom::getRangeRandom(0.01f, .1f);
+	    
+				Vector3 testPt = pEntity->mLocation;
                 testPt.x += UtilsRandom::getRangeRandom(-d, d);
                 testPt.y += UtilsRandom::getRangeRandom(-d, d);
                 testPt.z += UtilsRandom::getRangeRandom(-d, d);
-                
-				float distance = testPt.distance(pEntity->mLocation);
-                SphereEntityPtr entities[10000];
-                int numEntities = getNearbyEntities(testPt, d, entities, testSize);
+				testPt.normalize();
+
+				float distance = calcDistance(testPt, pEntity->mLocation);//.distance(pEntity->mLocation);
+
+				TRACE_TEST("testPt = (%f,%f,%f), pEntity->mLocation = (%f,%f,%f), distance = %f\n",
+					testPt.x, testPt.y, testPt.z,
+					pEntity->mLocation.x, pEntity->mLocation.y, pEntity->mLocation.z,
+					distance);
+
+				memset(results,0,sizeof(results));
+                int numEntities = getNearbyEntities(testPt, distance, results, testSize);
                 
                 bool foundEntity = false;
                 for (int l = 0; l < numEntities; l++)
-                    if (entities[l] == pEntity)
+                    if (results[l] == pEntity)
                     {
                         foundEntity = true;
                         break;
@@ -314,17 +345,21 @@ void SphereWorld::test()
                 
                 if (! foundEntity)
                 {
-                    unregisterEntity(pEntity);
+					HEAPCHECK;
+
+					unregisterEntity(pEntity);
                     registerEntity(pEntity);
-                    getNearbyEntities(testPt, d, entities, testSize);
+                    getNearbyEntities(testPt, distance, results, testSize);
                     throw "fail";
                 }
             }
         }
+		unregisterEntity(pEntity);
     }
     
-    for (i = 0; i < entities.size(); i++)
-        unregisterEntity(entities[i]);
+    //for (i = 0; i < entities.size(); i++)
+    //    unregisterEntity(entities[i]);
+#endif
 }
 
 
@@ -490,8 +525,8 @@ void SphereWorld::pruneTree(map<string, int> & mapSpeciesToCount) {
         }
     }
     
-    for(map<string,string>::iterator i : iteratorList){
-        mChildToParentGenomes.erase(i);
+	for (std::list< std::map<string,string>::iterator >::iterator i = iteratorList.begin(); i != iteratorList.end(); i++) {
+        mChildToParentGenomes.erase(*i);
         ++pruned;
     }
     

@@ -35,9 +35,8 @@ Agent.cpp
 //#include "UtilsGenome.h"
 #include "Parameters.h"
 
-#define HYPER_NUM_STEPS 5
 #define RESET_CONDITION 0
-#define MAX_CROWDING 3
+#define MAX_CROWDING 4
 
 Agent::Agent()
 {
@@ -182,8 +181,8 @@ void Agent::step(SphereWorld * pWorld)
     float poleDistance = mSpawnLocation.y*mSpawnLocation.y;
 	if (poleDistance > .5f) {
         
-        // from 100% to 5%
-        int percentExecuting = (int) (100 - (poleDistance - .5f) * 190);
+        // from 100% to 10%
+        int percentExecuting = (int) (100 - (poleDistance - .5f) * 180);
         
         if (percentExecuting > 50) {
             
@@ -192,9 +191,6 @@ void Agent::step(SphereWorld * pWorld)
                 return;
         }
         else {
-            // 50 = 2
-            // 90 = 9
-            
             int doExecute = (120 - percentExecuting - percentExecuting) / 10;
             
             if ((mTurn % doExecute) != 0)
@@ -234,7 +230,7 @@ void Agent::step(SphereWorld * pWorld)
 	// lose some energy every turn
 	if (mEnergy < 0 || getWasEaten())
 	{
-        die(pWorld);//, !getWasEaten());
+        die(pWorld, !getWasEaten());
 		return;
 	}				
 
@@ -249,7 +245,7 @@ void Agent::step(SphereWorld * pWorld)
 		{
 			if (mSleep > 0)
 			{
-				mEnergy -= cycleEnergyCost/10;
+				mEnergy -= cycleEnergyCost/3;
 				--mSleep;
 				continue;
 			}
@@ -305,7 +301,7 @@ void Agent::step(SphereWorld * pWorld)
 					break; }
             
 				case eInstructionTestSeeFood:
-					if (testIsFacingFood(pWorld))
+					if (testIsFacingFood(pWorld, 1.0f))// + (float)mActiveSegment / 2))
 						setCondition();
 					else
 						clearCondition();
@@ -332,8 +328,9 @@ void Agent::step(SphereWorld * pWorld)
 					break; }
 
 				case eInstructionTestOccluded: {
-					bool flag = false;
+					bool flag = (mNumOccludedPhotosynthesize > 0);
 
+#if 0
                     SphereEntityPtr entities[20];
                     int numEntities = pWorld->getNearbyEntities(this->mSegments[0].mLocation,
                                                                 Parameters::instance.getMoveDistance()*10, entities, sizeof(entities)/sizeof(entities[0]));
@@ -346,21 +343,24 @@ void Agent::step(SphereWorld * pWorld)
                             }
                         }
                     }
-
+#endif
 					if (flag)
 						setCondition();
 					else
 						clearCondition();
 					break; }
 
-				case eInstructionPhotosynthesize:
-                    /*
-					if (! mSegments[mActiveSegment].mIsOccluded)
-					{
-						mEnergy += Parameters::instance.photoSynthesizeEnergyGain;
+				case eInstructionTestTouchedSelf:
+					if (getTouchedSelf()) {
+						setCondition();
+						clearTouchedSelf();
 					}
-                     */
-//                    clearCondition();
+					else {
+						clearCondition();
+					}
+					break;
+
+				case eInstructionPhotosynthesize:
 					++numSteps;
 					break;
 
@@ -371,12 +371,10 @@ void Agent::step(SphereWorld * pWorld)
                     
                 case eInstructionSetAnchored:
                     setIsAnchored();
-                    ++numSteps;
                     break;
                     
                 case eInstructionClearAnchored:
                     clearIsAnchored();
-                    ++numSteps;
                     break;
 			}
 
@@ -412,7 +410,7 @@ void Agent :: die(SphereWorld *pWorld, bool andBecomeFood)
     vector<Vector3> foodPoints;
 	if (andBecomeFood)
 		for (int i = 0; i < mNumSegments; i += 1)
-            if (! mSegments[i].mIsOccluded && mGenome.getInstruction(i) != eInstructionPhotosynthesize) {
+            /*if (! mSegments[i].mIsOccluded || mGenome.getInstruction(i) != eInstructionPhotosynthesize) */ {
 				foodPoints.push_back(mSegments[i].mLocation);
             }
     bool allowMutation = getAllowMutate();
@@ -420,13 +418,16 @@ void Agent :: die(SphereWorld *pWorld, bool andBecomeFood)
     
     if (andBecomeFood)
     {
-		float energyPerSegment = mSpawnEnergy / mNumSegments / 6;
+		float energyPerSegment = Parameters::instance.baseSpawnEnergy * mNumSegments / 2;
         for (size_t i = 0; i < foodPoints.size(); i++)
         {
-            if (i > 0 && foodPoints[i] == foodPoints[i-1]) {
-                continue;
-            }
-            Agent *pNewAgent = pWorld->createEmptyAgent();
+			float distance = Parameters::instance.getMoveDistance() / 2; 
+            SphereEntityPtr entities[5];
+			int nearbyResults = pWorld->getNearbyEntities(foodPoints[i], distance, entities, sizeof(entities)/sizeof(entities[0]));
+			if (nearbyResults > 0)
+				continue;
+
+			Agent *pNewAgent = pWorld->createEmptyAgent();
             if (pNewAgent)
             {
                 char photogenome[] = {eInstructionPhotosynthesize, 0};
@@ -482,6 +483,7 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
 	if (andEat)
 		headSize *= Parameters::instance.mouthSize;
 
+	float occludeDist = moveDistance * .8f;
     
     Vector3 oldHeadLocation = mSegments[0].mLocation;
     Vector3 oldTailLocation = mSegments[mNumSegments-1].mLocation;
@@ -499,25 +501,19 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
     
     newLocations[0] = newLocation;
     for (int i = 1; i < mNumSegments; i++) {
-        if (mGenome.isFixed(i)) {
-            Vector3 delta = newLocations[i-1] - mSegments[i-1].mLocation;
-            newLocations[i] = mSegments[i].mLocation + delta;
+        Vector3 delta = mSegments[i].mLocation - newLocations[i-1];
+#if USE_SQUARED_DISTANCE
+        float deltaDistance = delta.lengthSquared();
+#else
+        float deltaDistance = delta.length();
+#endif
+        if (deltaDistance > segmentMaxFriedenberg) {
+            delta *= segmentMaxFriedenberg / deltaDistance;
+            float newDistance = delta.length();
+            newLocations[i] = newLocations[i-1] + delta;
         }
         else {
-            Vector3 delta = mSegments[i].mLocation - newLocations[i-1];
-    #if USE_SQUARED_DISTANCE
-            float deltaDistance = delta.lengthSquared();
-    #else
-            float deltaDistance = delta.length();
-    #endif
-            if (deltaDistance > segmentMaxFriedenberg) {
-                delta *= segmentMaxFriedenberg / deltaDistance;
-                float newDistance = delta.length();
-                newLocations[i] = newLocations[i-1] + delta;
-            }
-            else {
-                newLocations[i] = mSegments[i].mLocation;
-            }
+            newLocations[i] = mSegments[i].mLocation;
         }
     }
     
@@ -552,15 +548,23 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
             }
         }
     }
+
+	for (int i = 1; i < mNumSegments; i++) {
+		if (newLocation.distance(newLocations[i]) < occludeDist) {
+			setWasBlocked();
+			break;
+		}
+	}
 #else
     for (int i = (mNumSegments - 1); i > 0; i--)
         newLocations[i] = mSegments[i-1].mLocation;
     newLocations[0] = newLocation;
 #endif
     
+	if (! getWasBlocked()) {
 	int numEntities = pWorld->getNearbyEntities(newLocation, headSize, entities);
 
-    float biteStrength = Parameters::instance.biteStrength;// * (1 + mNumSegments / 2);
+    float biteStrength = Parameters::instance.biteStrength * (1 + mNumSegments / 2);
 	float digestion = Parameters::instance.digestionEfficiency;
 
     bool ate = false;
@@ -588,6 +592,7 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
             if (trueDistance < headSize)
             {
 				setWasBlocked();
+				setTouchedSelf();
                 break;
             }
         }
@@ -635,7 +640,23 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
 					break;
             }
         }
+
+		/*
+		if (mSegments[i].mLocation != newLocations[i])
+        {
+			if (mSegments[i].mIsOccluded) {
+	            mSegments[i].mIsOccluded = false;
+				if (mSegments[i].mType == eInstructionPhotosynthesize)
+				{
+					++mNumNonOccludedPhotosynthesize;
+					--mNumOccludedPhotosynthesize;
+				}
+			}
+            pWorld->moveEntity(&mSegments[i], newLocations[i]);
+        }
+		*/
     }
+	}
 
 	mSleep += Parameters::instance.extraCyclesForMove;
 
@@ -648,6 +669,34 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
     // now move
     mSpawnLocation = mSegments[mNumSegments-1].mLocation; // old tail location
 
+#if 1
+    for (int i = 0; i < mNumSegments; i++)
+    {
+        if (mSegments[i].mLocation != newLocations[i])
+        {
+            pWorld->moveEntity(&mSegments[i], newLocations[i]);
+        }
+	}
+
+    for (int i = 0; i < mNumSegments; i++)
+    {
+        if (mSegments[i].mType == eInstructionPhotosynthesize)
+        {
+			bool isOccluded = pWorld->getNearbyEntities(newLocations[i], occludeDist, entities, 1, NULL) > 0;
+			if (isOccluded != mSegments[i].mIsOccluded) {
+				mSegments[i].mIsOccluded = isOccluded;
+				if (isOccluded) {
+					--mNumNonOccludedPhotosynthesize;
+					++mNumOccludedPhotosynthesize;
+				}
+				else {
+					++mNumNonOccludedPhotosynthesize;
+					--mNumOccludedPhotosynthesize;
+				}
+			}
+        }
+	}
+#else
     for (int i = 0; i < mNumSegments; i++)
     {
         if (mSegments[i].mLocation != newLocations[i])
@@ -679,7 +728,8 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
 			}
         }
     }
-    
+#endif
+
     // offset the spawn location a bit so the child isn't right up against the parent's tail
 	if (true) {
 		Vector3 spawnLocationOffset = mSpawnLocation - mSegments[mNumSegments-1].mLocation;
@@ -688,6 +738,7 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
 		mSpawnLocation.z += spawnLocationOffset.z / 10.0f;
 		mSpawnLocation.normalize();
 	}
+
 }
 
 // turn by a degress by rotating the head's move vector
@@ -706,9 +757,9 @@ void Agent::turn(int a)
 // Test if we're facing food in the direction that the head is pointing.
 // This returns true if we find either a Photosynthesize segment or a FakePhotosynthesize segment
 // in the direct line of sight.
-bool Agent::testIsFacingFood(SphereWorld *pWorld)
+bool Agent::testIsFacingFood(SphereWorld *pWorld, float distMultiplier)
 {
-    int visionDistance = Parameters::instance.lookDistance;
+    int visionDistance = Parameters::instance.lookDistance * distMultiplier;
     
     Vector3 lookLocation = mSegments[0].mLocation;
     Vector3 lookVector = mMoveVector;
@@ -734,7 +785,7 @@ bool Agent::testIsFacingFood(SphereWorld *pWorld)
 				Agent *pAgent = pEntity->mAgent;
             
 				// check that the agent is alive, since we might have killed while looping over entities
-				if (pAgent && pAgent != this && pAgent->mStatus != eNonExistent)
+				if (pAgent && /*pAgent != this && */ pAgent->mStatus != eNonExistent)
 				{
 					switch (pEntity->mType)
 					{
@@ -752,7 +803,16 @@ bool Agent::testIsFacingFood(SphereWorld *pWorld)
                              */
                             
 						default:
-							isBlocked = true;
+							if (mNumSegments == 1 || pAgent != this) {
+								isBlocked = true;
+							}
+							else {
+								// if the segment seen isn't from this se
+								if (pEntity != &pAgent->mSegments[0] && pEntity != &pAgent->mSegments[1]) {
+									isBlocked = true;
+								}
+							}
+							break;
 					}
 				}
 			}

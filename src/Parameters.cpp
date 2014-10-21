@@ -27,7 +27,7 @@ Parameters Parameters :: instance;
 
 Parameters :: Parameters() {
     speed = 2;//10;
-	mutationPercent = 0;
+	mutationPercent = 15;
 
 	reset();
 }
@@ -48,7 +48,7 @@ void Parameters :: reset()
     moveEnergyCost = 2.0f;//3.5f;
     moveAndEatEnergyCost = 50;
     photoSynthesizeEnergyGain = 2.0f; //3.5f;
-    digestionEfficiency = .9f;
+    digestionEfficiency = 1.0f;
     biteStrength = 2.0f;//1.3f;
     deadCellDormancy = 10000; // turns before a "dead" cell (such as left by a critter that starved) turns into a live photo cell
     baseSpawnEnergy = 0;
@@ -59,15 +59,15 @@ void Parameters :: reset()
     cellSize = 4;
     extraCyclesForMove = 3;
     allowSelfOverlap = false;
-    lookDistance = 40;
+    lookDistance = 10;
 
     sleepTime = 10;
-	unexecutedTurnCost = .1f;
+	unexecutedTurnCost = 0;//.25f;
 
 	turnToFoodAfterDeath = true;
 
 	mouthSize = 1.0f;
-	lookSpread = 1.02f;
+	lookSpread = 1.05f;
 
 	cannibals = 1;
 	allowOr = false;

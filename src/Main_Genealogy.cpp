@@ -287,8 +287,8 @@ void prune(SphereWorld & world, std::map<std::string, std::string> & childToPare
         }
     }
     
-    for(map<string,string>::iterator i : iteratorList){
-        childToParentGenomes.erase(i);
+    for(std::list< std::map<string,string>::iterator >::iterator i = iteratorList.begin(); i != iteratorList.end(); i++ ){
+        childToParentGenomes.erase(*i);
     }
 }
 
@@ -315,17 +315,16 @@ void Main::handleGenealogy()
     }
     genealogyPath += "/Documents";
 
-    string srcPath = FileSystem::getResourcePath();
-    srcPath += "res/genealogyTemplate.html";
+	Stream* inStream = FileSystem::open("res/genealogyTemplate.html", FileSystem::READ);
+	size_t templateLength = inStream->length();
+	char *buffer = new char[templateLength+1];
+	inStream->read(buffer,1,templateLength);
+	buffer[templateLength] = 0;
+	inStream->close();
+	string contents(buffer);
+	delete[] buffer;
 
-    ifstream inStream;
-    inStream.open(srcPath.c_str());
-    std::string contents( (std::istreambuf_iterator<char>(inStream) ),
-                        (std::istreambuf_iterator<char>()) );
-
-    inStream.close();
-    
-    genealogyPath += "/genealogy.html";
+	genealogyPath += "/genealogy.html";
     
     std::stringstream treeStream;
     critter_width = segment_width * (getMaxGenomeLength(pTree)+ 1);
@@ -346,11 +345,9 @@ void Main::handleGenealogy()
     string resPath = string("file://") + FileSystem::getResourcePath() + "res";
     contents = replaceAll(contents, string("[[res_path]]"), resPath);
     
-    ofstream f;
-    f.open(genealogyPath.c_str());
-    f << contents;
-    f.close();
-
+	Stream* outStream = FileSystem::open(genealogyPath.c_str(), FileSystem::WRITE);
+	outStream->write(contents.c_str(), 1, contents.length());
+	outStream->close();
     delete pTree;    
     
     openURL(genealogyPath.c_str(), false);

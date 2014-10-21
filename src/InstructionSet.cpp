@@ -52,6 +52,7 @@ void InstructionSet :: reset()
 	setInstructionAvailable(eInstructionTestOccluded, true);
 
     setInstructionAvailable(eInstructionSetAnchored, true);
+    setInstructionAvailable(eInstructionTestTouchedSelf, true);
 //    setInstructionAvailable(eInstructionClearAnchored, true);
 
 }

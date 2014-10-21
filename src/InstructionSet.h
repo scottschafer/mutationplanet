@@ -13,16 +13,11 @@
 #include <set>
 
 enum eSegmentExecutionType {
-    eExecTypeMask = 224,
+    eExecTypeMask = 192,
     
     eAlways = 128,
     eIf = 64,
-    eNotIf = 0,
-    eOr = 224
-};
-
-enum eFixed {
-    eFixed = 32
+    eNotIf = 0
 };
 
 enum eInstructions
@@ -47,6 +42,7 @@ enum eInstructions
     eInstructionTestBlocked,
     eInstructionTestPreyedOn,
     eInstructionTestOccluded,
+	eInstructionTestTouchedSelf,
     eInstructionSetAnchored,
     eInstructionClearAnchored
 };

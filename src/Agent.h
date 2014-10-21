@@ -34,7 +34,8 @@ enum {
 	BIT_IS_HYPER = 32,
 	BIT_WAS_EATEN = 64,
 	BIT_WAS_PREYED_ON = 128,
-    BIT_ANCHORED = 256
+    BIT_ANCHORED = 256,
+	BIT_TOUCHED_SELF=512
 
 };
 
@@ -54,7 +55,7 @@ public:
     void move(SphereWorld *pWorld, bool andEat);
     void turn(int angle);
     void sleep();
-    bool testIsFacingFood(SphereWorld *pWorld);
+    bool testIsFacingFood(SphereWorld *pWorld, float distMultiplier = 1);
     void spawnIfAble(SphereWorld * pWorld);
     float getSpawnEnergy() { return mSpawnEnergy; }
     
@@ -123,6 +124,10 @@ public:
     int getIsAnchored() { return mFlags & BIT_ANCHORED; }
     void setIsAnchored() { mFlags |= BIT_ANCHORED; }
     void clearIsAnchored() { mFlags &= ~BIT_ANCHORED; }
+    
+	int getTouchedSelf() { return mFlags & BIT_TOUCHED_SELF; }
+    void setTouchedSelf() { mFlags |= BIT_TOUCHED_SELF; }
+    void clearTouchedSelf() { mFlags &= ~BIT_TOUCHED_SELF; }
 
     // segments
     int     mNumSegments;

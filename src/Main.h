@@ -6,7 +6,7 @@
 #include <pthread.h>
 
 #ifdef _WINDOWS
-extern void usleep(unsigned int ms);
+extern void usleep(unsigned long ms);
 #endif
 
 using namespace gameplay;
@@ -61,6 +61,13 @@ protected:
      * @see Game::render
      */
     void render(float elapsedTime);
+	void beginRender(float elapsedTime);
+	void renderSphere(float elapsedTime);
+	void renderCritters(float elapsedTime);
+	void renderSpeciesCounts(float elapsedTime);
+	void renderForms(float elapsedTime);
+	void finishRender(float elapsedTime);
+
     void renderInsertCritter();
     
     Rectangle scaleUI(Rectangle);
@@ -224,9 +231,9 @@ private:
     
     bool mShowingWebPage;
     
-    SpriteBatch * mSegmentBatch[255];
-    int mSegmentBatchCount[255];
-	Rectangle mSegmentSrcRect[255];
+    SpriteBatch * mSegmentBatch[256];
+    int mSegmentBatchCount[256];
+	Rectangle mSegmentSrcRect[256];
 };
 
 enum

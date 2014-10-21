@@ -1,0 +1,132 @@
+theme segmemts
+{
+    texture = res/packedsegments.png
+
+    imageList segmemts
+    {
+        image unchecked
+        {
+            region = 78, 1, 46, 46
+        }
+
+		image ActiveSegment
+		{
+		  region = 2, 20, 64, 64
+		}
+
+		image ActiveSegmentConditionOff
+		{
+		  region = 132, 150, 64, 64
+		}
+
+		image MoveArrow
+		{
+		  region = 2, 86, 128, 128
+		}
+
+		image barrier
+		{
+		  region = 2, 2, 16, 16
+		}
+
+		image food
+		{
+		  region = 198, 150, 64, 64
+		}
+
+		image segment
+		{
+		  region = 264, 150, 64, 64
+		}
+
+		image segmentFrame
+		{
+			region = 330, 150, 64, 64
+		}
+
+		image segment_M
+		{
+			region = 396, 150, 64, 64
+		}
+
+		image segment_Z
+		{
+			region = 462, 150, 64, 64
+		}
+
+		image segment_[
+		{
+			region = 528, 150, 64, 64
+		}
+
+		image segment_]
+		{
+			region = 594, 150, 64, 64
+		}
+
+		image segment_anchor
+		{
+			region = 660, 150, 64, 64
+		}
+
+		image segment_b
+		{
+			region = 726, 150, 64, 64
+		}
+
+		image segment_exec_if
+		{
+			region = 792, 150, 64, 64
+		}
+
+		image segment_exec_no
+		{
+			region = 858, 150, 64, 64
+		}
+
+		image segment_f
+		{
+			region = 924, 150, 64, 64
+		}
+
+		image segment_hyper
+		{
+			region = 68, 20, 64, 64
+		}
+
+		image segment_lt
+		{
+			region = 134, 84, 64, 64
+		}
+
+		image segment_n
+		{
+			region = 200, 84, 64, 64
+		}
+
+		image segment_rt
+		{
+			region = 266, 84, 64, 64
+		}
+
+		image segment_test_blocked
+		{
+			region = 332, 84, 64, 64
+		}
+
+		image segment_test_occluded
+		{
+			region = 398, 84, 64, 64
+		}
+
+		image segment_test_preyed_on
+		{
+			region = 464, 84, 64, 64
+		}
+
+		image segment_test_see_food
+		{
+			region = 530, 84, 64, 64
+		}
+	}
+}

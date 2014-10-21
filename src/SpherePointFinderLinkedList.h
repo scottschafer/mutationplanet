@@ -9,7 +9,8 @@
 #ifndef __BioSphere__SpherePointFinderLinkedList__
 #define __BioSphere__SpherePointFinderLinkedList__
 
-#include "BaseSpherePointFinder.h"
+#include "gameplay.h"
+#include "SphereEntity.h"
 #include "constants.h"
 #include <set>
 

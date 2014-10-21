@@ -127,12 +127,12 @@ void    ArcBall::drag(Vector2 pt, Quaternion* NewRot)
         if (Perp.length() > Epsilon)    //if its non-zero
         {
             //We're ok, so return the perpendicular vector as the transform after all
-            NewRot->x = Perp.x;
-            NewRot->y = Perp.y;
-            NewRot->z = Perp.z;
+            NewRot->x = (float) Perp.x;
+            NewRot->y = (float) Perp.y;
+            NewRot->z = (float) Perp.z;
             //In the quaternion values, w is cosine (theta / 2), where theta is rotation angle
             
-            NewRot->w = StVec.dot(EnVec);
+            NewRot->w = (float) StVec.dot(EnVec);
         }
         else                                    //if its zero
         {

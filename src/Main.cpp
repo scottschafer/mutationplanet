@@ -84,8 +84,9 @@ LockWorldMutex::LockWorldMutex(bool bDoLock) : mDoLock(bDoLock)
 
 LockWorldMutex::~LockWorldMutex()
 {
-	if (mDoLock)
+	if (mDoLock) {
 	    pthread_mutex_unlock( &mutex1 );
+	}
 }
 
 
@@ -168,41 +169,72 @@ void * Main :: threadFunction(void*)
     threadAlive = true;
     while (threadAlive)
     {
-        ++numTurns;
+		numTurns += (Parameters::instance.speed == 10) ? HYPER_NUM_STEPS : 1;
+
+		long sleepMS = 0;
         if (Parameters::instance.speed == 0 || game.mShowingInsertCritter || game.mShowingWebPage || game.mShowingLoadSave)
         {
             // stopped
-            usleep(100);
+            sleepMS = 100;
+			gTurnsPerSecond = 0;
         }
         else
         {
-            
-            long beforeTicks = curMS();
-            
+			// current time, elapsed time
+			long curTicks = curMS();
+
+			static long lastTicks = 0;
+			if (lastTicks == 0)
+				lastTicks = curTicks;
+			long elapsedTicks = curTicks - lastTicks;
+			lastTicks = curTicks;
+
+			const long sampleTime = 250;
+
+			static long elapsedTimeSinceTally = 0;
+			static long startSampleTurns = 0;
+
+			if (true)
 			{
 				LockWorldMutex m;
+
+				if (elapsedTimeSinceTally > sampleTime)
+				{
+					int numTurnsSinceTally = (int)(numTurns - startSampleTurns);
+					startSampleTurns = numTurns;            
+					gTurnsPerSecond = ((float) numTurnsSinceTally) / ((float)elapsedTimeSinceTally) * 1000.f;
+					world.sampleTopSpecies();            
+					elapsedTimeSinceTally = 0;
+				}
+
+				elapsedTimeSinceTally += elapsedTicks;
+
 				int numSegments = world.step();
 				static int lastFollowing = -1;
 				mFollowingIndex = world.getTopCritterIndex();
 
-                if ((numSegments > MAX_TOTAL_SEGMENTS || gLastFPS < MIN_FPS) && (numSegments > MAX_TOTAL_SEGMENTS/5)) {
+                if ((numSegments > KILL_SEGMENT_THRESHHOLD || gLastFPS < MIN_FPS) && (numSegments > MAX_TOTAL_SEGMENTS/5)) {
                     if (killMS == 0) {
                         killMS = curMS();
                     }
                     world.killAtLeastNumSegments(numSegments / 2, mFollowingIndex);
 				}
 			}
-            long elapsedTicks = curMS() - beforeTicks;
+
+			long elapsedTicksInFuc = curMS() - curTicks;
             
             long expectedTicks = (10 - Parameters::instance.speed);
-            expectedTicks = expectedTicks * 30 + expectedTicks*expectedTicks * 10;
+            expectedTicks = expectedTicks*expectedTicks*expectedTicks / 2;
             
-            long sleepTime = expectedTicks - elapsedTicks;
+			//print("expectedTicks = %d, actual ticks = %d\n", (int) expectedTicks, elapsedTicksInFuc);
 
-            if (sleepTime > 0) {
-                usleep((unsigned int)sleepTime);
-            }
+            sleepMS = expectedTicks - elapsedTicksInFuc;
         }
+
+		if (sleepMS > 0) {
+			usleep(sleepMS * 1000);
+		}
+
     }
     return NULL;
 }
@@ -217,6 +249,8 @@ typedef struct {
 	const char * resSource;
 } SegmentResourceMapping;
 
+Theme * segmentTheme = NULL;
+
 SegmentResourceMapping arraySegments[] = 
 {
     iSpriteSphere, "res/sphere.png",
@@ -229,7 +263,6 @@ SegmentResourceMapping arraySegments[] =
 
     iSegmentIf, "res/segment_exec_if.png",
     iSegmentIfNot, "res/segment_exec_no.png",
-    iSegmentAlways, "res/segment_exec_always.png",
 
     eBarrier1, "res/barrier.png",
 	eBarrier2, "res/barrier.png",
@@ -250,6 +283,8 @@ SegmentResourceMapping arraySegments[] =
     eInstructionTestBlocked, "res/segment_test_blocked.png",
     eInstructionTestOccluded, "res/segment_test_occluded.png",
     eInstructionTestPreyedOn, "res/segment_test_preyed_on.png",
+	eInstructionTestTouchedSelf, "res/segment.png",
+
     eInstructionSetAnchored, "res/segment_anchor.png"
 };
 
@@ -260,6 +295,7 @@ void Main::initialize()
 {
 	world.test();
 
+#ifndef _WINDOWS
     if (_height > _width) {
         int swap = _width;
         _width = _height;
@@ -267,7 +303,8 @@ void Main::initialize()
         _viewport.width = _width;
         _viewport.height = _height;
     }
-    
+#endif
+
 	mUIScale = (float)max(getWidth(),getHeight()) / 1024;
 
     registerGesture(Gesture::GestureEvent(Gesture::GESTURE_PINCH));
@@ -281,6 +318,8 @@ void Main::initialize()
     for (i = 0; i < 255; i++)
         mSegmentBatch[i] = NULL;
 
+	
+	//segmentTheme = Theme::create("res/packedsegments.theme");
 	for (i = 0; i < sizeof(arraySegments)/sizeof(arraySegments[0]); i++)
 	{
         int initialCapacity = 0;
@@ -328,7 +367,25 @@ void Main::resetWorld()
     int initialCount = 500;
     
 
-    if (true) {
+    if (false) {
+		genome += eInstructionTestSeeFood | eAlways;
+		genome += eInstructionMoveAndEat | eIf;
+		genome += eInstructionTurnLeft | eNotIf;
+		genome += eInstructionMove | eAlways;
+        Agent *pAgent = world.createEmptyAgent();
+        pAgent->initialize(Vector3(0,0,1), genome.c_str(), false);
+        world.addAgentToWorld(pAgent);
+
+		for (int i = 0; i < 1000; i++) {
+			genome = eInstructionPhotosynthesize;
+			Agent *pAgent = world.createEmptyAgent();
+			pAgent->initialize(getRandomSpherePoint(), genome.c_str(), false);
+			// randomize the initial lifespan so they don't all die at once
+			pAgent->mLifespan = UtilsRandom::getRangeRandom(pAgent->mLifespan/2, pAgent->mLifespan*2);
+			world.addAgentToWorld(pAgent);
+		}
+	}
+    else if (true) {
         genome += eInstructionPhotosynthesize;
         Agent *pAgent = world.createEmptyAgent();
         pAgent->initialize(Vector3(0,0,1), genome.c_str(), bAllowMutation);
@@ -556,6 +613,358 @@ Rectangle Main :: getRectangleForPoint(Vector3 pt, float renderSize, float offse
                                 cellSize * multSize * scaleSize, cellSize * multSize * scaleSize);
 }
 
+static float renderSize, offsetX, offsetY;
+
+const int reserveBatchCount = 200;
+static bool mBatchStarted[256];
+
+void Main::beginRender(float elapsedTime) {
+    // Clear the color and depth buffers
+    clear(CLEAR_COLOR_DEPTH, Vector4::zero(), 1.0f, 0);
+    int i;
+
+    for (i = 0; i < 255; i++) {
+        mSegmentBatchCount[i] = reserveBatchCount;
+		mBatchStarted[i] = false;
+	}
+        
+    // determine the size and position of the the world
+    renderSize = std::min(getWidth(), getHeight()) * .9;
+    offsetX = (getWidth() - renderSize) / 2;
+    offsetY = (getHeight() - renderSize) / 2;
+        
+    // draw the planet, slightly scaled down so the critters on the edges seem to have some height...
+    mRenderSphereSize = renderSize * mViewScale * .995;
+    mSphereOffsetX = (getWidth() - mRenderSphereSize) / 2;
+    mSphereOffsetY = (getHeight() - mRenderSphereSize) / 2;
+        
+    _arcball.setBounds(mRenderSphereSize, mRenderSphereSize);
+}
+
+void Main::renderSphere(float elapsedTime) {
+
+    mSegmentBatch[iSpriteSphere]->start();
+	mSegmentBatch[iSpriteSphere]->draw(Rectangle(mSphereOffsetX, mSphereOffsetY, mRenderSphereSize, mRenderSphereSize), Rectangle(0,0,1024,1024));
+    mSegmentBatch[iSpriteSphere]->finish();
+
+    const float flashTime = 2000;
+    const float flashTimePeak = 500;
+        
+    if (killMS) {
+            
+        float elapsedTime = curMS() - killMS;
+        if ((elapsedTime < 0) || (elapsedTime > flashTime)) {
+            killMS = 0;
+
+        }
+        else {
+            float f = (elapsedTime < flashTimePeak) ? (elapsedTime / flashTimePeak) : ((flashTime - elapsedTime) / (flashTime - flashTimePeak));
+                
+            float dim = mRenderSphereSize * (3.5 + f) / 4;
+            float redX = mSphereOffsetX + mRenderSphereSize / 2 - dim/2;
+            float redY = mSphereOffsetY + mRenderSphereSize / 2 - dim/2;
+                
+		    mSegmentBatch[iSpriteSphereRed]->start();
+            mSegmentBatch[iSpriteSphereRed]->draw(Rectangle(redX, redY, dim, dim), Rectangle(0,0,1024,1024), Vector4(1,1,1,f * .65f));
+		    mSegmentBatch[iSpriteSphereRed]->finish();
+        }
+    }
+    static vector<Vector3> coldPoints;
+    if (coldPoints.size() == 0) {
+        for (float a = -MATH_PI; a < MATH_PI; a += .04f)
+        {
+            Vector3 v(cos(a),3.0f,sin(a));
+            v.normalize();
+            coldPoints.push_back(v);
+
+            Vector3 v2(cos(a),-3.0f,sin(a));
+            v2.normalize();
+            coldPoints.push_back(v2);
+        }
+    }
+
+    for (vector<Vector3>::iterator i = coldPoints.begin(); i != coldPoints.end(); i++)
+    {
+        Rectangle r = getRectangleForPoint(*i, renderSize, offsetX, offsetY, 0.6f);
+        if (r.width == 0)
+            continue;
+        int iBatch = eBarrier4;
+
+        Rectangle src = mSegmentSrcRect[iBatch];
+            
+        Vector4 color(1,1,1, .3f);
+        draw(iBatch, r, src, color);
+    }
+}
+
+
+void Main::renderCritters(float elapsedTime) {
+	// draw all the visible agents in two passes, first drawing the segments, then drawing the
+    // ornaments
+    for (int pass = 1; pass <= 2; pass++)
+    {
+        if (pass == 2 && mViewScale < 1.5)
+            break;
+            
+        for (int i = 0; i <= world.mMaxLiveAgentIndex; i++)
+        {
+            Agent & agent = world.mAgents[i];
+            if (agent.mStatus != eNonExistent)
+            {                
+                for (int j = agent.mNumSegments-1; j >= 0; j--)
+                {
+                    SphereEntity *pEntity = &agent.mSegments[j];
+                        
+                    bool isPhotosynthesize = pEntity->mType == eInstructionPhotosynthesize;
+                        
+                    Vector3 pt = pEntity->mLocation;
+
+                    Rectangle dst = getRectangleForPoint(pt, renderSize, offsetX, offsetY);
+                    if (dst.width == 0)
+                        continue;
+
+                    if (i == mFollowingIndex && j == 0) {
+
+                        Rectangle spotlight = getRectangleForPoint(agent.mSegments[0].mLocation, renderSize, offsetX, offsetY);
+                        for (int k = 1; k < agent.mNumSegments; k++) {
+                            Rectangle segmentRect = getRectangleForPoint(agent.mSegments[k].mLocation, renderSize, offsetX, offsetY);
+                            Rectangle combined;
+                            spotlight.combine(spotlight,segmentRect,&combined);
+                            spotlight = combined;
+                        }
+                        float spotlightDiam = max(spotlight.width, spotlight.height) * 1.5;
+                        float spotlightX = spotlight.x + spotlight.width / 2;
+                        float spotlightY = spotlight.y + spotlight.height / 2;
+                        spotlight.x = spotlightX - spotlightDiam/2;
+                        spotlight.y = spotlightY - spotlightDiam/2;
+                        spotlight.width = spotlight.height = spotlightDiam;
+
+                        Vector4 color(1,1,.5f, .2f);
+                        int iSpotlight = iGenericSegment;
+                        Rectangle src = mSegmentSrcRect[iSpotlight];
+
+                        draw(iSpotlight, spotlight, src, color);
+                    }
+
+                    float cellSize = (Parameters::instance.getMoveDistance() * pt.z * 400 + 3)  * mUIScale;
+                    float alpha = 1;
+                        
+                    if (agent.mStatus == eAlive)
+                        alpha = .25f + (float)agent.mEnergy/(float)agent.getSpawnEnergy();
+                    if (alpha > 1) alpha = 1;
+                   
+                    float x = ((dst.left() + dst.right()) / 2 - (mSphereOffsetX + mRenderSphereSize / 4)) / mRenderSphereSize;
+                    float y = ((dst.top() + dst.bottom()) / 2 - (mSphereOffsetY + mRenderSphereSize / 4)) / mRenderSphereSize;
+                    float delta = 1.0f - Vector2(x, y).length() * .6f;
+                    delta *= delta;
+                    alpha *= delta;
+
+                    Vector4 color(1,1,1, alpha);
+                        
+                    int iBatch;
+                    if (useGenomeColorMapping && agent.mStatus == eAlive && ! isPhotosynthesize)
+                    {
+                        iBatch = iGenericSegment;
+                        color = getColorForGenome(agent.mGenome);
+                        color.w = alpha;
+                    }
+                    else
+                    {
+                        iBatch = pEntity->mType;
+                    }
+
+                    Rectangle src = mSegmentSrcRect[iBatch];
+                        
+                    if (pass == 1)
+                    {
+                        draw(iBatch, dst, src, color);
+                    }
+                        
+                    // if we're zoomed in, show an indicator around the active cell
+                    if (pass == 2)
+                    {
+                        if (!useGenomeColorMapping && agent.mStatus == eAlive) {
+                            char instruction = agent.mGenome.getInstruction(j);
+                            if (InstructionSet::instructionSupportsConditions(instruction)) {
+                                char execType = agent.mGenome.getExecType(j);
+                                int iExecType = 0;
+                                if (execType == eIf)
+                                    iExecType = iSegmentIf;
+                                else if (execType == eNotIf)
+                                    iExecType = iSegmentIfNot;
+
+                                Rectangle src = mSegmentSrcRect[iExecType];
+                                if (iExecType != 0)
+                                    draw(iExecType, dst, src);
+                            }
+                        }
+
+						// draw the active cell indicator
+                        if ((agent.mNumSegments > 1) && (j == (agent.mActiveSegment + agent.mNumSegments - 1) % agent.mNumSegments))
+                        {
+                            Rectangle activeSegmentRect = dst;
+                            int iSegmentFrame = agent.getCondition() ? iActiveSegment : iActiveSegmentConditionOff;
+                            Rectangle src = mSegmentSrcRect[iSegmentFrame];
+                            activeSegmentRect.inflate(activeSegmentRect.width / 10, activeSegmentRect.height / 10);
+                            draw(iSegmentFrame, activeSegmentRect, src, Vector4(1,1,1, 1));
+                        }
+                            
+                        // draw the move arrow
+                        if (agent.getIsMotile() && (j == 0))
+                        {
+                            Vector3 moveVector3 = agent.mMoveVector;
+                            mViewRotateMatrix.transformPoint(&moveVector3);
+                            Vector2 moveVector(moveVector3.x, moveVector3.y);
+                            moveVector.normalize();
+                            moveVector *= 2;
+                            float rotation = atan2(moveVector.y,moveVector.x);
+                                
+                            Rectangle moveArrowRect = dst;
+                            moveArrowRect.inflate(moveArrowRect.width / 2, moveArrowRect.height / 2);
+                            Rectangle src = mSegmentSrcRect[iMoveArrow];
+                                
+                            Vector3 dstV(moveArrowRect.x, moveArrowRect.y,0);
+                            Vector2 rotPoint(0.5f, 0.5f);
+                            rotation += 45 * MATH_PI / 180;
+                            draw(iMoveArrow, dstV, moveArrowRect.width, moveArrowRect.height, 0, 0, 1, 1, Vector4(1,1,1,1),
+                                            rotPoint, rotation);
+                                
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void Main::renderSpeciesCounts(float elapsedTime) {
+    for (int i = 0; i < 255; i++)
+        mSegmentBatchCount[i] -= reserveBatchCount;
+        _font->start();
+
+	if (! mShowingWebPage)
+    {
+        _font->drawText("Top Species", getWidth()-190 * mUIScale, 10 * mUIScale, Vector4(1,1,1,1));
+            
+        vector<std::pair<std::string,int> > & topSpecies = world.getTopSpecies();
+        // draw the top species
+        for (size_t i = 0; i < topSpecies.size(); i++)
+        {
+            if (i == 31)
+                break;
+            char buf[200];
+            float x = getWidth()-60 * mUIScale;
+            float y = mUIScale * (40 + 20 * i);
+                
+            sprintf(buf, "%d", topSpecies[i].second);
+            std::string genome = topSpecies[i].first;
+            const char *pGenome = genome.c_str();
+            Vector4 drawColor(1,1,1,1);
+            if (useGenomeColorMapping)
+            {
+                drawColor = getColorForGenome(topSpecies[i].first.c_str());
+            }
+            _font->drawText(buf, x, y, drawColor);
+                
+            x -= 40 * mUIScale;
+            int len = strlen(pGenome);
+            for (int j = (len - 1); j >= 0; j --)
+            {
+                    
+                char ch = pGenome[j] & eInstructionMask;
+                eSegmentExecutionType execType = (eSegmentExecutionType) (pGenome[j] & eExecTypeMask);
+                    
+                Rectangle dst(x, y, 16 * mUIScale, 16 * mUIScale);
+                Rectangle src = mSegmentSrcRect[ch];
+                draw((int) ch, dst, src);
+
+                if (InstructionSet::instructionSupportsConditions(ch))
+                {
+                    int iExecType = 0;
+                    SpriteBatch * pExecType = NULL;
+                    switch (execType) {
+
+                        default:break;
+                                
+                        case eIf:
+                            iExecType = iSegmentIf;
+                            break;
+                        case eNotIf:
+                            iExecType = iSegmentIfNot;
+                            break;
+                    }
+                        
+                    if (iExecType) {
+                        Rectangle src = mSegmentSrcRect[iExecType];
+                        draw(iExecType, dst, src);
+                    }
+                }
+
+                x -= 18 * mUIScale;
+            }
+        }
+            
+        // show the turns per second
+        totalElapsedTime += elapsedTime;
+            
+        if (gTurnsPerSecond > 0)
+        {
+            char buf[200];
+            sprintf(buf, "Turns/sec: %d, FPS: %d", (int) gTurnsPerSecond, (int)this->getFrameRate());
+
+            _font->drawText(buf, getWidth()-250 * mUIScale, getHeight() - 30 * mUIScale, Vector4(1,1,1,1));
+        }
+        gLastFPS = (int) getFrameRate();
+    }
+    _font->finish();
+
+}
+
+void Main::renderForms(float elapsedTime) {
+    _formHelp->draw();
+    _formMain->draw();
+
+    if (mShowingWebPage)
+        _formClose->draw();
+            
+    renderInsertCritter();
+
+    if (mShowingLoadSave) {
+        _formSaveLoad->draw();
+    }
+}
+
+void Main::finishRender(float elapsedTime) {
+    for (int i = 0; i < 255; i++)
+        if (mSegmentBatch[i] && mBatchStarted[i])
+            mSegmentBatch[i]->finish();
+	/*
+	if (points.size() == 0)
+    for( size_t i = 0; i < 1000; ++i )
+    {
+        Point pt;
+        pt.x = 0 + (rand() % 1000);
+        pt.y = 0 + (rand() % 1000);
+        pt.r = rand() % 255;
+        pt.g = rand() % 255;
+        pt.b = rand() % 255;
+        pt.a = 255;
+        points.push_back(pt);
+    }    
+    glColor3ub( 255, 255, 255 );
+    glEnableClientState( GL_VERTEX_ARRAY );
+    glEnableClientState( GL_COLOR_ARRAY );
+    glVertexPointer( 2, GL_FLOAT, sizeof(Point), &points[0].x );
+    glColorPointer( 4, GL_UNSIGNED_BYTE, sizeof(Point), &points[0].r );
+    glPointSize( 30.0 );
+    glDrawArrays( GL_POINTS, 0, points.size() );
+    glDisableClientState( GL_VERTEX_ARRAY );
+    glDisableClientState( GL_COLOR_ARRAY );
+	glFlush();
+	*/
+
+}
+
 /**
  Render the world and the UI.
  */
@@ -567,340 +976,15 @@ void Main::render(float elapsedTime)
 	LockWorldMutex m(Parameters::instance.speed < 10 || mViewScale > 2);
 
 	try {
-        // Clear the color and depth buffers
-        clear(CLEAR_COLOR_DEPTH, Vector4::zero(), 1.0f, 0);
-        int i;
-        int reserveBatchCount = 200;
+		beginRender(elapsedTime);
+		renderSphere(elapsedTime);
+		renderCritters(elapsedTime);
+		renderSpeciesCounts(elapsedTime);
+		finishRender(elapsedTime);
 
-        for (i = 0; i < 255; i++)
-            mSegmentBatchCount[i] = reserveBatchCount;
+		renderForms(elapsedTime);
 
-        for (int i = (iSpriteSphereRed+1); i < 255; i++)
-            if (mSegmentBatch[i])
-                mSegmentBatch[i]->start();
-        
-        // determine the size and position of the the world
-        float renderSize = std::min(getWidth(), getHeight()) * .9;
-        float offsetX = (getWidth() - renderSize) / 2;
-        float offsetY = (getHeight() - renderSize) / 2;
-        
-        // draw the planet, slightly scaled down so the critters on the edges seem to have some height...
-        mRenderSphereSize = renderSize * mViewScale * .995;
-        mSphereOffsetX = (getWidth() - mRenderSphereSize) / 2;
-        mSphereOffsetY = (getHeight() - mRenderSphereSize) / 2;
-        
-        _arcball.setBounds(mRenderSphereSize, mRenderSphereSize);
-        
-        mSegmentBatch[iSpriteSphere]->start();
-        mSegmentBatch[iSpriteSphere]->draw(Rectangle(mSphereOffsetX, mSphereOffsetY, mRenderSphereSize, mRenderSphereSize), Rectangle(0,0,1024,1024));
-        mSegmentBatch[iSpriteSphere]->finish();
-
-        const float flashTime = 2000;
-        const float flashTimePeak = 1200;
-        
-        if (killMS) {
-            
-            float elapsedTime = curMS() - killMS;
-            if ((elapsedTime < 0) || (elapsedTime > flashTime)) {
-                killMS = 0;
-
-            }
-            else {
-                float f = (elapsedTime < flashTimePeak) ? (elapsedTime / flashTimePeak) : ((flashTime - elapsedTime) / (flashTime - flashTimePeak));
-                
-                float dim = mRenderSphereSize * (3.5 + f) / 4;
-                float redX = mSphereOffsetX + mRenderSphereSize / 2 - dim/2;
-                float redY = mSphereOffsetY + mRenderSphereSize / 2 - dim/2;
-                
-                mSegmentBatch[iSpriteSphereRed]->start();
-                mSegmentBatch[iSpriteSphereRed]->draw(Rectangle(redX, redY, dim, dim), Rectangle(0,0,1024,1024), Vector4(1,1,1,f * .65f));
-                mSegmentBatch[iSpriteSphereRed]->finish();
-            }
-        }
-        // periodically determine the top critters
-        const float sampleTime = 250;
-        static float elapsedTimeSinceTally = sampleTime;
-        static long startSampleTurns = 0;
-        
-        elapsedTimeSinceTally += elapsedTime;
-        
-        if (elapsedTimeSinceTally > sampleTime)
-        {
-            int numTurnsSinceTally = (int)(numTurns - startSampleTurns);
-            startSampleTurns = numTurns;
-            
-            gTurnsPerSecond = ((float) numTurnsSinceTally) / (elapsedTimeSinceTally/1000);
-            
-            world.sampleTopSpecies();
-            
-            elapsedTimeSinceTally = 0;
-        }
-
-        static vector<Vector3> coldPoints;
-        if (coldPoints.size() == 0) {
-            for (float a = -MATH_PI; a < MATH_PI; a += .04f)
-            {
-                Vector3 v(cos(a),3.0f,sin(a));
-                v.normalize();
-                coldPoints.push_back(v);
-
-                Vector3 v2(cos(a),-3.0f,sin(a));
-                v2.normalize();
-                coldPoints.push_back(v2);
-            }
-        }
-
-        for (vector<Vector3>::iterator i = coldPoints.begin(); i != coldPoints.end(); i++)
-        {
-            Rectangle r = getRectangleForPoint(*i, renderSize, offsetX, offsetY, 0.6f);
-            if (r.width == 0)
-                continue;
-            int iBatch = eBarrier4;
-
-            Rectangle src = mSegmentSrcRect[iBatch];
-            
-            Vector4 color(1,1,1, .3f);
-            draw(iBatch, r, src, color);
-        }
-
-
-
-        // draw all the visible agents in two passes, first drawing the segments, then drawing the
-        // ornaments
-        for (int pass = 1; pass <= 2; pass++)
-        {
-            if (pass == 2 && mViewScale < 1.5)
-                break;
-            
-            for (int i = 0; i <= world.mMaxLiveAgentIndex; i++)
-            {
-                Agent & agent = world.mAgents[i];
-                if (agent.mStatus != eNonExistent)
-                {                
-                    for (int j = agent.mNumSegments-1; j >= 0; j--)
-                    {
-                        SphereEntity *pEntity = &agent.mSegments[j];
-                        
-                        bool isPhotosynthesize = pEntity->mType == eInstructionPhotosynthesize;
-                        
-                        Vector3 pt = pEntity->mLocation;
-
-                        Rectangle dst = getRectangleForPoint(pt, renderSize, offsetX, offsetY);
-                        if (dst.width == 0)
-                            continue;
-
-                        if (i == mFollowingIndex && j == 0) {
-
-                            Rectangle spotlight = getRectangleForPoint(agent.mSegments[0].mLocation, renderSize, offsetX, offsetY);
-                            for (int k = 1; k < agent.mNumSegments; k++) {
-                                Rectangle segmentRect = getRectangleForPoint(agent.mSegments[k].mLocation, renderSize, offsetX, offsetY);
-                                Rectangle combined;
-                                spotlight.combine(spotlight,segmentRect,&combined);
-                                spotlight = combined;
-                            }
-                            float spotlightDiam = max(spotlight.width, spotlight.height) * 1.5;
-                            float spotlightX = spotlight.x + spotlight.width / 2;
-                            float spotlightY = spotlight.y + spotlight.height / 2;
-                            spotlight.x = spotlightX - spotlightDiam/2;
-                            spotlight.y = spotlightY - spotlightDiam/2;
-                            spotlight.width = spotlight.height = spotlightDiam;
-
-                            Vector4 color(1,1,.5f, .2f);
-                            int iSpotlight = iGenericSegment;
-                            Rectangle src = mSegmentSrcRect[iSpotlight];
-
-                            draw(iSpotlight, spotlight, src, color);
-                        }
-
-                        float cellSize = (Parameters::instance.getMoveDistance() * pt.z * 400 + 3)  * mUIScale;
-                        float alpha = 1;
-                        
-                        if (agent.mStatus == eAlive)
-                            alpha = (float)agent.mEnergy/(float)agent.getSpawnEnergy();
-                        if (alpha > 1) alpha = 1;
-                        
-                        float x = ((dst.left() + dst.right()) / 2 - (mSphereOffsetX + mRenderSphereSize / 4)) / mRenderSphereSize;
-                        float y = ((dst.top() + dst.bottom()) / 2 - (mSphereOffsetY + mRenderSphereSize / 4)) / mRenderSphereSize;
-                        float delta = 1.0f - Vector2(x, y).length();
-                        delta *= delta;
-                        
-                        alpha *= delta;
-                        
-                        Vector4 color(1,1,1, alpha);
-                        
-                        int iBatch;
-                        if (useGenomeColorMapping && agent.mStatus == eAlive && ! isPhotosynthesize)
-                        {
-                            iBatch = iGenericSegment;
-                            color = getColorForGenome(agent.mGenome);
-                            color.w = alpha;
-                        }
-                        else
-                        {
-                            iBatch = pEntity->mType;
-                        }
-
-                        Rectangle src = mSegmentSrcRect[iBatch];
-                        
-                        if (pass == 1)
-                        {
-                            draw(iBatch, dst, src, color);
-                        }
-                        
-                        // if we're zoomed in, show an indicator around the active cell
-                        if (pass == 2)
-                        {
-                            if (!useGenomeColorMapping && agent.mStatus == eAlive) {
-                                char instruction = agent.mGenome.getInstruction(j);
-                                if (InstructionSet::instructionSupportsConditions(instruction)) {
-                                    char execType = agent.mGenome.getExecType(j);
-                                    int iExecType = 0;
-                                    if (execType == eIf)
-                                        iExecType = iSegmentIf;
-                                    else if (execType == eNotIf)
-                                        iExecType = iSegmentIfNot;
-
-                                    Rectangle src = mSegmentSrcRect[iExecType];
-                                    if (iExecType != 0)
-                                        draw(iExecType, dst, src);
-                                }
-                            }
-
-                            if ((agent.mNumSegments > 1) && (j == (agent.mActiveSegment + agent.mNumSegments - 1) % agent.mNumSegments))
-                            {
-                                Rectangle activeSegmentRect = dst;
-                                int iSegmentFrame = agent.getCondition() ? iActiveSegment : iActiveSegmentConditionOff;
-                                Rectangle src = mSegmentSrcRect[iSegmentFrame];
-                                activeSegmentRect.inflate(activeSegmentRect.width / 10, activeSegmentRect.height / 10);
-                                draw(iSegmentFrame, activeSegmentRect, src, Vector4(1,1,1, 1));
-                            }
-                            
-                            // draw the move arrow
-                            if (agent.getIsMotile() && (j == 0))
-                            {
-                                Vector3 moveVector3 = agent.mMoveVector;
-                                mViewRotateMatrix.transformPoint(&moveVector3);
-                                Vector2 moveVector(moveVector3.x, moveVector3.y);
-                                moveVector.normalize();
-                                moveVector *= 2;
-                                float rotation = atan2(moveVector.y,moveVector.x);
-                                
-                                Rectangle moveArrowRect = dst;
-                                moveArrowRect.inflate(moveArrowRect.width / 2, moveArrowRect.height / 2);
-                                Rectangle src = mSegmentSrcRect[iMoveArrow];
-                                
-                                Vector3 dstV(moveArrowRect.x, moveArrowRect.y,0);
-                                Vector2 rotPoint(0.5f, 0.5f);
-                                rotation += 45 * MATH_PI / 180;
-                                draw(iMoveArrow, dstV, moveArrowRect.width, moveArrowRect.height, 0, 0, 1, 1, Vector4(1,1,1,1),
-                                             rotPoint, rotation);
-                                
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        for (i = 0; i < 255; i++)
-            mSegmentBatchCount[i] -= reserveBatchCount;
-        
-        _formHelp->draw();
-
-        _font->start();
-        
-        if (! mShowingWebPage)
-        {
-            _font->drawText("Top Species", getWidth()-190 * mUIScale, 10 * mUIScale, Vector4(1,1,1,1));
-            
-            vector<std::pair<std::string,int> > & topSpecies = world.getTopSpecies();
-            // draw the top species
-            for (size_t i = 0; i < topSpecies.size(); i++)
-            {
-                if (i == 31)
-                    break;
-                char buf[200];
-                float x = getWidth()-60 * mUIScale;
-                float y = mUIScale * (40 + 20 * i);
-                
-                sprintf(buf, "%d", topSpecies[i].second);
-                std::string genome = topSpecies[i].first;
-                const char *pGenome = genome.c_str();
-                Vector4 drawColor(1,1,1,1);
-                if (useGenomeColorMapping)
-                {
-                    drawColor = getColorForGenome(topSpecies[i].first.c_str());
-                }
-                _font->drawText(buf, x, y, drawColor);
-                
-                x -= 40 * mUIScale;
-                int len = strlen(pGenome);
-                for (int j = (len - 1); j >= 0; j --)
-                {
-                    
-                    char ch = pGenome[j] & eInstructionMask;
-                    eSegmentExecutionType execType = (eSegmentExecutionType) (pGenome[j] & eExecTypeMask);
-                    
-                    Rectangle dst(x, y, 16 * mUIScale, 16 * mUIScale);
-                    Rectangle src = mSegmentSrcRect[ch];
-                    draw((int) ch, dst, src);
-
-                    if (InstructionSet::instructionSupportsConditions(ch))
-                    {
-                        int iExecType = 0;
-                        SpriteBatch * pExecType = NULL;
-                        switch (execType) {
-
-                            default:break;
-                                
-                            case eIf:
-                                iExecType = iSegmentIf;
-                                break;
-                            case eNotIf:
-                                iExecType = iSegmentIfNot;
-                                break;
-                        }
-                        
-                        if (iExecType) {
-                            Rectangle src = mSegmentSrcRect[iExecType];
-                            draw(iExecType, dst, src);
-                        }
-                    }
-
-                    x -= 18 * mUIScale;
-                }
-            }
-            
-            // show the turns per second
-            totalElapsedTime += elapsedTime;
-            
-            if (gTurnsPerSecond > 0)
-            {
-                char buf[200];
-                sprintf(buf, "Turns/sec: %d, FPS: %d", (int) gTurnsPerSecond, (int)this->getFrameRate());
-
-                _font->drawText(buf, getWidth()-250 * mUIScale, getHeight() - 30 * mUIScale, Vector4(1,1,1,1));
-            }
-            gLastFPS = (int) getFrameRate();
-        }
-        _font->finish();
-
-        for (int i = (iSpriteSphere+2); i < 255; i++)
-            if (mSegmentBatch[i])
-                mSegmentBatch[i]->finish();
-        
-        // Draw the UI.
-        _formMain->draw();
-
-        if (mShowingWebPage)
-            _formClose->draw();
-            
-        renderInsertCritter();
-
-        if (mShowingLoadSave) {
-            _formSaveLoad->draw();
-        }
-	}
+   	}
 	catch (...)
 	{
 		cout << "exception during render";
@@ -1432,6 +1516,7 @@ CheckBox * Main :: createCheckboxControl(Form *form, std::string label, Vector2 
     pMainContainer->addControl(pCheckbox);
     pCheckbox->setText(label.c_str());
     pCheckbox->setSize(size.x * mUIScale, size.y * mUIScale);
+	pCheckbox->setImageSize(size.y * mUIScale, size.y * mUIScale);
     pCheckbox->setFontSize(pCheckbox->getFontSize() * mUIScale);
     
     pCheckbox->addListener(this, Listener::VALUE_CHANGED);
@@ -1485,8 +1570,14 @@ SpriteBatch * Main :: getLegalSpriteBatch(int iBatch)
 	{
 		pResult->finish();
 		pResult->start();
-		mSegmentBatchCount[iBatch] = 0;
-		return NULL;
+		mSegmentBatchCount[iBatch] = reserveBatchCount;
+		return pResult;
+	}
+
+	if (! mBatchStarted[iBatch])
+	{
+		mBatchStarted[iBatch] = true;
+		pResult->start();
 	}
 	++mSegmentBatchCount[iBatch];
 	return pResult;
@@ -1495,6 +1586,9 @@ SpriteBatch * Main :: getLegalSpriteBatch(int iBatch)
 
 void Main :: draw(int iBatch, const Rectangle& dst, const Rectangle& src, const Vector4& color)
 {
+//	if (iBatch == iGenericSegment || iBatch == eInstructionPhotosynthesize)
+//		return;
+
 	SpriteBatch * pBatch = getLegalSpriteBatch(iBatch);
 	if (pBatch)
 		pBatch->draw(dst, src, color);
@@ -1635,7 +1729,7 @@ void Main :: handleFollowCritter(float elapsedTime)
 		float x = getWidth() / 2;
 		float y = getHeight() / 2;
 
-		if (fabs(xOff) > 1 || fabs(yOff) > 1) {
+		if (fabsf(xOff) > 1 || fabsf(yOff) > 1) {
 
 			touchEvent(Touch::TOUCH_PRESS, x, y, 0);
 
@@ -1646,6 +1740,11 @@ void Main :: handleFollowCritter(float elapsedTime)
 		}
 	}
 }
+
+#ifdef _WINDOWS
+#define WIN32_LEAN_AND_MEAN 
+#include <Windows.h>
+#endif
 
 void Main :: openURL(const char *pPath, bool externalBrowser /* = false */)
 {
@@ -1667,13 +1766,20 @@ void Main :: openURL(const char *pPath, bool externalBrowser /* = false */)
     }
 #endif
     
-    string command = "open ";
-    command += pPath;
-    system(command.c_str());
-    
+#ifdef _WINDOWS
+	extern void winLaunchFile(const char *pFile);
+
+	winLaunchFile(pPath);
+
+//    string command = "open ";
+//    command += pPath;
+//    system(command.c_str());
+#else
+
 #ifdef __APPLE__
 //    this->launchURL(url.c_str());
 #else
 //    this->launchURL(url.c_str());
+#endif
 #endif
 }

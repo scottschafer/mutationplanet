@@ -108,7 +108,7 @@ void Main :: createInsertCritterForm()
             idAlways += (*i | eAlways);
         }
         else {
-            idAlways += *i;
+			idAlways += (*i | eAlways);
         }
         idIf += (*i | eIf);
         idNotIf += (*i | eNotIf);

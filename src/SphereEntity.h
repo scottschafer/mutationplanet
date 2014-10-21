@@ -57,6 +57,7 @@ public:
 		mSpherePrev = mSphereNext = NULL;
 		mAgent = NULL;
 		mWorld = NULL;
+		mInserted = false;
 	}
     
     SphereEntity(Vector3 location, char type, Agent *pAgent = NULL)
@@ -67,8 +68,10 @@ public:
 		mSpherePrev = mSphereNext = NULL;
 		mAgent = NULL;
 		mWorld = NULL;
+		mInserted = false;
     }
     
+	bool	mInserted;
     Agent * mAgent;
     int     mSegmentIndex;
     Vector3 mLocation;
@@ -83,13 +86,13 @@ public:
 typedef SphereEntity * SphereEntityPtr;
 
 // use the cheap "Manhattan distance" method....
-inline float calcDistance(Vector3 v1, Vector3 v2)
+inline float calcDistance(const Vector3 &v1, const Vector3 &v2)
 {
     float x = v1.x - v2.x;
     float y = v1.y - v2.y;
     float z = v1.z - v2.z;
     
-    return max(fabs(x),max(fabs(y),fabs(z)));
+    return max(fabsf(x),max(fabsf(y),fabsf(z)));
 }
 
 
