@@ -3,7 +3,7 @@
  Copyright (C) 2012, Scott Schafer, scott.schafer@gmail.com
  
  This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
+ it under the terms of the GNU Genekillatral Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
  
@@ -213,12 +213,14 @@ void * Main :: threadFunction(void*)
 				static int lastFollowing = -1;
 				mFollowingIndex = world.getTopCritterIndex();
 
+#if 0
                 if ((numSegments > KILL_SEGMENT_THRESHHOLD || gLastFPS < MIN_FPS) && (numSegments > MAX_TOTAL_SEGMENTS/5)) {
                     if (killMS == 0) {
                         killMS = curMS();
                     }
                     world.killAtLeastNumSegments(numSegments / 2, mFollowingIndex);
 				}
+#endif
 			}
 
 			long elapsedTicksInFuc = curMS() - curTicks;
@@ -368,10 +370,10 @@ void Main::resetWorld()
     
 
     if (false) {
-		genome += eInstructionTestSeeFood | eAlways;
-		genome += eInstructionMoveAndEat | eIf;
-		genome += eInstructionTurnLeft | eNotIf;
-		genome += eInstructionMove | eAlways;
+		genome += (char)(eInstructionTestSeeFood | eAlways);
+		genome += (char)(eInstructionMoveAndEat | eIf);
+		genome += (char)(eInstructionTurnLeft | eNotIf);
+		genome += (char)(eInstructionMove | eAlways);
         Agent *pAgent = world.createEmptyAgent();
         pAgent->initialize(Vector3(0,0,1), genome.c_str(), false);
         world.addAgentToWorld(pAgent);
@@ -1122,7 +1124,7 @@ void Main::createUI()
 	_deadCellDormancySlider = createSliderControl(_formAdvanced, "deadCellDormancy", "Sprout turns:", 100, 50000);
 	_photoSynthesizeEnergyGainSlider = createSliderControl(_formAdvanced, "photoSynthesizeEnergyGain", "Photosynthesis:", 1.0f, 5.0f);
     _moveEnergyCostSlider = createSliderControl(_formAdvanced, "moveEnergyCost", "Move:", 0, 10);
-    _moveAndEatEnergyCostSlider = createSliderControl(_formAdvanced, "moveAndEatEnergyCost", "Move & eat:", 0, 50);
+    _moveAndEatEnergyCostSlider = createSliderControl(_formAdvanced, "moveAndEatEnergyCost", "Move & eat:", 0, 100);
     _mouthSizeSlider = createSliderControl(_formAdvanced, "mouthSize", "Mouth size:", .75f, 4.0f);
 
     _lookDistanceSlider = createSliderControl(_formAdvanced,"lookDistance", "Vision range:", 1, 100);

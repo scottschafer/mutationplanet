@@ -26,7 +26,7 @@
 Parameters Parameters :: instance;
 
 Parameters :: Parameters() {
-    speed = 2;//10;
+    speed = 10;
 	mutationPercent = 15;
 
 	reset();
@@ -67,7 +67,7 @@ void Parameters :: reset()
 	turnToFoodAfterDeath = true;
 
 	mouthSize = 1.0f;
-	lookSpread = 1.05f;
+	lookSpread = 1.03f; //1.03f;
 
 	cannibals = 1;
 	allowOr = false;

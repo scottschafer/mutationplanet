@@ -301,7 +301,7 @@ void Agent::step(SphereWorld * pWorld)
 					break; }
             
 				case eInstructionTestSeeFood:
-					if (testIsFacingFood(pWorld, 1.0f))// + (float)mActiveSegment / 2))
+					if (testIsFacingFood(pWorld, 1.0f + (float)mActiveSegment / 2))
 						setCondition();
 					else
 						clearCondition();
@@ -438,7 +438,7 @@ void Agent :: die(SphereWorld *pWorld, bool andBecomeFood)
                 //
                 // They will initially be dormant, but will eventually spring to life
                 // if they aren't eaten.
-				pNewAgent->mEnergy = energyPerSegment / 2;
+				pNewAgent->mEnergy = energyPerSegment;
 				pNewAgent->mDormant = Parameters::instance.deadCellDormancy;
                 pNewAgent->mSleep = -1;
             }
@@ -451,7 +451,7 @@ bool Agent::canEat(Agent * rhs)
 	if (rhs == this)
 		return false;
 
-	if (rhs->mStatus != eAlive || rhs->getWasEaten())
+	if (rhs->mStatus != eAlive || rhs->getWasEaten())\
 		return false;
 
 	if (! Parameters::instance.cannibals && mGenome == rhs->mGenome)
@@ -564,7 +564,7 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
 	if (! getWasBlocked()) {
 	int numEntities = pWorld->getNearbyEntities(newLocation, headSize, entities);
 
-    float biteStrength = Parameters::instance.biteStrength * (1 + mNumSegments / 2);
+    float biteStrength = Parameters::instance.biteStrength;// * (1 + mNumSegments / 2);
 	float digestion = Parameters::instance.digestionEfficiency;
 
     bool ate = false;
@@ -759,6 +759,8 @@ void Agent::turn(int a)
 // in the direct line of sight.
 bool Agent::testIsFacingFood(SphereWorld *pWorld, float distMultiplier)
 {
+	distMultiplier = 1;
+	float lookspread = 1.02f; // Parameters::instance.lookSpread
     int visionDistance = Parameters::instance.lookDistance * distMultiplier;
     
     Vector3 lookLocation = mSegments[0].mLocation;
@@ -785,7 +787,7 @@ bool Agent::testIsFacingFood(SphereWorld *pWorld, float distMultiplier)
 				Agent *pAgent = pEntity->mAgent;
             
 				// check that the agent is alive, since we might have killed while looping over entities
-				if (pAgent && /*pAgent != this && */ pAgent->mStatus != eNonExistent)
+				if (pAgent && pAgent != this && pAgent->mStatus != eNonExistent)
 				{
 					switch (pEntity->mType)
 					{
@@ -793,26 +795,17 @@ bool Agent::testIsFacingFood(SphereWorld *pWorld, float distMultiplier)
 							if (canEat(pAgent))
 								return true;
 							break;
-                        
-                            /*
-						case eInstructionFakePhotosynthesize:
-							if (canEat(pAgent))
-								if (pEntity->mAgent->mGenome != mGenome)
-									return true;
-							break;
-                             */
                             
 						default:
-							if (mNumSegments == 1 || pAgent != this) {
-								isBlocked = true;
-							}
-							else {
-								// if the segment seen isn't from this se
-								if (pEntity != &pAgent->mSegments[0] && pEntity != &pAgent->mSegments[1]) {
+							if (pAgent == this) {
+								if (getWasBlocked()) {
 									isBlocked = true;
 								}
 							}
-							break;
+							else {
+								isBlocked = true;
+							}
+						break;
 					}
 				}
 			}
@@ -820,9 +813,10 @@ bool Agent::testIsFacingFood(SphereWorld *pWorld, float distMultiplier)
 				return false;
 		}
 
-
-		lookVector *= Parameters::instance.lookSpread;
-		lookRadius *= Parameters::instance.lookSpread;
+		if (i > 8) {
+			lookVector *= lookspread;
+			lookRadius *= lookspread;
+		}
     }
 
     return false;
@@ -881,16 +875,7 @@ void Agent::spawnIfAble(SphereWorld * pWorld)
 
 	int numEntities = pWorld->getNearbyEntities(ptLocation, spawnSpread, entities, sizeof(entities)/sizeof(entities[0]), this);
     if (numEntities > MAX_CROWDING) {
-        if (! getIsMotile() || neverMoved) {
-            mDormant = 1000;
-            return;
-        }
-    }
-/*
-        if (numEntities > MAX_CROWDING) {
-
-        
-        if (getIsMotile()) {
+		if (getIsMotile()) {
 			std::set<Agent*> agents;
 			for (int i = 0; i < numEntities; i++) {
 				Agent * pAgent = entities[i]->mAgent;
@@ -900,7 +885,21 @@ void Agent::spawnIfAble(SphereWorld * pWorld)
 				}
 			}
 			numEntities = agents.size();
+
 		}
+
+		if (numEntities > MAX_CROWDING) {
+			/* if (! getIsMotile() || neverMoved) */ {
+				mDormant = 1000;
+				return;
+			}
+
+		}
+    }
+
+	/*
+    if (numEntities > MAX_CROWDING) {
+
 
 		if (numEntities > MAX_CROWDING) {
             if (! getIsMotile() || neverMoved) {
@@ -918,8 +917,8 @@ void Agent::spawnIfAble(SphereWorld * pWorld)
             
 		}
 	}
-    */
-        
+      */
+
     // the child might have a mutant genome...
     const char *pInstructions = mGenome;
 	Genome mutantGenome;

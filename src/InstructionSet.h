@@ -44,7 +44,9 @@ enum eInstructions
     eInstructionTestOccluded,
 	eInstructionTestTouchedSelf,
     eInstructionSetAnchored,
-    eInstructionClearAnchored
+    eInstructionClearAnchored,
+	eInstructionNoMutateLeft,
+	eInstructionNoMutateRight
 };
 
 

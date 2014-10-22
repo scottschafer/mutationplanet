@@ -24,7 +24,7 @@ void winLaunchFile(const char *pFile)
 
     mbstowcs_s(&convertedChars, wcstring, newsize, pFile, _TRUNCATE);
 
-	::ShellExecute(NULL, L"open", wcstring, NULL, NULL, SW_SHOWDEFAULT);
+//	::ShellExecute(NULL, L"open", wcstring, NULL, NULL, SW_SHOWDEFAULT);
 
 	delete[] wcstring;
 }
