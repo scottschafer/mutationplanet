@@ -196,6 +196,7 @@ private:
     Slider* _speedSlider;
     Slider* _mutationSlider;
     Slider* _cellSizeSlider;
+    Slider* _randomFoodSlider;
     Slider* _barriersSlider;
 
     Slider* _cycleEnergyCostSlider;
@@ -255,10 +256,11 @@ enum
 
 class LockWorldMutex {
 public:
-	LockWorldMutex(bool bDoLock = true);
+	LockWorldMutex(bool bDoLock = true, pthread_mutex_t * mutex = NULL);
 	~LockWorldMutex();
 private:
 	bool mDoLock;
+    pthread_mutex_t * mMutex;
 };
 
 #endif

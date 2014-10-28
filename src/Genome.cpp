@@ -45,11 +45,10 @@ Genome Genome :: mutate()
 
     int length = strlen(pIn);
 
-    int mutationType = (int) UtilsRandom::getRangeRandom(0, 2);
+    int mutationType = (int) UtilsRandom::getRangeRandom(0, 3);
 
     switch (mutationType)
     {
-        default:
         case 0: {
             if (length < (MAX_GENOME_LENGTH-1))
             {
@@ -105,6 +104,21 @@ Genome Genome :: mutate()
                     *pOut++ = *pIn++;
                 }
 				(*pOut) = 0;
+            }
+            break; }
+            
+        default: {
+            memcpy(pOut, pIn, sizeof(mInstructions));
+
+            // swap two instructions randomly
+            if (length > 1) {
+
+                int firstPos = (length == 2) ? 0 : UtilsRandom::getRangeRandom(0, length - 2);
+                if ((firstPos+1) >= length)
+                    throw "x";
+                char save = pOut[firstPos];
+                pOut[firstPos] = pOut[firstPos+1];
+                pOut[firstPos+1] = save;
             }
             break; }
     }

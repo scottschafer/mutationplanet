@@ -29,6 +29,7 @@ public:
     // global
     int speed;
     int mutationPercent;
+    int randomFood;
     float cellSize;
 
     // energy cost / gain

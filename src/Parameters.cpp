@@ -27,14 +27,14 @@ Parameters Parameters :: instance;
 
 Parameters :: Parameters() {
     speed = 10;
-	mutationPercent = 15;
+	mutationPercent = 20;
 
 	reset();
 }
 
 float Parameters::getMoveDistance()
 {
-    return (cellSize + 1) * .002f;
+    return (cellSize + 1) * .003f;
 }
 
 float Parameters::getPhotosynthesizeBonus()
@@ -45,29 +45,29 @@ float Parameters::getPhotosynthesizeBonus()
 void Parameters :: reset()
 {
 //    mutationPercent = 15;
-    moveEnergyCost = 2.0f;//3.5f;
-    moveAndEatEnergyCost = 50;
-    photoSynthesizeEnergyGain = 2.0f; //3.5f;
+    moveEnergyCost = 1.0f;//3.5f;
+    moveAndEatEnergyCost = 60;
+    photoSynthesizeEnergyGain = 5.0f; //3.5f;
     digestionEfficiency = 1.0f;
     biteStrength = 2.0f;//1.3f;
     deadCellDormancy = 10000; // turns before a "dead" cell (such as left by a critter that starved) turns into a live photo cell
     baseSpawnEnergy = 0;
-    extraSpawnEnergyPerSegment = 1500;
+    extraSpawnEnergyPerSegment = 1000;
     sleepTimeAfterBeingSpawned = 0;
     baseLifespan = 0;
-    extraLifespanPerSegment = 10000;
+    extraLifespanPerSegment = 50000;
     cellSize = 4;
-    extraCyclesForMove = 3;
+    extraCyclesForMove = 10;
     allowSelfOverlap = false;
-    lookDistance = 10;
+    lookDistance = 50;
 
     sleepTime = 10;
-	unexecutedTurnCost = 0;//.25f;
+	unexecutedTurnCost = .1f;
 
 	turnToFoodAfterDeath = true;
 
 	mouthSize = 1.0f;
-	lookSpread = 1.03f; //1.03f;
+	lookSpread = 1.02f; //1.03f;
 
 	cannibals = 1;
 	allowOr = false;

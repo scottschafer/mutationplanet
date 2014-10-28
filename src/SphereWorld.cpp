@@ -28,6 +28,7 @@
 #include "UtilsRandom.h"
 //#include "SpherePointFinderSpaceDivison.h"
 #include "SpherePointFinderLinkedList.h"
+#include "Parameters.h"
 
 template<class K, class V>
 void writeMap(std::map<K,V> & m, ostream & out) {
@@ -124,25 +125,28 @@ int SphereWorld :: requestFreeAgentSlot()
     return result;
 }
 
-/** 
+void SphereWorld :: reserveAgentCount(int numAgents) {
+    while ((mNumAgents + numAgents) >= MAX_AGENTS) {
+        for (int i = 0; i < mMaxLiveAgentIndex; i++)
+        {
+            if (mAgents[i].mStatus == eAlive)
+            {
+                killAgent(i);
+                break;
+            }
+        }
+    }
+}
+
+/**
  Return a pointer to an empty agent. If killIfNecessary is true, and we've exceeded the maximum
  number of agents, kill the first one off.
  **/
 Agent * SphereWorld :: createEmptyAgent(bool killIfNecessary /* = true */)
 {
-	int killedIndex = -1;
-
     if (killIfNecessary && mNumAgents >= MAX_AGENTS)
     {
-        for (int i = 0; i < mMaxLiveAgentIndex; i++)
-        {
-            if (mAgents[i].mStatus == eAlive)
-            {
-				killedIndex = i;
-                killAgent(i);
-                break;
-            }
-        }
+        reserveAgentCount(1);
     }
     
     Agent *pResult = NULL;
@@ -224,6 +228,14 @@ int SphereWorld :: step()
     mMaxLiveAgentIndex = lastLiveAgentIndex;
 	if (mTopCritterIndex ==-1)
 		mTopCritterIndex = topCritterIndex;
+
+    if (Parameters::instance.randomFood > 0) {
+        if ((mCurrentTurn % 100) < Parameters::instance.randomFood) {
+            extern Vector3 getRandomSpherePoint();
+            addFood(getRandomSpherePoint(), false);
+        }
+    }
+
 	return result;
 }
 
@@ -532,4 +544,34 @@ void SphereWorld::pruneTree(map<string, int> & mapSpeciesToCount) {
     
     if (iteratorList.size() > 0)
         printf("---- total pruned count = %d\n", pruned);
+}
+
+void SphereWorld :: addFood(Vector3 point, bool canSprout /*= true */, float energy /* = 0 */, bool allowMutation /* = false */)
+{
+    allowMutation = true;
+    float distance = Parameters::instance.getMoveDistance() / 2;
+    SphereEntityPtr entities[5];
+    int nearbyResults = getNearbyEntities(point, distance, entities, sizeof(entities)/sizeof(entities[0]));
+    if (nearbyResults > 0)
+        return;
+    
+    Agent *pNewAgent = createEmptyAgent();
+    if (pNewAgent)
+    {
+        char photogenome[] = {eInstructionPhotosynthesize, 0};
+        pNewAgent->initialize(point, photogenome, allowMutation);
+        addAgentToWorld(pNewAgent);
+        
+        if (energy == 0) {
+            energy = pNewAgent->getSpawnEnergy() * .5f;
+        }
+        
+        // The food left by a dead critter will be low energy Photosynthesize critters.
+        //
+        // They will initially be dormant, but will eventually spring to life
+        // if they aren't eaten.
+        pNewAgent->mEnergy = energy;
+        pNewAgent->mDormant = canSprout ? Parameters::instance.deadCellDormancy : -1;
+        pNewAgent->mSleep = -1;
+    }
 }

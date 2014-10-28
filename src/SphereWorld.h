@@ -28,6 +28,7 @@ public:
 	void clear();
     
     int requestFreeAgentSlot();
+    void reserveAgentCount(int numAgents);
     Agent * createEmptyAgent(bool killIfNecessary = false);
     void addAgentToWorld(Agent *);
     void killAgent(int agentIndex);
@@ -54,6 +55,8 @@ public:
 
 	void setAllowFollow(bool allowFollow) { mAllowFollow = allowFollow; mTopCritterIndex = -1;}
 	bool isFollowing() { return mAllowFollow; }
+    
+    void addFood(Vector3 point, bool canSprout = true, float energy = 0, bool allowMutation = false);
 
     void registerMutation(const char * newGenome, const char * parentGenome);
     std::string getParentGenome(const char * genome);

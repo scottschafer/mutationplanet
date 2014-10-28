@@ -62,11 +62,13 @@ long numTurns = 0;
 float totalElapsedTime = 0;
 
 // the world runs in a different thread than the UI
-pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t worldLockMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t topSpeciesLockMutex = PTHREAD_MUTEX_INITIALIZER;
 bool threadAlive = false;
 
+static vector<std::pair<std::string,int> > gTopSpecies;
+
 map<string,string> mapChildToParentGenomes;
-static bool worldMutexLocked = false;
 
 
 inline long curMS() {
@@ -75,17 +77,19 @@ inline long curMS() {
 
 long killMS = 0;
 
-LockWorldMutex::LockWorldMutex(bool bDoLock) : mDoLock(bDoLock)
+LockWorldMutex::LockWorldMutex(bool bDoLock, pthread_mutex_t * mutex) : mDoLock(bDoLock)
 {
+    mMutex = (mutex == NULL) ? & worldLockMutex : mutex;
+
     if (mDoLock) {
-	    pthread_mutex_lock( &mutex1 );
+	    pthread_mutex_lock( mMutex );
     }
 }
 
 LockWorldMutex::~LockWorldMutex()
 {
 	if (mDoLock) {
-	    pthread_mutex_unlock( &mutex1 );
+	    pthread_mutex_unlock( mMutex );
 	}
 }
 
@@ -203,8 +207,16 @@ void * Main :: threadFunction(void*)
 					int numTurnsSinceTally = (int)(numTurns - startSampleTurns);
 					startSampleTurns = numTurns;            
 					gTurnsPerSecond = ((float) numTurnsSinceTally) / ((float)elapsedTimeSinceTally) * 1000.f;
-					world.sampleTopSpecies();            
-					elapsedTimeSinceTally = 0;
+					world.sampleTopSpecies();
+
+                    LockWorldMutex m2(true, &topSpeciesLockMutex);
+                    const vector<std::pair<std::string,int> > & topSpecies = world.getTopSpecies();
+                    gTopSpecies.clear();
+                    for (vector<std::pair<std::string,int> >::const_iterator i = topSpecies.begin(); i != topSpecies.end(); i++) {
+                        gTopSpecies.push_back(std::pair<std::string,int>(i->first, i->second));
+                    }
+
+                    elapsedTimeSinceTally = 0;
 				}
 
 				elapsedTimeSinceTally += elapsedTicks;
@@ -213,7 +225,7 @@ void * Main :: threadFunction(void*)
 				static int lastFollowing = -1;
 				mFollowingIndex = world.getTopCritterIndex();
 
-#if 0
+#if 1
                 if ((numSegments > KILL_SEGMENT_THRESHHOLD || gLastFPS < MIN_FPS) && (numSegments > MAX_TOTAL_SEGMENTS/5)) {
                     if (killMS == 0) {
                         killMS = curMS();
@@ -370,14 +382,26 @@ void Main::resetWorld()
     
 
     if (false) {
-		genome += (char)(eInstructionTestSeeFood | eAlways);
+        genome += (char)(eInstructionPhotosynthesize | eAlways);
+        genome += (char)(eInstructionPhotosynthesize | eAlways);
+        genome += (char)(eInstructionPhotosynthesize | eAlways);
+        genome += (char)(eInstructionPhotosynthesize | eAlways);
+        genome += (char)(eInstructionPhotosynthesize | eAlways);
+        genome += (char)(eInstructionTurnRight | eAlways);
+        genome += (char)(eInstructionMove | eAlways);
+
+
+        /*
+        genome += (char)(eInstructionTestSeeFood | eAlways);
 		genome += (char)(eInstructionMoveAndEat | eIf);
 		genome += (char)(eInstructionTurnLeft | eNotIf);
 		genome += (char)(eInstructionMove | eAlways);
+         */
         Agent *pAgent = world.createEmptyAgent();
-        pAgent->initialize(Vector3(0,0,1), genome.c_str(), false);
+        pAgent->initialize(Vector3(0,0,1), genome.c_str(), true);
         world.addAgentToWorld(pAgent);
 
+        /*
 		for (int i = 0; i < 1000; i++) {
 			genome = eInstructionPhotosynthesize;
 			Agent *pAgent = world.createEmptyAgent();
@@ -386,6 +410,7 @@ void Main::resetWorld()
 			pAgent->mLifespan = UtilsRandom::getRangeRandom(pAgent->mLifespan/2, pAgent->mLifespan*2);
 			world.addAgentToWorld(pAgent);
 		}
+         */
 	}
     else if (true) {
         genome += eInstructionPhotosynthesize;
@@ -847,8 +872,9 @@ void Main::renderSpeciesCounts(float elapsedTime) {
 	if (! mShowingWebPage)
     {
         _font->drawText("Top Species", getWidth()-190 * mUIScale, 10 * mUIScale, Vector4(1,1,1,1));
-            
-        vector<std::pair<std::string,int> > & topSpecies = world.getTopSpecies();
+        
+        LockWorldMutex m2(true, &topSpeciesLockMutex);
+        vector<std::pair<std::string,int> > & topSpecies = gTopSpecies;//world.getTopSpecies();
         // draw the top species
         for (size_t i = 0; i < topSpecies.size(); i++)
         {
@@ -975,13 +1001,16 @@ void Main::render(float elapsedTime)
 	// locking the world to render it is safer, but has a speed penalty.
 	// Only do it if we are throttling the speed or are zoomed in.
     
-	LockWorldMutex m(Parameters::instance.speed < 10 || mViewScale > 2);
+//	LockWorldMutex m(Parameters::instance.speed < 10 || mViewScale > 2);
 
 	try {
-		beginRender(elapsedTime);
-		renderSphere(elapsedTime);
-		renderCritters(elapsedTime);
-		renderSpeciesCounts(elapsedTime);
+        {
+            LockWorldMutex m;
+            beginRender(elapsedTime);
+            renderSphere(elapsedTime);
+            renderCritters(elapsedTime);
+            renderSpeciesCounts(elapsedTime);
+        }
 		finishRender(elapsedTime);
 
 		renderForms(elapsedTime);
@@ -1103,11 +1132,12 @@ void Main::createUI()
     _formMain = createForm(340, FORM_HEIGHT_NO_ADVANCED);
     _formMain->setPosition(4 * mUIScale, 8 * mUIScale);
     
-    _cellSizeSlider = createSliderControl(_formMain, "cellSize", "Cell size:", 1, 10, 1);
     _speedSlider = createSliderControl(_formMain, "speed", "Speed:", 0, 10, 1);
     _mutationSlider = createSliderControl(_formMain, "mutation", "Mutation:", 0, 100);
 	_barriersSlider = createSliderControl(_formMain, "barriers", "Barriers:", 0, 3);
-        
+    _randomFoodSlider = createSliderControl(_formMain, "randomFood", "Random Food:", 0, 100);
+	_cellSizeSlider = createSliderControl(_formMain, "cellSize", "Cell size:", 1, 10, 1);
+
     _insertButton = createButton(_formMain, "Insert...");
     _genealogyButton = createButton(_formMain, "Genealogy...");
     _saveLoadButton = createButton(_formMain, "Save / Load / Reset...");
@@ -1123,7 +1153,7 @@ void Main::createUI()
     _extraSpawnEnergyPerSegmentSlider = createSliderControl(_formAdvanced,"extraSpawnEnergyPerSegment", "Spawn energy:", 50, 2000);
 	_deadCellDormancySlider = createSliderControl(_formAdvanced, "deadCellDormancy", "Sprout turns:", 100, 50000);
 	_photoSynthesizeEnergyGainSlider = createSliderControl(_formAdvanced, "photoSynthesizeEnergyGain", "Photosynthesis:", 1.0f, 5.0f);
-    _moveEnergyCostSlider = createSliderControl(_formAdvanced, "moveEnergyCost", "Move:", 0, 10);
+    _moveEnergyCostSlider = createSliderControl(_formAdvanced, "moveEnergyCost", "Move:", 0, 50);
     _moveAndEatEnergyCostSlider = createSliderControl(_formAdvanced, "moveAndEatEnergyCost", "Move & eat:", 0, 100);
     _mouthSizeSlider = createSliderControl(_formAdvanced, "mouthSize", "Mouth size:", .75f, 4.0f);
 
@@ -1169,6 +1199,7 @@ void Main::createUI()
     _closeButton = createButton(_formClose, "Close");
     _formClose->setConsumeInputEvents(false);
     _formClose->setVisible(false);
+	
 }
 
 void Main::controlEvent(Control* control, EventType evt)
@@ -1231,6 +1262,8 @@ void Main::controlEvent(Control* control, EventType evt)
                 Parameters::instance.speed = _speedSlider->getValue();
             else if (control == _mutationSlider)
                 Parameters::instance.mutationPercent = _mutationSlider->getValue();
+            else if (control == _randomFoodSlider)
+                Parameters::instance.randomFood = _randomFoodSlider->getValue();
             else if (control == _cellSizeSlider)
                 Parameters::instance.cellSize = _cellSizeSlider->getValue();
             else if (control == _photoSynthesizeEnergyGainSlider)
@@ -1300,6 +1333,7 @@ void Main::updateControlLabels()
     
     updateControlLabel("speed", "%d", Parameters::instance.speed);
     updateControlLabel("mutation", "%d%%", Parameters::instance.mutationPercent);
+    updateControlLabel("randomFood", "%d%%", Parameters::instance.randomFood);
 	updateControlLabel("barriers", "%d", mCurBarriers);
     updateControlLabel("cellSize", "%d", (int) Parameters::instance.cellSize);
     updateControlLabel("photoSynthesizeEnergyGain", "+%.1f", Parameters::instance.photoSynthesizeEnergyGain);
@@ -1320,6 +1354,7 @@ void Main::setControlValues()
 {
     _speedSlider->setValue(Parameters::instance.speed);
     _mutationSlider->setValue(Parameters::instance.mutationPercent);
+    _randomFoodSlider->setValue(Parameters::instance.randomFood);
     _cellSizeSlider->setValue(Parameters::instance.cellSize);
     _photoSynthesizeEnergyGainSlider->setValue(Parameters::instance.photoSynthesizeEnergyGain);
 	_deadCellDormancySlider->setValue(Parameters::instance.deadCellDormancy);
@@ -1518,7 +1553,8 @@ CheckBox * Main :: createCheckboxControl(Form *form, std::string label, Vector2 
     pMainContainer->addControl(pCheckbox);
     pCheckbox->setText(label.c_str());
     pCheckbox->setSize(size.x * mUIScale, size.y * mUIScale);
-	pCheckbox->setImageSize(size.y * mUIScale, size.y * mUIScale);
+//    pCheckbox->setSize(<#float width#>, <#float height#>)
+//	pCheckbox->setImageSize(size.y * mUIScale, size.y * mUIScale);
     pCheckbox->setFontSize(pCheckbox->getFontSize() * mUIScale);
     
     pCheckbox->addListener(this, Listener::VALUE_CHANGED);

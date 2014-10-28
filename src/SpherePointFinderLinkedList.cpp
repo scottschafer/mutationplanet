@@ -84,6 +84,7 @@ void SpherePointFinderLinkedList:: remove(SphereEntity * pEntity)
 
 	int entityIndex = ENTITY_INDEX(spherePoint.x,spherePoint.y,spherePoint.z);
 
+#if 0
 #ifdef _DEBUG
 	if (pEntity->mSpherePoint != spherePoint)
 		throw "Entity does not have mSpherePoint set correctly";
@@ -102,6 +103,7 @@ void SpherePointFinderLinkedList:: remove(SphereEntity * pEntity)
 	}
 	if (! inSpace)
 		throw "Not in space";
+#endif
 #endif
 
 	SphereEntity * pNext = pEntity->mSphereNext;

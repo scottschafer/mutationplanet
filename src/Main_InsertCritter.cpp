@@ -5,7 +5,6 @@
 #include "UtilsRandom.h"
 #include "Parameters.h"
 
-extern pthread_mutex_t mutex1;
 extern Vector3 getRandomSpherePoint();
 
 void Main :: setInsertCritterFormVisible(bool show)
@@ -45,39 +44,14 @@ void Main :: updateInsertCritterForm()
 void Main :: insertCritter(int count)
 {
 	if (mInsertGenome.length()) {
-		pthread_mutex_lock( &mutex1 );
-
-        /*
-		vector<Instruction> instructions;
-		for (std::string::iterator i = mInsertGenome.begin(); i != mInsertGenome.end(); i++)
-		{
-			Instruction instruction;
-			instruction.instruction = *i;
-			++i;
-
-			if (*i == eIf)
-				instruction.executeType = eIf;
-			else
-				if (*i == eNotIf)
-					instruction.executeType = eNotIf;
-				else
-					instruction.executeType = eAlways;
-
-			instructions.push_back(instruction);
-		}
-
-		Instruction iNull;
-		iNull.instruction = 0;
-		instructions.push_back(iNull);
-         */
-
+        LockWorldMutex m;
+        world.reserveAgentCount(count);
 		for (int i = 0; i < count; i++)
 		{
 			Agent *pAgent = world.createEmptyAgent(true);
 			pAgent->initialize(getRandomSpherePoint(), mInsertGenome.c_str(), true);
 			world.addAgentToWorld(pAgent);
 		}
-		pthread_mutex_unlock( &mutex1 );
 	}
 }
 
