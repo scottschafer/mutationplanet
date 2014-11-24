@@ -256,11 +256,11 @@ enum
 
 class LockWorldMutex {
 public:
-	LockWorldMutex(bool bDoLock = true, pthread_mutex_t * mutex = NULL);
-	~LockWorldMutex();
+	LockWorldMutex() { pthread_mutex_lock( &mMutex ); }
+	~LockWorldMutex() { pthread_mutex_unlock( &mMutex ); }
+
 private:
-	bool mDoLock;
-    pthread_mutex_t * mMutex;
+	static pthread_mutex_t mMutex;
 };
 
 #endif

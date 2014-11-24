@@ -26,17 +26,52 @@
 #include "SphereWorld.h"
 #include "Agent.h"
 #include "UtilsRandom.h"
-//#include "SpherePointFinderSpaceDivison.h"
 #include "SpherePointFinderLinkedList.h"
 #include "Parameters.h"
+
+template<class V>
+void writeBinary(V v, ostream & out)
+{
+	out.write((const char*)&v, sizeof(V));
+}
+
+template<class V>
+void readBinary(V &v, istream & in)
+{
+	in.read((char*)&v, sizeof(V));
+}
+
+void writeBinary(const std::string &str, ostream & out);
+void writeBinary(const std::string &str, ostream & out)
+{
+	const char * outStr = str.c_str();
+	int len = strlen(outStr);
+	writeBinary(len, out);
+	if (len > 0)
+		out.write(outStr,len);
+}
+
+void readBinary(std::string &str, istream & in);
+void readBinary(std::string &str, istream & in)
+{
+	int len;
+	readBinary(len, in);
+	if (len > 0) {
+		char * buf = new char[len+1];
+		in.read(buf, len);
+		buf[len] = 0;
+		str = buf;
+		delete[] buf;
+	}
+}
 
 template<class K, class V>
 void writeMap(std::map<K,V> & m, ostream & out) {
     int s = m.size();
-    out << s << '\n';
+	writeBinary(s, out);
     for (typename std::map<K,V>::iterator i = m.begin(); i != m.end(); i++ ) {
-        out << i->first << '\n';
-        out << i->second << '\n';
+		writeBinary(i->first, out);
+		writeBinary(i->second, out);
     }
 }
 
@@ -44,14 +79,14 @@ template<class K, class V>
 void readMap(std::map<K,V> & m, istream & in) {
     
     m.clear();
-    int s;
-    in >> s;
-    
+	int s;
+	readBinary(s, in);
+	
     while (s-- > 0) {
         K k;
         V v;
-        in >> k;
-        in >> v;
+		readBinary(k, in);
+		readBinary(v, in);
         m[k] = v;
     }
 }
@@ -72,6 +107,7 @@ SphereWorld::SphereWorld()
     mNumAgents = 0;
 	mAllowFollow = false;
     mCurrentTurn = 0;
+	mNumSegments = 0;
     
     for (int i = 0; i < MAX_AGENTS; i++)
     {
@@ -91,8 +127,11 @@ void SphereWorld :: clear()
     }
 	mNumAgents = mMaxLiveAgentIndex = 0;
     mCurrentTurn = 0;
+#if LL_FREE_SLOTS
+#else
 	mFreeSlots.clear();
-    
+#endif
+	
     mChildToParentGenomes.clear();
     mGenomeToFirstTurn.clear();
 }
@@ -107,12 +146,15 @@ int SphereWorld :: requestFreeAgentSlot()
         return -1;
     
     int result;
+#if LL_FREE_SLOTS
+#else
     if (mFreeSlots.size())
     {
         result = *(mFreeSlots.begin());
-        mFreeSlots.erase(mFreeSlots.begin());
+        mFreeSlots.erase(result);
     }
     else
+#endif
     {
         for (result = 0; result < MAX_AGENTS; result++)
             if (mAgents[result].mStatus == eNonExistent)
@@ -187,9 +229,12 @@ void SphereWorld :: killAgent(int agentIndex)
     for (int i = 0; i < agent.mNumSegments; i++)
         unregisterEntity(&agent.mSegments[i]);
     agent.mStatus = eNonExistent;
-    
+	
+#if LL_FREE_SLOTS
+#else
 	mFreeSlots.insert(agentIndex);
-
+#endif
+	
     --mNumAgents;
 }
 
@@ -232,10 +277,11 @@ int SphereWorld :: step()
     if (Parameters::instance.randomFood > 0) {
         if ((mCurrentTurn % 100) < Parameters::instance.randomFood) {
             extern Vector3 getRandomSpherePoint();
-            addFood(getRandomSpherePoint(), false);
+            addFood(getRandomSpherePoint(), true);
         }
     }
 
+	mNumSegments = result;
 	return result;
 }
 
@@ -391,34 +437,42 @@ void SphereWorld :: killAtLeastNumSegments(int toKill, int excludingAgent) {
 void SphereWorld::read(istream & in)
 {
 	spherePointFinder.clear();
-
+	mTopSpecies.clear();
+	
 	in.read((char*)&mAgents,sizeof(mAgents));
 	in.read((char*)&mEntites,sizeof(mEntites));
 
+#if LL_FREE_SLOTS
+#else
 	mFreeSlots.empty();
+#endif
 	mNumAgents = mMaxLiveAgentIndex = 0;
 
 	for (int i = 0; i < MAX_AGENTS; i++)
-    {
+	{
 		Agent & agent = mAgents[i];
-		if (mAgents[i].mStatus == eNonExistent) {
+		agent.mSegments = &this->mEntites[i*MAX_SEGMENTS];
+		for (int j = 0; j < MAX_SEGMENTS; j++)
+			agent.mSegments[j].mAgent = &agent;
+
+		if (agent.mStatus == eNonExistent) {
+#if LL_FREE_SLOTS
+#else
 			mFreeSlots.insert(i);
+#endif
 		}
 		else {
 			++mNumAgents;
 
-			if (mAgents[i].mStatus == eAlive) {
+			if (agent.mStatus == eAlive) {
 				mMaxLiveAgentIndex = i;
 			}
-
-			agent.mSegments = &this->mEntites[i*MAX_SEGMENTS];
 		
 			for (int j = 0; j < agent.mNumSegments; j++) {
 			
 				SphereEntity & entity = agent.mSegments[j];
 				entity.mSphereNext = NULL;
 				entity.mSpherePrev = NULL;
-				entity.mAgent = &agent;
 				entity.mWorld = this;
 				entity.mSpherePoint.x = -9999; // force registration
 				registerEntity(&entity);
@@ -427,6 +481,7 @@ void SphereWorld::read(istream & in)
 	}
     readMap(mChildToParentGenomes, in);
     readMap(mGenomeToFirstTurn, in);
+	
 }
 
 std::map<std::string, std::string> mChildToParentGenomes;
@@ -468,6 +523,17 @@ std::string SphereWorld::getParentGenome(const char * pGenome)
         return it->second;
 }
 
+bool SphereWorld::hasChildGenomes(const char *genome)
+{
+	for (map<string,string>::iterator i = mChildToParentGenomes.begin(); i != mChildToParentGenomes.end(); i++) {
+		if (i->second == genome) {
+			return true;
+		}
+	}
+	
+	return false;
+}
+
 long SphereWorld::getFirstTurn(const char * pGenome)
 {
     string genome(pGenome);
@@ -505,7 +571,7 @@ void SphereWorld :: pruneTree() {
 static int pruned = 0;
 
 void SphereWorld::pruneTree(map<string, int> & mapSpeciesToCount) {
-    
+	
     // first collect all living genomes
     mLivingGenomes.clear();
     set<string> unprunableGenomes;
@@ -529,20 +595,20 @@ void SphereWorld::pruneTree(map<string, int> & mapSpeciesToCount) {
             }
         }
     }
-    
-    std::list< std::map<string,string>::iterator > iteratorList;
+
+    std::list<std::string> listErase;
     for (map<string,string>::iterator i = mChildToParentGenomes.begin(); i != mChildToParentGenomes.end(); i++) {
         if (unprunableGenomes.find(i->first) == unprunableGenomes.end() && unprunableGenomes.find(i->second) == unprunableGenomes.end()) {
-            iteratorList.push_back(i);
+            listErase.push_back(i->first);
         }
     }
     
-	for (std::list< std::map<string,string>::iterator >::iterator i = iteratorList.begin(); i != iteratorList.end(); i++) {
+	for (std::list<std::string>::iterator i = listErase.begin(); i != listErase.end(); i++) {
         mChildToParentGenomes.erase(*i);
         ++pruned;
     }
-    
-    if (iteratorList.size() > 0)
+	
+    if (listErase.size() > 0)
         printf("---- total pruned count = %d\n", pruned);
 }
 

@@ -19,6 +19,8 @@
 using namespace gameplay;
 using namespace std;
 
+#define LL_FREE_SLOTS 1
+
 class SphereWorld
 {
 public:
@@ -62,6 +64,7 @@ public:
     std::string getParentGenome(const char * genome);
     long getFirstTurn(const char * genome);
     std::vector<std::pair<std::string,int> > & getTopSpecies() { return mTopSpecies; }
+	bool hasChildGenomes(const char *genome);
     std::set<std::string> & getLivingGenomes() { return mLivingGenomes; }
     void sampleTopSpecies();
     
@@ -73,10 +76,10 @@ public:
     SphereEntity mEntites[MAX_AGENTS*MAX_SEGMENTS];
     int mMaxLiveAgentIndex;
     int mNumAgents;
+	int mNumSegments;
 	int mTopCritterIndex;
 	bool mAllowFollow;
     long mCurrentTurn;
-    
     std::map<std::string, std::string> mChildToParentGenomes;
     std::map<std::string, long> mGenomeToFirstTurn;
     std::map<std::string, int> mMapSpeciesToCount;
@@ -86,8 +89,11 @@ public:
     
     
 private:
+#if LL_FREE_SLOTS
+	SphereEntity * mFreeHead;
+#else
     std::set<int> mFreeSlots;
-
+#endif
 };
 
 #endif

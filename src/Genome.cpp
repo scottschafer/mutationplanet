@@ -29,10 +29,9 @@ static char randomInstruction()
 	char result = InstructionSet::getRandomInstruction();
 	if (InstructionSet::instructionSupportsConditions(result))
         result |= (char)getRandomExecutionType();
-
-//    if (UtilsRandom::getRangeRandom(0, 3) == 0)
-//        result |= eFixed;
-    
+	else
+		result |= eAlways;
+	
     return result;
 }
 

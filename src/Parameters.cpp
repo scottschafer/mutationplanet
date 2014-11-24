@@ -26,15 +26,17 @@
 Parameters Parameters :: instance;
 
 Parameters :: Parameters() {
-    speed = 10;
-	mutationPercent = 20;
+	speed = 10;
+	mutationPercent = 15;
 
 	reset();
 }
 
+// The sphere is 2 in diameter (-1 to 1), and the move distance represents the distance a move operation
+// will move a critter. This also determines segment size, vision, etc.
 float Parameters::getMoveDistance()
 {
-    return (cellSize + 1) * .003f;
+    return (cellSize + 1) * .002f;
 }
 
 float Parameters::getPhotosynthesizeBonus()
@@ -44,31 +46,30 @@ float Parameters::getPhotosynthesizeBonus()
 
 void Parameters :: reset()
 {
-//    mutationPercent = 15;
-    moveEnergyCost = 1.0f;//3.5f;
-    moveAndEatEnergyCost = 60;
-    photoSynthesizeEnergyGain = 5.0f; //3.5f;
-    digestionEfficiency = 1.0f;
-    biteStrength = 2.0f;//1.3f;
-    deadCellDormancy = 10000; // turns before a "dead" cell (such as left by a critter that starved) turns into a live photo cell
+    moveEnergyCost = 1.0f;
+	moveAndEatEnergyCost = .5f;
+    photoSynthesizeEnergyGain = 2.0f;
+	digestionEfficiency = .75f;
+    biteStrength = 4.0f;
+	deadCellDormancy = 10000; // turns before a "dead" cell (such as left by a critter that starved) turns into a live photo cell
     baseSpawnEnergy = 0;
     extraSpawnEnergyPerSegment = 1000;
     sleepTimeAfterBeingSpawned = 0;
-    baseLifespan = 0;
-    extraLifespanPerSegment = 50000;
+    baseLifespan = 500;
+    extraLifespanPerSegment = 10000;
     cellSize = 4;
-    extraCyclesForMove = 10;
+    extraCyclesForMove = 15;
     allowSelfOverlap = false;
-    lookDistance = 50;
+    lookDistance = 30;
+	randomFood = 0;
 
-    sleepTime = 10;
-	unexecutedTurnCost = .1f;
+    sleepTime = 20;
+	unexecutedTurnCost = .2f;
 
 	turnToFoodAfterDeath = true;
 
 	mouthSize = 1.0f;
-	lookSpread = 1.02f; //1.03f;
-
+	lookSpread = 1.03f;
 	cannibals = 1;
 	allowOr = false;
 }

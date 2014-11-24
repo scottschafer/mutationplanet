@@ -15,9 +15,9 @@
 enum eSegmentExecutionType {
     eExecTypeMask = 192,
     
-    eAlways = 128,
-    eIf = 64,
-    eNotIf = 0
+    eIf = 128,
+    eNotIf = 64,
+	eAlways = 0
 };
 
 enum eInstructions
@@ -32,6 +32,7 @@ enum eInstructions
     eInstructionPhotosynthesize,
     eInstructionMoveAndEat,
     eInstructionMove,
+	eInstructionSetAnchored,
     eInstructionHyper,
     eInstructionSleep,
     eInstructionTurnLeft,
@@ -42,11 +43,11 @@ enum eInstructions
     eInstructionTestBlocked,
     eInstructionTestPreyedOn,
     eInstructionTestOccluded,
-	eInstructionTestTouchedSelf,
-    eInstructionSetAnchored,
-    eInstructionClearAnchored,
-	eInstructionNoMutateLeft,
-	eInstructionNoMutateRight
+	eInstructionTestFacingSibling,
+
+	eInstructionOrientTowardsPole,
+	
+	eLastInstruction
 };
 
 

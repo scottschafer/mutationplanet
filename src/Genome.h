@@ -13,8 +13,12 @@ public:
 	int initialize(const char *pInstructions);
 
 	Genome mutate();
-    
-    eSegmentExecutionType getExecType(int i) {
+	
+	static eSegmentExecutionType getExecType(char ch) {
+		return (eSegmentExecutionType) (ch & eExecTypeMask);
+	}
+
+	eSegmentExecutionType getExecType(int i) {
         return (eSegmentExecutionType) (mInstructions[i] & eExecTypeMask);
     }
     

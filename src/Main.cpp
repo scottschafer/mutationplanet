@@ -62,14 +62,9 @@ long numTurns = 0;
 float totalElapsedTime = 0;
 
 // the world runs in a different thread than the UI
-pthread_mutex_t worldLockMutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t topSpeciesLockMutex = PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_t worldLockMutex = PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_t topSpeciesLockMutex = PTHREAD_MUTEX_INITIALIZER;
 bool threadAlive = false;
-
-static vector<std::pair<std::string,int> > gTopSpecies;
-
-map<string,string> mapChildToParentGenomes;
-
 
 inline long curMS() {
     return clock() / (CLOCKS_PER_SEC/1000);
@@ -77,22 +72,7 @@ inline long curMS() {
 
 long killMS = 0;
 
-LockWorldMutex::LockWorldMutex(bool bDoLock, pthread_mutex_t * mutex) : mDoLock(bDoLock)
-{
-    mMutex = (mutex == NULL) ? & worldLockMutex : mutex;
-
-    if (mDoLock) {
-	    pthread_mutex_lock( mMutex );
-    }
-}
-
-LockWorldMutex::~LockWorldMutex()
-{
-	if (mDoLock) {
-	    pthread_mutex_unlock( mMutex );
-	}
-}
-
+pthread_mutex_t LockWorldMutex::mMutex = PTHREAD_MUTEX_INITIALIZER;
 
 /**
  * When useGenomeColorMapping is on, draw critters with the same genome i the same color. This makes it easier
@@ -144,6 +124,7 @@ Main::Main()
 	_formSaveLoad = NULL;
         
     memset(mSegmentBatch, 0, sizeof(mSegmentBatch));
+	
     for (int i = 0; i < sizeof(world.mAgents)/sizeof(world.mAgents[0]); i++)
     {
         Agent * pAgent = &world.mAgents[i];
@@ -184,15 +165,10 @@ void * Main :: threadFunction(void*)
         }
         else
         {
-			// current time, elapsed time
-			long curTicks = curMS();
-
 			static long lastTicks = 0;
-			if (lastTicks == 0)
-				lastTicks = curTicks;
-			long elapsedTicks = curTicks - lastTicks;
-			lastTicks = curTicks;
-
+			long elapsedTicks  = 0;
+			long startTicksMS = 0;
+			
 			const long sampleTime = 250;
 
 			static long elapsedTimeSinceTally = 0;
@@ -202,19 +178,20 @@ void * Main :: threadFunction(void*)
 			{
 				LockWorldMutex m;
 
+				// current time, elapsed time
+				startTicksMS = curMS();
+				if (lastTicks == 0)
+					lastTicks = startTicksMS;
+				
+				elapsedTicks = startTicksMS - lastTicks;
+				lastTicks = startTicksMS;
+
 				if (elapsedTimeSinceTally > sampleTime)
 				{
 					int numTurnsSinceTally = (int)(numTurns - startSampleTurns);
 					startSampleTurns = numTurns;            
 					gTurnsPerSecond = ((float) numTurnsSinceTally) / ((float)elapsedTimeSinceTally) * 1000.f;
 					world.sampleTopSpecies();
-
-                    LockWorldMutex m2(true, &topSpeciesLockMutex);
-                    const vector<std::pair<std::string,int> > & topSpecies = world.getTopSpecies();
-                    gTopSpecies.clear();
-                    for (vector<std::pair<std::string,int> >::const_iterator i = topSpecies.begin(); i != topSpecies.end(); i++) {
-                        gTopSpecies.push_back(std::pair<std::string,int>(i->first, i->second));
-                    }
 
                     elapsedTimeSinceTally = 0;
 				}
@@ -225,27 +202,27 @@ void * Main :: threadFunction(void*)
 				static int lastFollowing = -1;
 				mFollowingIndex = world.getTopCritterIndex();
 
-#if 1
-                if ((numSegments > KILL_SEGMENT_THRESHHOLD || gLastFPS < MIN_FPS) && (numSegments > MAX_TOTAL_SEGMENTS/5)) {
+
+				if ((numSegments > KILL_SEGMENT_THRESHHOLD || gLastFPS < MIN_FPS) && (numSegments > MAX_TOTAL_SEGMENTS/5)) {
                     if (killMS == 0) {
                         killMS = curMS();
                     }
-                    world.killAtLeastNumSegments(numSegments / 2, mFollowingIndex);
+                    world.killAtLeastNumSegments(numSegments * .75f, mFollowingIndex);
 				}
-#endif
 			}
 
-			long elapsedTicksInFuc = curMS() - curTicks;
+			long elapsedTicksInFuc = curMS() - startTicksMS;
             
             long expectedTicks = (10 - Parameters::instance.speed);
             expectedTicks = expectedTicks*expectedTicks*expectedTicks / 2;
             
 			//print("expectedTicks = %d, actual ticks = %d\n", (int) expectedTicks, elapsedTicksInFuc);
 
+			elapsedTicksInFuc = min(expectedTicks, elapsedTicksInFuc);
             sleepMS = expectedTicks - elapsedTicksInFuc;
         }
 
-		if (sleepMS > 0) {
+		if (sleepMS > 0 && sleepMS < 1000) {
 			usleep(sleepMS * 1000);
 		}
 
@@ -296,8 +273,8 @@ SegmentResourceMapping arraySegments[] =
     eInstructionTestSeeFood, "res/segment_test_see_food.png",
     eInstructionTestBlocked, "res/segment_test_blocked.png",
     eInstructionTestOccluded, "res/segment_test_occluded.png",
-    eInstructionTestPreyedOn, "res/segment_test_preyed_on.png",
-	eInstructionTestTouchedSelf, "res/segment.png",
+	eInstructionTestPreyedOn, "res/segment_test_preyed_on.png",
+	eInstructionTestFacingSibling, "res/segment_test_facing_sibling.png",
 
     eInstructionSetAnchored, "res/segment_anchor.png"
 };
@@ -337,7 +314,7 @@ void Main::initialize()
 	for (i = 0; i < sizeof(arraySegments)/sizeof(arraySegments[0]); i++)
 	{
         int initialCapacity = 0;
-        if ((i >= iGenericSegment) && (i <= eInstructionClearAnchored))
+        if ((i >= iGenericSegment) && (i < eLastInstruction))
             initialCapacity = 65530;
 
 		mSegmentBatch[arraySegments[i].iSegmentType] = SpriteBatch::create(arraySegments[i].resSource, NULL, initialCapacity);
@@ -381,8 +358,26 @@ void Main::resetWorld()
     int initialCount = 500;
     
 
-    if (false) {
-        genome += (char)(eInstructionPhotosynthesize | eAlways);
+	if (/* DISABLES CODE */ (false)) {
+		genome += (char)(eInstructionTestSeeFood | eNotIf);
+		for (int i = 0; i < 1000; i++) {
+			Agent *pAgent = world.createEmptyAgent();
+			pAgent->initialize(getRandomSpherePoint(), genome.c_str(), true);
+			pAgent->mEnergy = pAgent->getSpawnEnergy()/2;
+			world.addAgentToWorld(pAgent);
+		}
+		genome = "";
+		genome += (char)(eInstructionTurnRight | eNotIf);
+		for (int i = 0; i < 1000; i++) {
+			Agent *pAgent = world.createEmptyAgent();
+			pAgent->initialize(getRandomSpherePoint(), genome.c_str(), true);
+			pAgent->mEnergy = pAgent->getSpawnEnergy()/2;
+			world.addAgentToWorld(pAgent);
+		}
+		
+	}
+    else if (false) {
+      genome += (char)(eInstructionPhotosynthesize | eAlways);
         genome += (char)(eInstructionPhotosynthesize | eAlways);
         genome += (char)(eInstructionPhotosynthesize | eAlways);
         genome += (char)(eInstructionPhotosynthesize | eAlways);
@@ -873,8 +868,9 @@ void Main::renderSpeciesCounts(float elapsedTime) {
     {
         _font->drawText("Top Species", getWidth()-190 * mUIScale, 10 * mUIScale, Vector4(1,1,1,1));
         
-        LockWorldMutex m2(true, &topSpeciesLockMutex);
-        vector<std::pair<std::string,int> > & topSpecies = gTopSpecies;//world.getTopSpecies();
+//        LockWorldMutex m2(true, &topSpeciesLockMutex);
+		world.getTopSpecies();
+        vector<std::pair<std::string,int> > & topSpecies = world.getTopSpecies();
         // draw the top species
         for (size_t i = 0; i < topSpecies.size(); i++)
         {
@@ -940,7 +936,7 @@ void Main::renderSpeciesCounts(float elapsedTime) {
             char buf[200];
             sprintf(buf, "Turns/sec: %d, FPS: %d", (int) gTurnsPerSecond, (int)this->getFrameRate());
 
-            _font->drawText(buf, getWidth()-250 * mUIScale, getHeight() - 30 * mUIScale, Vector4(1,1,1,1));
+            _font->drawText(buf, getWidth()-300 * mUIScale, getHeight() - 30 * mUIScale, Vector4(1,1,1,1));
         }
         gLastFPS = (int) getFrameRate();
     }
@@ -966,31 +962,6 @@ void Main::finishRender(float elapsedTime) {
     for (int i = 0; i < 255; i++)
         if (mSegmentBatch[i] && mBatchStarted[i])
             mSegmentBatch[i]->finish();
-	/*
-	if (points.size() == 0)
-    for( size_t i = 0; i < 1000; ++i )
-    {
-        Point pt;
-        pt.x = 0 + (rand() % 1000);
-        pt.y = 0 + (rand() % 1000);
-        pt.r = rand() % 255;
-        pt.g = rand() % 255;
-        pt.b = rand() % 255;
-        pt.a = 255;
-        points.push_back(pt);
-    }    
-    glColor3ub( 255, 255, 255 );
-    glEnableClientState( GL_VERTEX_ARRAY );
-    glEnableClientState( GL_COLOR_ARRAY );
-    glVertexPointer( 2, GL_FLOAT, sizeof(Point), &points[0].x );
-    glColorPointer( 4, GL_UNSIGNED_BYTE, sizeof(Point), &points[0].r );
-    glPointSize( 30.0 );
-    glDrawArrays( GL_POINTS, 0, points.size() );
-    glDisableClientState( GL_VERTEX_ARRAY );
-    glDisableClientState( GL_COLOR_ARRAY );
-	glFlush();
-	*/
-
 }
 
 /**
@@ -1000,9 +971,7 @@ void Main::render(float elapsedTime)
 {
 	// locking the world to render it is safer, but has a speed penalty.
 	// Only do it if we are throttling the speed or are zoomed in.
-    
-//	LockWorldMutex m(Parameters::instance.speed < 10 || mViewScale > 2);
-
+	
 	try {
         {
             LockWorldMutex m;
@@ -1131,18 +1100,17 @@ void Main::createUI()
     // Create main form
     _formMain = createForm(340, FORM_HEIGHT_NO_ADVANCED);
     _formMain->setPosition(4 * mUIScale, 8 * mUIScale);
-    
+	
     _speedSlider = createSliderControl(_formMain, "speed", "Speed:", 0, 10, 1);
     _mutationSlider = createSliderControl(_formMain, "mutation", "Mutation:", 0, 100);
 	_barriersSlider = createSliderControl(_formMain, "barriers", "Barriers:", 0, 3);
     _randomFoodSlider = createSliderControl(_formMain, "randomFood", "Random Food:", 0, 100);
-	_cellSizeSlider = createSliderControl(_formMain, "cellSize", "Cell size:", 1, 10, 1);
 
     _insertButton = createButton(_formMain, "Insert...");
     _genealogyButton = createButton(_formMain, "Genealogy...");
     _saveLoadButton = createButton(_formMain, "Save / Load / Reset...");
 	_followCritter = createCheckboxControl(_formMain, "Follow top critter");
-    
+	
     _showAdvanced = createCheckboxControl(_formMain, "Show advanced settings");
 
 	createSpacer(_formMain, 10);
@@ -1153,13 +1121,13 @@ void Main::createUI()
     _extraSpawnEnergyPerSegmentSlider = createSliderControl(_formAdvanced,"extraSpawnEnergyPerSegment", "Spawn energy:", 50, 2000);
 	_deadCellDormancySlider = createSliderControl(_formAdvanced, "deadCellDormancy", "Sprout turns:", 100, 50000);
 	_photoSynthesizeEnergyGainSlider = createSliderControl(_formAdvanced, "photoSynthesizeEnergyGain", "Photosynthesis:", 1.0f, 5.0f);
-    _moveEnergyCostSlider = createSliderControl(_formAdvanced, "moveEnergyCost", "Move:", 0, 50);
-    _moveAndEatEnergyCostSlider = createSliderControl(_formAdvanced, "moveAndEatEnergyCost", "Move & eat:", 0, 100);
+    _moveEnergyCostSlider = createSliderControl(_formAdvanced, "moveEnergyCost", "Move:", 0, 5);
+    _moveAndEatEnergyCostSlider = createSliderControl(_formAdvanced, "moveAndEatEnergyCost", "Move & eat:", 0, 15);
     _mouthSizeSlider = createSliderControl(_formAdvanced, "mouthSize", "Mouth size:", .75f, 4.0f);
 
     _lookDistanceSlider = createSliderControl(_formAdvanced,"lookDistance", "Vision range:", 1, 100);
 
-    _extraCyclesForMoveSlider = createSliderControl(_formAdvanced,"extraCyclesForMove", "Move delay:", 0, 20);
+    _extraCyclesForMoveSlider = createSliderControl(_formAdvanced,"extraCyclesForMove", "Move delay:", 0, 50);
     _biteStrengthSlider = createSliderControl(_formAdvanced,"biteStrength", "Bite strength:", 0.1, 5);
 	_digestionEfficiencySlider = createSliderControl(_formAdvanced, "digestionEfficiency", "Digestion:", 0.1, 1);
 
@@ -1168,14 +1136,16 @@ void Main::createUI()
 	_starveBecomeFood = createCheckboxControl(_formAdvanced, "Starve => food");
 	_cannibals = createCheckboxControl(_formAdvanced, "Allow cannibalism");
 
+	_cellSizeSlider = createSliderControl(_formMain, "cellSize", "Cell size:", 1, 10, 1);
+
     _formMain->setConsumeInputEvents(false);
     _formAdvanced->setConsumeInputEvents(false);
     
     _formHelp = Form::create("res/editor.form");
     _formHelp->setPosition(720 * mUIScale, 660 * mUIScale);
     
-    _formHelp->setSize(getWidth() - (unsigned int)_formHelp->getX(), getHeight() - (unsigned int)_formHelp->getY());
-    Control * pHelpMain = _formHelp->getControl("main");
+	_formHelp->setSize(getWidth() - (unsigned int)_formHelp->getX(), 70 * mUIScale);
+	Control * pHelpMain = _formHelp->getControl("main");
     pHelpMain->setSize(_formHelp->getWidth(), _formHelp->getHeight());
     Theme::Style * pNoBorder = _formHelp->getTheme()->getStyle("noBorder");
     _formHelp->setStyle(pNoBorder);
@@ -1383,12 +1353,14 @@ void Main::setControlValues()
 Form * Main :: createForm(float width, float height, bool isLayoutVertical, bool framing)
 {
     Form * result = Form::create(isLayoutVertical ? "res/layoutVertical.form" : "res/layoutAbsolute.form");
+//	result->setSkinColor(Vector4(0,0,255,.5));
+
     Container *pMainContainer = (Container*)result->getControl("main");
-    pMainContainer->setSkinColor(Vector4(0,0,0,1));
-    
-    result->setSize(width * mUIScale, height * mUIScale);
+//    pMainContainer->setSkinColor(Vector4(0,0,0,.25));
+
+	result->setSize(width * mUIScale, height * mUIScale);
     pMainContainer->setSize(width * mUIScale, (height - 20) * mUIScale);
-    
+	
     float s = framing ? mUIScale : 0;
     
     pMainContainer->setPosition(pMainContainer->getX() * mUIScale, pMainContainer->getY() * mUIScale);
@@ -1406,6 +1378,7 @@ Form * Main :: createForm(float width, float height, bool isLayoutVertical, bool
         const Theme::Border& b = result->getBorder();
         result->setBorder(b.top * s, b.bottom * s, b.left * s, b.right * s);
     }
+	
     return result;
 }
 
@@ -1808,16 +1781,11 @@ void Main :: openURL(const char *pPath, bool externalBrowser /* = false */)
 	extern void winLaunchFile(const char *pFile);
 
 	winLaunchFile(pPath);
-
-//    string command = "open ";
-//    command += pPath;
-//    system(command.c_str());
 #else
 
-#ifdef __APPLE__
-//    this->launchURL(url.c_str());
-#else
-//    this->launchURL(url.c_str());
-#endif
+	string command = "open ";
+	command += pPath;
+	system(command.c_str());
+
 #endif
 }

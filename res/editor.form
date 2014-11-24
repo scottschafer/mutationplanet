@@ -13,6 +13,6 @@ form biosphere
         layout = LAYOUT_VERTICAL
         position = 0, 0
         size = 300, 560
-        color = #000000ff
+        color = #000000
     }
 }

@@ -35,10 +35,19 @@ enum {
 	BIT_WAS_EATEN = 64,
 	BIT_WAS_PREYED_ON = 128,
     BIT_ANCHORED = 256,
-	BIT_TOUCHED_SELF=512
-
+	BIT_TOUCHED_SELF=512,
+	BIT_CONDITION_TWO=1024
 };
 
+class SphereEntity;
+class Agent;
+
+enum eFacing {
+	eFacingTrue,
+	eFacingFalse,
+	eFacingIgnore
+};
+typedef eFacing (*facingFunction)(Agent *, SphereEntity *);
 
 class SphereEntity;
 
@@ -54,14 +63,18 @@ public:
     
     void move(SphereWorld *pWorld, bool andEat);
     void turn(int angle);
+	void orientTowardsPole();
     void sleep();
-    bool testIsFacingFood(SphereWorld *pWorld, float distMultiplier = 1);
+	bool testIsFacingFood(SphereWorld *pWorld, float distMultiplier = 1);
+	bool testIsFacingSibling(SphereWorld *pWorld, float distMultiplier = 1);
+	
     void spawnIfAble(SphereWorld * pWorld);
     float getSpawnEnergy() { return mSpawnEnergy; }
-    
+	
 private:
 	void computeSpawnEnergy();
-
+	bool testIsFacing(SphereWorld *pWorld, float distMultiplier, facingFunction func);
+	
 private:
 	bool canEat(Agent *);
     bool getMoveLocations(Vector3 *);
@@ -92,7 +105,11 @@ public:
 	int getCondition() { return mFlags & BIT_CONDITION; }
 	void setCondition() { mFlags |= BIT_CONDITION; }
 	void clearCondition() { mFlags &= ~BIT_CONDITION; }
-
+	
+	int getCondition2() { return mFlags & BIT_CONDITION_TWO; }
+	void setCondition2() { mFlags |= BIT_CONDITION_TWO; }
+	void clearCondition2() { mFlags &= ~BIT_CONDITION_TWO; }
+	
 	int getDefaultCondition() { return mFlags & BIT_DEFAULT_CONDITION; }
 	void setDefaultCondition() { mFlags |= BIT_DEFAULT_CONDITION; }
 	void clearDefaultCondition() { mFlags &= ~BIT_DEFAULT_CONDITION; }

@@ -104,7 +104,7 @@ theme biosphere
         }
         
         region = 1, 1, 74, 74
-        color = #4A8799ff
+        color = #4A8799C0
     }
 
     skin mainActive : mainNormal

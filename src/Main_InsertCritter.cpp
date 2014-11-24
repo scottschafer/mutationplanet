@@ -57,7 +57,7 @@ void Main :: insertCritter(int count)
 
 void Main :: createInsertCritterForm()
 {
-	_formInsertCritter = createForm(900, 400, false);
+	_formInsertCritter = createForm(950, 400, false);
 	_formInsertCritter->setPosition(-_formInsertCritter->getWidth(), -_formInsertCritter->getHeight());
 
 	mInsertOK_1 = createButton(_formInsertCritter, "Insert", "", Vector2(120,330), Vector2(180, 40));
@@ -111,8 +111,8 @@ void Main :: createInsertCritterForm()
 void Main::renderSegment(char i, Rectangle dst)
 {
     char instruction = i & eInstructionMask;
-    char condition = i & eExecTypeMask;
-    
+	eSegmentExecutionType condition = Genome::getExecType(i);
+	
 	SpriteBatch * pBatch = mSegmentBatch[instruction];
 	if (! pBatch)
 		pBatch = mSegmentBatch[iGenericSegment];

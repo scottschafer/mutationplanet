@@ -30,6 +30,7 @@
 #include "UtilsRandom.h"
 #include <vector>
 #include <algorithm>
+#include <map>
 
 static std::vector<char> availableInstructions;
 static std::set<char> allAvailableInstructions;
@@ -52,9 +53,22 @@ void InstructionSet :: reset()
 	setInstructionAvailable(eInstructionTestOccluded, true);
 
     setInstructionAvailable(eInstructionSetAnchored, true);
-    setInstructionAvailable(eInstructionTestTouchedSelf, true);
-//    setInstructionAvailable(eInstructionClearAnchored, true);
+	setInstructionAvailable(eInstructionTestFacingSibling, true);
 
+// setInstructionAvailable(eInstructionTestTouchedSelf, true);
+//	setInstructionAvailable(eInstructionOrientTowardsPole, false);
+//  setInstructionAvailable(eInstructionClearAnchored, true);
+
+	int counts[255];
+	memset(counts,0,sizeof(counts));
+	
+	for (int i = 0; i < 10000; i++) {
+		counts[InstructionSet :: getRandomInstruction()]++;
+	}
+	
+	for (std::vector<char>::iterator i = availableInstructions.begin(); i != availableInstructions.end(); i++) {
+		printf("Instruction %d, count = %d\n", (int)*i, counts[*i]);
+	}
 }
 
 char InstructionSet :: getRandomInstruction()

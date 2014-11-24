@@ -116,28 +116,47 @@
 
       <section style="float:right;font-size:18px;font-weight:normal;padding-top:12px"><i> a biologically-inspired evolutionary simulation<br>by Scott Schafer</i></section>
     </h1>
+	
+	<p>
+	MutationPlanet is an exploration of artificial life and natural selection. It doesn't fit neatly into any well-defined category, but it has been described as "a sandbox for evolution."
+	This simulation allows you to see how mutation and natural selection work together to produce adaptive behavior, witness speciation in action (the evolution of distinct species from a
+	common ancestor), retrace the history of each genome through every mutation back to the original progenitor, explore how changing environments affect evolution, and even pit your own
+	designed sequences against the products of natural selection.</p>
 
-    <p>All living things, including yourself, have some basic similarities. They all consume energy, whether that energy comes from sunlight, other chemical sources of energy such as undersea volcanic vents or from eating other organisms. All organisms have behaviors and physical traits that is governed by their genetic code. All living things reproduce (or at least, their parent/parents did), creating new organisms with genetic information that is passed down from the parent or parents. Finally, no organism will always make a perfect copy of itself. The duplication errors are known as mutations. Mutations are usually harmless or harmful, but they may occasionally result in traits that help the new organism to survive, reproduce and pass those traits on. This raises the question: <b>is mutation a bug or a feature?</b><p>
+	<p>
+	The simulated organisms (aka "critters") in this simulation are loosely modelled asexually reproducing organisms such as bacteria. They gain energy either by photosynthesizing energy from
+	the "Sun" or by eating other critters. They have behaviors and physical traits which are governed by their genetic code. If they gain enough energy, they will have an offspring that
+	will inherit the parents genetic code with a possible mutation. Mutations are usually harmless or harmful, but they may occasionally result in traits that help the new organism
+	to survive, reproduce and pass those traits on. This raises an interesting question: <b>is mutation a bug or a feature?</b></p>
 
-    <p><span class="mutationPlanet">MutationPlanet</span> does not attempt to simulate actual biology on a chemical level, but its simulated "critters" are loosely patterned after asexually reproducing bacteria. Each critter has a simple genetic code which governs its physical form and behavior. They gain energy by either photosynthesizing or by eating another critter that is photosynthesizing. If a critter gains enough energy, it produces an offspring containing a copy of the genetic code with the possibility of a single mutation. Over time this can lead to some interesting adaptive behavior. Critters lose energy every turn (the unit of time in the simulation), and if they run out of energy they die and become "food" (more on this later).</p>
+	<p>
+	Except conceptually, the genetic code used by the critters is nothing like DNA either in structure or in how it's interpreted. Instead, I've tried to create a simulation
+	with with ground rules that are fairly simple, not too contrived, and that produce interesting results in a short amount of time. While I designed the simulation and created the
+	rules, including the genetic "alphabet", the genetic sequences that arise are predominate are selected for by the processes of mutation and Darwinian evolution.</p>
 
     <h2>Getting Started</h2>
-    <p>When you first start this simulation, you will see a bunch of green dots on a sphere. The sphere is the "planet" on which the critters live, and the green dots are simple critters. You can rotate the sphere by touching and dragging it, and can zoom in and out using a pinch gesture.</p>
+    <p>Initially you will see a bunch of green dots on a sphere. The sphere is the "planet" on which the critters live, and the green dots are simple critters. You can rotate the sphere by touching and dragging it, and can zoom in and out using a pinch gesture.</p>
 
     <p>The <b>Speed:</b> slider in the upper-left allows you to control the speed of the simulation, from 0 (stopped) to 10 (run as fast as possible). Use the slider to increase the speed and the green dots will spread out to cover most of the planet. The "Top Species" list on the right displays all the unique genomes (a "species") of all currently living critters along with their population, in order of most populous to least. The green dots are actually very simple critters that gain energy through virtual photosynthesis.</p>
 
-    <p>Note that their population will never exceed 15,000 critters. This is a limit imposed by the simulation - this simulated world cannot support more than 15,000 critters (which could cause earlier versions of this simulation to crash). When the population gets close to the limit, critters will be killed off at random so this limit is not exceeded. Unless you have mutation turned completely off, predatators will keep the population well below this point.</p>
+	<p>There are two blue circles that represent the poles of the sphere. Critters move more slowly as they near the poles, due to the cold. This provides a simple variation in habitat and also
+		allows you to view critters operating more slowly without adjusting the speed slider.</p>
+		
     <div style="background-color:black;padding:20px">
       <div style="display: block;margin-left: auto;margin-right: auto;width:600px">
-        <img src="help/SphereNoMutate3.gif"></img>
-        <img src="help/TopSpeciesNoMutate.gif" style="vertical-align:top"></img>
+		  
+        <!--img src="help/SphereNoMutate3.gif"></img>
+        <img src="help/TopSpeciesNoMutate.gif" style="vertical-align:top"></img -->
+		<img src="help/sphere_noMutate.gif"></img>
       </div>
     </div>
 
     <br>
-    <p>The planet is divided into two equal halves (marked by a dotted blue line). One side is "slower" than the other - that is, any critter that has its head over the dotted blue line into the "slow" half will operate at a much slower speed than the other half. This is partly to simulate different environments (you could think of this as a colder area), partly to allow viewing behaviors more easily and partly to avoid mass extinctions.</b>
+	<p>Because of hardware contraints, there are limits to the number and complexity of critters that can inhabit the world. The population will never exceed 20,000 critters and the frame rate
+	cannot go below 15 frames per second. Competition between critters will typically keep the numbers below the top thresholds, but if there's ever a population boom that exceeds the limits
+	of this simulation, a disaster will occur and 75% of all critters will be destroyed at random. When this happens, the sphere will flash red..</p>
 
-    <p>You can rotate the planet by dragging it and zoom in and out using pinch gestures. But there won't much to see until you enable mutation.</p>
+	<p>The planet is divided into two equal halves (marked by a dotted blue line). One side is "slower" than the other - that is, any critter that has its head over the dotted blue line into the "slow" half will operate at a much slower speed than the other half. This is partly to simulate different environments (you could think of this as a colder area), partly to allow viewing behaviors more easily and partly to avoid mass extinctions.</b>
 
     <h2>Enter the Critter</h2>
 
@@ -270,6 +289,21 @@
     <h2>The Critter Lifecycle</h2>
     <p>A complete list of all attributes of critters is shown below:</p>
 
+
+<h2>Other resources</h2>
+
+We notice an episode of progress during an arms race. But that particular arms race comes to an end. Perhaps one side is driven extinct by the other.
+Or both sides go extinct, maybe in the course of a mass catastrophe of the kid that did for the dinosaurs. Then the whole process starts again, not
+from scratch, but from some discernably earlier part of the arms race. Progress in evolution is not a single upward climb but has a rhyming trajectory
+more like the teeth of a saw.
+
+Richard Dawkins - The Ancestor's Tale
+
+<p>		I later discovered that there was a whole field of artificial life and evolutionary simulations, and that my work was extremely simple in comparison. An evolutionary simulation
+created by <a href="http://www.karlsims.com/evolved-virtual-creatures.html">Karl Sims in 1994</a> is still amazing to watch today. The challenge is that the more complex the
+simulations are, the more difficult it is to understand or explain how they work. I wanted to create a simulation of artificial life that was true to basic biological principles,
+relatively easy to understand, and just rich enough to allow adaptive behavior to occur through the process of natural selection. A goal of mine was to keep the format of the
+critter's genetic code simple enough so it could be eaily read and even written by a human.</p>
 
     <h2>Glossary</h2>
     <table>

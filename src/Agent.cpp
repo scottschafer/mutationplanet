@@ -21,7 +21,8 @@
  Agent.cpp
  ---------
  This class defines an entity that has one or more segments which appear on
- the world. It can do basic processing in the step() method.
+ the world. It can do basic processing in the 
+ ) method.
  
  Right now, the only entities are critters and barriers.
  */
@@ -93,7 +94,7 @@ void Agent::initialize(Vector3 pt, const char * pGenome, bool allowMutation)
 	// segments
 	mEnergy = UtilsRandom::getRangeRandom(1.0f, mSpawnEnergy);
 	mLifespan = UtilsRandom::getRangeRandom(.75f, 1.25f) *
-	(Parameters::instance.baseLifespan + mNumSegments * Parameters::instance.extraLifespanPerSegment);
+	(Parameters::instance.baseLifespan + (mNumSegments-1) * Parameters::instance.extraLifespanPerSegment);
 	mTurn = 0;
 	mActiveSegment = 0;
 	
@@ -135,7 +136,7 @@ void Agent::initialize(Vector3 pt, const char * pGenome, bool allowMutation)
 void Agent :: computeSpawnEnergy()
 {
 #if 1
-	float moveMult = 0;//.3f;
+	float moveMult = 0;//.2f;
 	mSpawnEnergy = Parameters::instance.baseSpawnEnergy + ((float)mNumSegments +
 														   mNumMoveSegments * Parameters::instance.moveEnergyCost * moveMult+
 														   mNumMoveAndEatSegments * Parameters::instance.moveAndEatEnergyCost * moveMult) *
@@ -162,6 +163,8 @@ void Agent :: computeSpawnEnergy()
 #endif
 }
 
+#define USE_TWO_CONDITIONS 0
+
 /**
  Process the Agent's active segment
  **/
@@ -182,7 +185,7 @@ void Agent::step(SphereWorld * pWorld)
 	if (poleDistance > .5f) {
 		
 		// from 100% to 10%
-		int percentExecuting = (int) (100 - (poleDistance - .5f) * 180);
+		int percentExecuting = (int) (100 - (poleDistance - .5f) * 195);
 		
 		if (percentExecuting > 50) {
 			
@@ -248,8 +251,8 @@ void Agent::step(SphereWorld * pWorld)
 			{
 				mEnergy -= cycleEnergyCost/3;
 				--mSleep;
-				return;
-				//				continue;
+//				return;
+				continue;
 			}
 			else {
 				// send me off to sleep forever more...
@@ -260,17 +263,36 @@ void Agent::step(SphereWorld * pWorld)
 		// now process the active segment
 		char instruction = mGenome.getInstruction(mActiveSegment);
 		eSegmentExecutionType executeType = mGenome.getExecType(mActiveSegment);
+		
 		bool isOr = false;//(executeType == eAlways) && Parameters::instance.allowOr;
+		
+#if USE_TWO_CONDITIONS
+		bool saveCondition = ((mActiveSegment&1) ? getCondition() : getCondition2()) != 0;
+#else
 		bool saveCondition = getCondition() != 0;
+#endif
+		
+		bool instructionSetCondition = false;
+		bool setConditionVal = false;
+		
 		
 		if (((executeType == eIf) && ! saveCondition) || ((executeType == eNotIf) && saveCondition))
 		{
-			mEnergy -= cycleEnergyCost * Parameters::instance.unexecutedTurnCost;
+			if (mNumSegments == 1) {
+				mEnergy -= cycleEnergyCost;
+			}
+			else {
+				mEnergy -= cycleEnergyCost * Parameters::instance.unexecutedTurnCost;
+			}
 			++numSteps;
 		}
 		else
 		{
 			mEnergy -= cycleEnergyCost;
+			
+			bool doSetCondition = false;
+			bool doClearCondition = false;
+			
 			switch (instruction)
 			{
 				default:
@@ -281,11 +303,25 @@ void Agent::step(SphereWorld * pWorld)
 					move(pWorld, (instruction == eInstructionMoveAndEat));
 					break; }
 					
+				case eInstructionOrientTowardsPole: {
+					orientTowardsPole();
+					break; }
+					
+				case eInstructionTestFacingSibling: {
+					if (getIsMotile()) {
+						if (testIsFacingSibling(pWorld, 1.0f))
+							doSetCondition = true;
+						else
+							doClearCondition = true;
+					}
+					break; }
+				
 				case eInstructionTurnLeft:
 					turn(-TURN_ANGLE);
 					break;
 					
 				case eInstructionTurnRight:
+					//printf("turn right, energy = %f\n", mEnergy);
 					turn(TURN_ANGLE);
 					break;
 					
@@ -303,10 +339,12 @@ void Agent::step(SphereWorld * pWorld)
 					break; }
 					
 				case eInstructionTestSeeFood:
-					if (testIsFacingFood(pWorld, 1.0f + (float)mActiveSegment / 2))
-						setCondition();
-					else
-						clearCondition();
+					if (getIsMotile()) {
+						if (testIsFacingFood(pWorld, 1.0f ))
+							doSetCondition = true;
+						else
+							doClearCondition = true;
+					}
 					break;
 					
 				case eInstructionTestBlocked:
@@ -321,11 +359,11 @@ void Agent::step(SphereWorld * pWorld)
 					
 				case eInstructionTestPreyedOn: {
 					if (getWasPreyedOn()) {
-						setCondition();
+						doSetCondition = true;
 						clearWasPreyedOn();
 					}
 					else {
-						clearCondition();
+						doClearCondition = true;
 					}
 					break; }
 					
@@ -347,20 +385,10 @@ void Agent::step(SphereWorld * pWorld)
 					}
 #endif
 					if (flag)
-						setCondition();
+						doSetCondition = true;
 					else
-						clearCondition();
+						doClearCondition = true;
 					break; }
-					
-				case eInstructionTestTouchedSelf:
-					if (getTouchedSelf()) {
-						setCondition();
-						clearTouchedSelf();
-					}
-					else {
-						clearCondition();
-					}
-					break;
 					
 				case eInstructionPhotosynthesize:
 					if (! mSegments[mActiveSegment].mIsOccluded) {
@@ -377,17 +405,32 @@ void Agent::step(SphereWorld * pWorld)
 				case eInstructionSetAnchored:
 					setIsAnchored();
 					break;
-					
-				case eInstructionClearAnchored:
-					clearIsAnchored();
-					break;
 			}
 			
-			if (isOr && saveCondition)
+			
+#if USE_TWO_CONDITIONS
+			if (doSetCondition) {
+				if (mActiveSegment&1) setCondition(); else setCondition2();
+			}
+			if (doClearCondition) {
+				if (mActiveSegment&1) clearCondition(); else clearCondition2();
+			}
+#else
+			if (doSetCondition)
 				setCondition();
+			if (doClearCondition)
+				clearCondition();
+#endif
 		}
-		
+
 		if (++mActiveSegment >= mNumSegments) {
+			
+			if (mSegments[0].mIsOccluded) {
+				this->mEnergy -= cycleEnergyCost * 2;
+//				this->die(pWorld);
+//				return;
+			}
+			
 			mActiveSegment = 0;
 			clearIsHyper();
 			clearIsAnchored();
@@ -457,19 +500,31 @@ bool Agent::canEat(Agent * rhs)
 	return true;
 }
 
-#define USE_SQUARED_DISTANCE 0
+#define EAT_IS_ALSO_MOVE 1
+
 /**
  Move a critter and optionally eat if we can
  */
 void Agent::move(SphereWorld * pWorld, bool andEat)
 {
-	clearWasBlocked();
+	bool modifyBlockedFlag = EAT_IS_ALSO_MOVE || ! andEat;
+	
+	if (modifyBlockedFlag)
+		clearWasBlocked();
 	
 	Vector3 headLocation = mSegments[0].mLocation;
-	Vector3 newLocation = headLocation + mMoveVector;
+
+	Vector3 newLocation;
+	Vector3 moveVector;
+	if (mNumSegments < 2 || mSegments[mNumSegments-2].mLocation == mSegments[mNumSegments-1].mLocation)
+		moveVector = mMoveVector;
+	else
+		moveVector = mMoveVector / 2;
+	
+	newLocation = headLocation + moveVector;
+	
 	newLocation.normalize();
 	mMoveVector = newLocation - headLocation;
-	
 	mMoveVector.normalize();
 	mMoveVector *= Parameters::instance.getMoveDistance();
 	
@@ -490,9 +545,9 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
 #if 1
 	
 #if USE_SQUARED_DISTANCE
-	float segmentMaxFriedenberg = mMoveVector.lengthSquared() * 2.0f;
+	float segmentMaxFriedenberg = moveVector.lengthSquared() * 2.0f;
 #else
-	float segmentMaxFriedenberg = mMoveVector.length();
+	float segmentMaxFriedenberg = moveVector.length();
 #endif
 	float segmentMinFriedenberg = segmentMaxFriedenberg / 20;
 	
@@ -545,15 +600,7 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
 			}
 		}
 	}
-	
-	/*
-	 for (int i = 1; i < mNumSegments; i++) {
-	 if (newLocation.distance(newLocations[i]) < occludeDist) {
-	 setWasBlocked();
-	 break;
-	 }
-	 }
-	 */
+
 #else
 	for (int i = (mNumSegments - 1); i > 0; i--)
 		newLocations[i] = mSegments[i-1].mLocation;
@@ -561,122 +608,154 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
 #endif
 	
 	bool ate = false;
-	if (! getWasBlocked()) {
-		int numEntities = pWorld->getNearbyEntities(newLocation, headSize, entities);
+	
+	float biteStrength = Parameters::instance.biteStrength * (1 + mNumSegments / 5);
+	float digestion = Parameters::instance.digestionEfficiency;
+	
+	int numEntities = pWorld->getNearbyEntities(newLocation, headSize, entities);
+	for (int i = 0; i < numEntities; i++)
+	{
+		SphereEntity * pEntity = entities[i];
+		Agent *pAgent = pEntity->mAgent;
 		
-		float biteStrength = Parameters::instance.biteStrength * (1 + mNumSegments / 2);
-		float digestion = Parameters::instance.digestionEfficiency;
+		// check that the agent is alive, since we might have killed while looping over entities
+		if (pAgent->mStatus == eNonExistent || pAgent->getWasEaten())
+			continue;
 		
-		for (int i = 0; i < numEntities; i++)
+		if (pAgent == this)
 		{
-			SphereEntity * pEntity = entities[i];
-			Agent *pAgent = pEntity->mAgent;
+			// the segment we hit is our own
 			
-			// check that the agent is alive, since we might have killed while looping over entities
-			if (pAgent->mStatus == eNonExistent || pAgent->getWasEaten())
+			// if we allow moving over ourself, or this is the head segment, or the segment is already occluded
+			// (which it will be if the segment has never moved), ignore it
+			if (Parameters::instance.allowSelfOverlap || pEntity->mSegmentIndex < 2 || (pEntity->mLocation == mSegments[0].mLocation))
 				continue;
 			
-			if (pAgent == this)
+			// otherwise, verify that we really hit it, and stop if so
+			float trueDistance = calcDistance(newLocation, pEntity->mLocation);
+			
+			if (trueDistance < headSize)
 			{
-				// the segment we hit is our own
-				
-				// if we allow moving over ourself, or this is the head segment, or the segment is already occluded
-				// (which it will be if the segment has never moved), ignore it
-				if (Parameters::instance.allowSelfOverlap || pEntity->mSegmentIndex == 0 || pEntity->mIsOccluded)
-					continue;
-				
-				// otherwise, verify that we really hit it, and stop if so
-				float trueDistance = calcDistance(newLocation, pEntity->mLocation);
-				
-				if (trueDistance < headSize)
-				{
+				if (modifyBlockedFlag)
 					setWasBlocked();
-					setTouchedSelf();
-					break;
+				setTouchedSelf();
+				break;
+			}
+		}
+		else
+		{
+			
+			if (andEat && pEntity->mType == eInstructionPhotosynthesize && /*!pEntity->mIsOccluded && */ canEat(pAgent))
+			{
+				//bool saveBlock = getWasBlocked();
+				if (modifyBlockedFlag)
+					setWasBlocked();
+				
+				// we moved onto a photosynthesize segment through a move and eat instruction, so chomp!
+				if (! ate) // only gain the energy from one eating per turn
+				{
+					float energyLoss = min(Parameters::instance.extraSpawnEnergyPerSegment * biteStrength, pAgent->mEnergy+1);
+					if (pAgent->getIsAnchored()) {
+						energyLoss /= 2;
+					}
+					pAgent->mEnergy -= energyLoss;
+					mEnergy += energyLoss * digestion;
+					/*
+					 int energyLoss = min(Parameters::instance.extraSpawnEnergyPerSegment * biteStrength, pAgent->mEnergy+1);
+					 
+					 pAgent->mEnergy -= energyLoss;
+					 float gain = (pAgent->mNumNonOccludedPhotosynthesize + pAgent->mNumOccludedPhotosynthesize);
+					 gain *= Parameters::instance.extraSpawnEnergyPerSegment * biteStrength * digestion;
+					 if (gain > energyLoss) gain = energyLoss;
+					 mEnergy += gain;
+					 */
+					if ((mNumOccludedPhotosynthesize+mNumNonOccludedPhotosynthesize) == 0)
+						setWasPreyedOn();
+					
+					pAgent->setWasPreyedOn();
+					if (pAgent->mEnergy <= 0) {
+						pAgent->setWasEaten();
+					}
 				}
+				ate = true;
+				break;
 			}
 			else
 			{
-				
-				if (andEat && pEntity->mType == eInstructionPhotosynthesize && !pEntity->mIsOccluded && canEat(pAgent))
-				{
-					//bool saveBlock = getWasBlocked();
-					setWasBlocked();
-					
-					// we moved onto a photosynthesize segment through a move and eat instruction, so chomp!
-					if (! ate) // only gain the energy from one eating per turn
-					{
-						float energyLoss = min(Parameters::instance.extraSpawnEnergyPerSegment * biteStrength, pAgent->mEnergy+1);
-						if (pAgent->getIsAnchored()) {
-							energyLoss /= 2;
-						}
-						pAgent->mEnergy -= energyLoss;
-						mEnergy += energyLoss * digestion;
-						/*
-						 int energyLoss = min(Parameters::instance.extraSpawnEnergyPerSegment * biteStrength, pAgent->mEnergy+1);
-						 
-						 pAgent->mEnergy -= energyLoss;
-						 float gain = (pAgent->mNumNonOccludedPhotosynthesize + pAgent->mNumOccludedPhotosynthesize);
-						 gain *= Parameters::instance.extraSpawnEnergyPerSegment * biteStrength * digestion;
-						 if (gain > energyLoss) gain = energyLoss;
-						 mEnergy += gain;
-						 */
-						if ((mNumOccludedPhotosynthesize+mNumNonOccludedPhotosynthesize) == 0)
-							setWasPreyedOn();
-						
-						pAgent->setWasPreyedOn();
-						if (pAgent->mEnergy <= 0) {
-							pAgent->setWasEaten();
-						}
-					}
-					ate = true;
-					break;
-				}
-				else
-				{
+				if (modifyBlockedFlag)
 					setWasBlocked(); // can't move over other critter
-					if (! andEat)
-						break;
-				}
+				if (! andEat)
+					break;
 			}
-			
-			/*
-			 if (mSegments[i].mLocation != newLocations[i])
-			 {
-			 if (mSegments[i].mIsOccluded) {
-			 mSegments[i].mIsOccluded = false;
-			 if (mSegments[i].mType == eInstructionPhotosynthesize)
-			 {
-			 ++mNumNonOccludedPhotosynthesize;
-			 --mNumOccludedPhotosynthesize;
-			 }
-			 }
-			 pWorld->moveEntity(&mSegments[i], newLocations[i]);
-			 }
-			 */
 		}
+		
+		/*
+		 if (mSegments[i].mLocation != newLocations[i])
+		 {
+		 if (mSegments[i].mIsOccluded) {
+		 mSegments[i].mIsOccluded = false;
+		 if (mSegments[i].mType == eInstructionPhotosynthesize)
+		 {
+		 ++mNumNonOccludedPhotosynthesize;
+		 --mNumOccludedPhotosynthesize;
+		 }
+		 }
+		 pWorld->moveEntity(&mSegments[i], newLocations[i]);
+		 }
+		 */
 	}
 	
-	mSleep += Parameters::instance.extraCyclesForMove;
+//	mSleep += Parameters::instance.extraCyclesForMove;
 	
 	float cost = andEat ? Parameters::instance.moveAndEatEnergyCost : Parameters::instance.moveEnergyCost;
-	if (andEat && ! ate)
-		cost += cost;
-	
-	if (getWasBlocked()) {
-		mEnergy -= cost;
-		return;
-	}
-	mEnergy -= cost;
-	
-	
+
+//	if (andEat && ! ate)
+//		cost += cost; // double the cost of eating if it didn't actually eat (maybe)
+
+	/*
 	if (mNumSegments > 2) {
-		bool useOldMoveMethod = false;
+		float testDist = moveDistance * .25f;
 		for (int i = 1; i < mNumSegments; i++)
 		{
 			if (mSegments[i].mLocation != newLocations[i])
 			{
-				if (pWorld->getNearbyEntities(newLocations[i], moveDistance, entities, 1, this) > 0)
+				
+				if (pWorld->getNearbyEntities(newLocations[i], testDist, entities, 1) > 0)
+				{
+					if (entities[0] != &mSegments[i]) {
+						setWasBlocked();
+						break;
+					}
+				}
+			}
+		}
+	}
+*/
+	
+	if (modifyBlockedFlag && getWasBlocked()) {
+#if ! EAT_IS_ALSO_MOVE
+		mEnergy -= cost * .5f;
+#endif
+		return;
+	}
+	mEnergy -= cost;
+	
+#if ! EAT_IS_ALSO_MOVE
+	if (andEat)
+		return;
+#endif
+	
+	mSleep += Parameters::instance.extraCyclesForMove;
+	if (mNumSegments > 2) {
+		float testDist = moveDistance * .75f;
+		bool useOldMoveMethod = false;
+		useOldMoveMethod = true;
+		for (int i = 1; i < mNumSegments; i++)
+		{
+			if (mSegments[i].mLocation != newLocations[i])
+			{
+				
+				if (pWorld->getNearbyEntities(newLocations[i], testDist, entities, 1, this) > 0)
 				{
 					useOldMoveMethod = true;
 					break;
@@ -693,14 +772,28 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
 	}
 	
 	// now move
-	mSpawnLocation = mSegments[mNumSegments-1].mLocation; // old tail location
+	if (mSegments[mNumSegments-1].mLocation != mSegments[mNumSegments-1].mLocation)
+		mSpawnLocation = mSegments[mNumSegments-1].mLocation; // old tail location
 	
-#if 1
+#if 0
+	bool useOldMoveMethod = false;
+	Vector3 prevLocation;
 	for (int i = 0; i < mNumSegments; i++)
 	{
-		if (mSegments[i].mLocation != newLocations[i])
+//		Vector3 newLoc = useOldMoveMethod ? prevLocation : newLocations[i];
+		Vector3 newLoc;
+		if (i == 0) {
+			newLoc = newLocations[0];
+		}
+		else {
+			newLoc = (prevLocation + newLocations[i])/2;
+		}//= useOldMoveMethod ? prevLocation : newLocations[i];
+		prevLocation = mSegments[i].mLocation;
+
+		if (mSegments[i].mLocation != newLoc)
 		{
-			pWorld->moveEntity(&mSegments[i], newLocations[i]);
+			pWorld->moveEntity(&mSegments[i], newLoc);
+			mSegments[0].mIsOccluded = false;
 		}
 	}
 	
@@ -709,7 +802,7 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
 		if (mSegments[i].mType == eInstructionPhotosynthesize)
 		{
 			int numEntitiesAtLocation = pWorld->getNearbyEntities(newLocations[i], occludeDist, entities, 1, NULL) > 0;
-			bool isOccluded = numEntitiesAtLocation > 1;
+			bool isOccluded = false;//numEntitiesAtLocation > 1;
 			if (isOccluded != mSegments[i].mIsOccluded) {
 				mSegments[i].mIsOccluded = isOccluded;
 				if (isOccluded) {
@@ -781,6 +874,27 @@ void Agent::turn(int a)
 	mMoveVector *= Parameters::instance.getMoveDistance();
 }
 
+void Agent::orientTowardsPole()
+{
+	float moveDistance = Parameters::instance.getMoveDistance();
+	
+	Vector3 head = mSegments[0].mLocation;
+	Vector3 pole(0,(head.y > 0) ? 1 : -1, 0);
+	
+	Vector3 dif = pole - head;
+	dif.normalize();
+	dif *= moveDistance;
+	
+	Vector3 newPos = head + dif;
+	newPos.normalize();
+	
+	dif = newPos - head;
+	dif.normalize();
+	dif *= moveDistance;
+	
+	mMoveVector = dif;
+}
+
 // Test if we're facing food in the direction that the head is pointing.
 // This returns true if we find either a Photosynthesize segment or a FakePhotosynthesize segment
 // in the direct line of sight.
@@ -793,7 +907,7 @@ bool Agent::testIsFacingFood(SphereWorld *pWorld, float distMultiplier)
 	Vector3 lookVector = mMoveVector;
 	float lookDistance = lookVector.length();
 	
-	float lookRadius = Parameters::instance.getMoveDistance() * Parameters::instance.mouthSize;
+	float lookRadius = Parameters::instance.getMoveDistance();// * Parameters::instance.mouthSize;
 	
 	for (int i = 0; i < visionDistance; i++)
 	{
@@ -816,7 +930,7 @@ bool Agent::testIsFacingFood(SphereWorld *pWorld, float distMultiplier)
 				Agent *pAgent = pEntity->mAgent;
 				
 				// check that the agent is alive, since we might have killed while looping over entities
-				if (pAgent && pAgent != this && pAgent->mStatus != eNonExistent)
+				if (pAgent && pAgent->mStatus != eNonExistent)
 				{
 					switch (pEntity->mType)
 					{
@@ -826,17 +940,15 @@ bool Agent::testIsFacingFood(SphereWorld *pWorld, float distMultiplier)
 							break;
 							
 						default:
-							/*
-							 if (pAgent == this) {
-							 if (getWasBlocked()) {
-							 isBlocked = true;
-							 }
-							 }
-							 
-							 else */{
-								 isBlocked = true;
-							 }
-							break;
+							if (pAgent == this) {
+								if (pEntity != &pAgent->mSegments[0]) {
+									isBlocked = true;
+								}
+							}
+							else {
+								isBlocked = true;
+							}
+						break;
 					}
 				}
 			}
@@ -851,6 +963,82 @@ bool Agent::testIsFacingFood(SphereWorld *pWorld, float distMultiplier)
 	}
 	
 	return false;
+}
+
+bool Agent::testIsFacing(SphereWorld *pWorld, float distMultiplier, facingFunction func)
+{
+	float lookspread = Parameters::instance.lookSpread;
+	int visionDistance = Parameters::instance.lookDistance * distMultiplier;
+	
+	Vector3 lookLocation = mSegments[0].mLocation;
+	Vector3 lookVector = mMoveVector;
+	float lookDistance = lookVector.length();
+	
+	float lookRadius = Parameters::instance.getMoveDistance();// * Parameters::instance.mouthSize;
+	
+	for (int i = 0; i < visionDistance; i++)
+	{
+		Vector3 oldLocation = lookLocation;
+		lookLocation = oldLocation + lookVector;
+		lookLocation.normalize();
+		lookVector = lookLocation - oldLocation;
+		lookVector.normalize();
+		lookVector *= lookDistance;
+		
+		SphereEntityPtr entities[16];
+		int numEntities = pWorld->getNearbyEntities(lookLocation, lookRadius, entities);
+		
+		if (numEntities > 0)
+		{
+			bool isBlocked = false;
+			for (int j = 0; j < numEntities; j++)
+			{
+				SphereEntity *pEntity = entities[j];
+				Agent *pAgent = pEntity->mAgent;
+				
+				// check that the agent is alive, since we might have killed while looping over entities
+				if (pAgent && pAgent->mStatus != eNonExistent)
+				{
+					switch (func(pAgent, pEntity)) {
+						case eFacingTrue:
+							return true;
+						case eFacingFalse:
+							isBlocked = true;
+							break;
+						case eFacingIgnore:
+							break;
+					}
+				}
+			}
+				
+			if (isBlocked)
+				return false;
+		}
+		
+		if (i > 3) {
+			lookDistance *= lookspread;
+			lookRadius *= lookspread;
+		}
+	}
+	
+	return false;
+}
+
+
+static eFacing facingSiblingFunction(Agent *pAgent, SphereEntity *pEntity)
+{
+	if (pAgent == pEntity->mAgent) {
+		return eFacingIgnore;
+	}
+	if (pAgent->mGenome == pEntity->mAgent->mGenome) {
+		return eFacingTrue;
+	}
+	return eFacingFalse;
+}
+
+bool Agent :: testIsFacingSibling(SphereWorld *pWorld, float distMultiplier)
+{
+	return testIsFacing(pWorld, distMultiplier, facingSiblingFunction);
 }
 
 void Agent::sleep()
@@ -868,6 +1056,13 @@ void Agent::spawnIfAble(SphereWorld * pWorld)
 	
 	if (mEnergy < mSpawnEnergy)
 		return;
+	
+/*
+	if (pWorld->mNumAgents > (MAX_AGENTS - 100) || pWorld->mNumSegments > (KILL_SEGMENT_THRESHHOLD - 1000)) {
+		mEnergy *= .75f;
+		return;
+	}
+*/
 	
 	Vector3 ptLocation = mSpawnLocation;
 	
@@ -921,7 +1116,7 @@ void Agent::spawnIfAble(SphereWorld * pWorld)
 		
 		if (numEntities > MAX_CROWDING) {
 			/* if (! getIsMotile() || neverMoved) */ {
-				mDormant = 1000;
+				mDormant = 10;
 				mEnergy /= 2;
 				return;
 			}

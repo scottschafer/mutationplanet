@@ -15,6 +15,7 @@
 
         <style type="text/css">
             #background {
+				z-index: -1;
                 position: absolute;
                 width: 100%;
                 background: #f0f9ff; /* Old browsers */
@@ -26,6 +27,7 @@
                 background: linear-gradient(to bottom,  #f0f9ff 0%,#cbebff 47%,#a1dbff 100%); /* W3C */
                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f0f9ff', endColorstr='#a1dbff',GradientType=0 ); /* IE6-9 */
             }
+		
             .critter {
                 font-size: 9px;
                 vertical-align: bottom;
@@ -60,14 +62,15 @@
                 background-color: green;
             }
             #genealogy {
-                background-color: white;
                 position:absolute;
                 border: 1px;
                 border-style: solid;
+				background-color: rgba(255,255,255,.5);
             }
             #connectors {
                 position:absolute;
                 border: 1px;
+				pointer-events: none;
             }
             #timeline {
                 position: absolute;
@@ -88,6 +91,33 @@
                 position: absolute;
                 text-align: right;
             }
+			.genePopupContainer {
+				position: absolute;
+				z-index: 100;
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+				-khtml-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+			.genePopup {
+				position: absolute;
+				left: 20px;
+				background: rgba(255,255,128, .9);
+				padding: 10px;
+				white-space: nowrap;
+				box-shadow: 4px 4px 8px #888888;
+				border: 6px ridge tan;
+				border-radius: 4px;
+			}
+			.genePopupConnector {
+				border: 3px tan outset;
+				box-shadow: 4px 4px 8px #888888;
+				position: absolute;
+				top:8px;
+				width:20px;
+			}
             .segment.segment__1 {
                 background-image: url("[[res_path]]/segment_exec_always.png");
             }
@@ -98,46 +128,52 @@
                 background-image: url("[[res_path]]/segment_exec_no.png");
             }
             .segment.segment_a {
-                background-image: url("[[res_path]]/food.png");
+                background-image: url("[[res_path]]/food.png"); /* eInstructionPhotosynthesize */
             }
             .segment.segment_b {
-                background-image: url("[[res_path]]/segment_M.png");
+                background-image: url("[[res_path]]/segment_M.png"); /* eInstructionMoveAndEat */
             }
             .segment.segment_c {
-                background-image: url("[[res_path]]/segment_n.png");
+                background-image: url("[[res_path]]/segment_n.png"); /* eInstructionMove */
             }
-            .segment.segment_d {
-                background-image: url("[[res_path]]/segment_hyper.png");
-            }
-            .segment.segment_e {
-                background-image: url("[[res_path]]/segment_Z.png");
-            }
-            .segment.segment_f {
-                background-image: url("[[res_path]]/segment_lt.png");
-            }
-            .segment.segment_g {
-                background-image: url("[[res_path]]/segment_rt.png");
-            }
+			.segment.segment_d {
+				background-image: url("[[res_path]]/segment_anchor.png"); /* eInstructionSetAnchored */
+			}
+			.segment.segment_e {
+				background-image: url("[[res_path]]/segment_hyper.png"); /* eInstructionHyper */
+			}
+			.segment.segment_f {
+				background-image: url("[[res_path]]/segment_Z.png"); /* eInstructionSleep */
+			}
+			.segment.segment_g {
+				background-image: url("[[res_path]]/segment_lt.png"); /* eInstructionTurnLeft */
+			}
             .segment.segment_h {
-                background-image: url("[[res_path]]/segment_[.png");
+                background-image: url("[[res_path]]/segment_rt.png"); /* eInstructionTurnRight */
             }
             .segment.segment_i {
-                background-image: url("[[res_path]]/segment_].png");
+                background-image: url("[[res_path]]/segment_[.png"); /* eInstructionHardTurnLeft */
             }
             .segment.segment_j {
-                background-image: url("[[res_path]]/segment_test_see_food.png");
+                background-image: url("[[res_path]]/segment_].png"); /* eInstructionHardTurnRight */
             }
-            .segment.segment_k {
-                background-image: url("[[res_path]]/segment_test_blocked.png");
-            }
-            .segment.segment_l {
-                background-image: url("[[res_path]]/segment_test_occluded.png");
-            }
-            .segment.segment_m {
-                background-image: url("[[res_path]]/segment_test_preyed_on.png");
-            }
+			.segment.segment_k {
+				background-image: url("[[res_path]]/segment_test_see_food.png"); /* eInstructionTestSeeFood */
+			}
+			.segment.segment_l {
+				background-image: url("[[res_path]]/segment_test_blocked.png"); /* eInstructionTestBlocked */
+			}
+			.segment.segment_m {
+				background-image: url("[[res_path]]/segment_test_preyed_on.png"); /* eInstructionTestPreyedOn */
+			}
             .segment.segment_n {
-                background-image: url("[[res_path]]/segment_anchor.png");
+                background-image: url("[[res_path]]/segment_test_occluded.png"); /* eInstructionTestOccluded */
+            }
+            .segment.segment_o {
+                background-image: url("[[res_path]]/segment_test_facing_sibling.png"); /* eInstructionTestFacingSibling */
+            }
+            .segment.segment_p	{
+                background-image: url("[[res_path]]/segment.png");
             }
 
         </style>
@@ -153,7 +189,8 @@
 
             $(function() {
                 critters = $(".critter");
-                critters.each(function(index, value) {
+
+			  critters.each(function(index, value) {
                     var critter = $(value);
                     var info = {};
                     var left = parseInt(critter.css("left"));
@@ -166,11 +203,66 @@
                     info.generation = critter.attr("data-generation"); 
                     info.firstTurn = critter.attr("data-turn-appeared");
                     info.children = $('div[data-parent-genome="' + info.genome + '"]');
+							critter.click(handleCritterClick);
+							critter.hover(handleCritterClick, function() { $(".genePopupContainer").remove() });
 
                     critterInfoMap[critter[0].id] = info;
                 });
 
-                function setCritterPosition(e, x, y) {
+			  function handleCritterClick(e) {
+			  
+				  var execTypeText = {
+						'A': "",
+						'T': ", if condition is true ",
+						'F': ", if condition is false ",
+				  };
+				  
+				  var instructionText = {
+						'a': "Photosynthesize",
+						'b': "Move and eat",
+						'c': "Move",
+						'd': "Anchor",
+						'e': "Hyper",
+						'f': "Sleep",
+						'g': "Turn left",
+						'h': "Turn right",
+						'i': "Hard turn left",
+						'j': "Hard turn right",
+						'k': "Test facing food",
+						'l': "Test blocked",
+						'm': "Test prey on",
+						'n': "Test occluded",
+						'o': "Test facing siblings"
+				  };
+			  
+			  $(".genePopupContainer").remove();
+
+				$("#genealogy").append("<div class='genePopupContainer'><span class='genePopupConnector'></span></div>");
+				  var $genePopupContainer = $(".genePopupContainer")
+				  $genePopupContainer.css("left", (parseInt($(this).css("left")) + $(this).width() + 2) + "px");
+				  $genePopupContainer.css("top", $(this).css("top"));
+			  
+				  
+				  var popup = '<span class="genePopup">';
+				  var genome = $(this).attr("data-genome");
+				  
+				  for (var i = 0; i < genome.length; i += 2) {
+						var instruction = genome[i];
+						var execType = genome[i + 1];
+						
+						popup += (i/2 + 1);
+						popup += ". ";
+						popup += instructionText[instruction];
+						popup += execTypeText[execType];
+						popup += "<br>";
+				  }
+				  popup += '</span>';
+				  
+				  $genePopupContainer.append(popup);
+				  $genePopupContainer.click(function() { $(".genePopupContainer").remove(); });
+			  }
+
+			  function setCritterPosition(e, x, y) {
                     var info = critterInfoMap[e[0].id];
                     e.css("left", x + "px");
                     e.css("top", y + "px")
@@ -232,7 +324,9 @@
                 }
 
                 function updateView() {
-                    connectorsHtml = "";
+				$(".genePopupContainer").remove();
+
+				connectorsHtml = "";
                     $("#toggleView").text(generationalView ? "Switch to Timeline View" : "Switch to Generational View");
                     $("#timelineZoomIn").css("display", generationalView ? "none" : "inline-block");
                     $("#timelineZoomOut").css("display", generationalView ? "none" : "inline-block");
@@ -281,8 +375,11 @@
                     });
 
                     var genealogy = $("#genealogy");
-                    genealogy.css("width", (totalBounds.right - totalBounds.left + margin * 3) + "px");
-                    genealogy.css("height", (totalBounds.bottom - totalBounds.top + margin * 3) + "px");
+			  var width = Math.max(800, totalBounds.right - totalBounds.left + margin * 3 + 200);
+			  var height = Math.max(600, totalBounds.bottom - totalBounds.top + margin * 3 + 200);
+			  
+                    genealogy.css("width", width + "px");
+                    genealogy.css("height", height + "px");
 
                     var height = Math.max($(window).height(), (genealogy.offset().top + genealogy.height() + margin * 4));
                     $("#background").css("height", height + "px");
@@ -349,7 +446,8 @@
         <div id="background"></div>
         <h1>Genealogy</h1>
         
-        <p>This graph shows the ancestoral tree for the five most populous critters. Each box contains a unique genome which is exactly one mutation away from its parent's genome. A mutation will randomly insert, remove or change an instruction. Green boxes represent genomes that are still represented by a population, while gray boxes are extinct.</p>
+        <p>This graph shows the ancestoral tree for the ten most populous species of critters. Each box contains a unique genome which is exactly one mutation away from its parent's genome. A mutation will randomly insert, remove or change an instruction. Green boxes represent genomes that are still represented by a population, while gray boxes are extinct.</p>
+		<p>You can select any species to see a description of its genome.</p>
         <button id="toggleView">Timeline View</button>
         <button id="timelineZoomIn">+</button>
         <button id="timelineZoomOut">-</button>
@@ -357,12 +455,11 @@
         <br />
         
         <div id="timeline"><p>&nbsp;<b><u>Turn #</u></b></p></div>
-        
-        <div id="genealogy">
+		
+		<div id="genealogy">
             [[contents]]
         </div>
 
-        <div id="connectors"></div>
-
+		<div id="connectors"></div>
     </body>
 </html>

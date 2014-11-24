@@ -1,3 +1,4 @@
+
 #include "Main.h"
 //#include "Analytics.h"
 #include <iostream>
@@ -11,6 +12,7 @@ static int critter_height = 46;
 static int segment_width = 20;
 static int segment_height = 20;
 
+const int TOP_N_CRITTERS = 8;
 const int MIN_CRITTER_WIDTH = 100;
 
 using namespace std;
@@ -21,18 +23,18 @@ inline bool skipGenome(string genome) {
     return (genome.size() == 1 && (genome[0] & eInstructionMask) == eInstructionSleep);
 }
 
-class ParentGenome {
+class GenomeBranch {
 public:
-    ParentGenome() {parent = NULL;}
-    ~ParentGenome() {
-        for (vector<ParentGenome*>::iterator i = descendants.begin(); i != descendants.end(); i++) {
+    GenomeBranch() {parent = NULL;}
+    ~GenomeBranch() {
+        for (vector<GenomeBranch*>::iterator i = descendants.begin(); i != descendants.end(); i++) {
             delete *i;
         }
     }
     
-    void addDescendant(ParentGenome *pDescendant) {
+    void addDescendant(GenomeBranch *pDescendant) {
         // prevent circular descendancy
-        ParentGenome * pTest = this;
+        GenomeBranch * pTest = this;
         while (pTest != NULL) {
             if (pTest->genome == pDescendant->genome)
                 return;
@@ -40,33 +42,63 @@ public:
         }
         descendants.push_back(pDescendant);
     }
-    const std::vector<ParentGenome*> & getDescendants() { return descendants; }
+	
+	GenomeBranch * getDescendant(string genome) {
+		for (std::vector<GenomeBranch*>::iterator i = descendants.begin(); i != descendants.end(); i++) {
+			if ((*i)->genome == genome) {
+				return *i;
+			}
+		}
+		return NULL;
+	}
+	
+	void getEndNodes(vector<GenomeBranch*> & result) {
+		
+		if (descendants.empty()) {
+			result.push_back(this);
+		}
+		else {
+			for (int i = 0; i < descendants.size(); i++) {
+				descendants[i]->getEndNodes(result);
+			}
+		}
+	}
+	
+	void removeDescendant(GenomeBranch *child) {
+		for (std::vector<GenomeBranch*>::iterator i = descendants.begin(); i != descendants.end(); i++) {
+			if ((*i) == child) {
+				descendants.erase(i);
+				break;
+			}
+		}
+	}
 
+	const std::vector<GenomeBranch*> & getDescendants() { return descendants; }
     
     std::string genome;
     long turnAppeared;
-    ParentGenome * parent;
+    GenomeBranch * parent;
 
 private:
-    std::vector<ParentGenome*> descendants;
+    std::vector<GenomeBranch*> descendants;
 };
 
 
-int getMaxGenomeLength(ParentGenome *pParentGenome, int curMax = 0);
-int getMaxGenomeLength(ParentGenome *pParentGenome, int curMax)
+int getMaxGenomeLength(GenomeBranch *pGenomeBranch, int curMax = 0);
+int getMaxGenomeLength(GenomeBranch *pGenomeBranch, int curMax)
 {
-    if (pParentGenome->genome.length() > curMax)
-        curMax = pParentGenome->genome.length();
+    if (pGenomeBranch->genome.length() > curMax)
+        curMax = pGenomeBranch->genome.length();
     
-    for (vector<ParentGenome*>::const_iterator i = pParentGenome->getDescendants().begin(); i != pParentGenome->getDescendants().end(); i++) {
+    for (vector<GenomeBranch*>::const_iterator i = pGenomeBranch->getDescendants().begin(); i != pGenomeBranch->getDescendants().end(); i++) {
         if (! skipGenome((*i)->genome))
             curMax = getMaxGenomeLength(*i, curMax);
     }
     return curMax;
 }
 
-bool compareDecendantsFunc(ParentGenome * p1, ParentGenome * p2);
-bool compareDecendantsFunc(ParentGenome * p1, ParentGenome * p2)
+bool compareDecendantsFunc(GenomeBranch * p1, GenomeBranch * p2);
+bool compareDecendantsFunc(GenomeBranch * p1, GenomeBranch * p2)
 {
     return p2->getDescendants().size() > p1->getDescendants().size();
 }
@@ -76,29 +108,34 @@ inline string toHTMLGenome(const char *pGenome) {
     
     while (*pGenome) {
         char ch = *pGenome++;
-        result += 'a' + (ch & eInstructionMask);
-        if (ch & eAlways)
-            result += 'A';
-        else
-            if (ch & eIf)
-                result += 'T';
-            else
-                result += 'F';
+        result += 'a' + (ch & eInstructionMask) - eInstructionPhotosynthesize;
+		
+		eSegmentExecutionType execType = Genome::getExecType(ch);
+		switch (execType) {
+			case eAlways:	result += 'A'; break;
+			case eIf:		result += 'T'; break;
+			case eNotIf:	result += 'F'; break;
+				
+			default:
+				result += "*error*";
+		}
     }
     return result;
 }
 inline string toHTMLGenome(const string & str) { return toHTMLGenome(str.c_str()); }
 
-void printTree(ParentGenome *pParentGenome, set<string> & livingGenomes, map<string,int> & genomeToPopulation, set<string> &addedGenomes,
-               stringstream & f, int generationLevel = 0, int siblingLevel = 0, const char * parentGenome = NULL);
+int printTree(GenomeBranch *pGenomeBranch, set<string> & livingGenomes, map<string,int> & genomeToPopulation, set<string> &addedGenomes,
+               stringstream & f, int generationLevel = 0, int siblingLevel = 0, const char * parentGenome = NULL, int minPopulation = 0);
 
-void printTree(ParentGenome *pParentGenome, set<string> & livingGenomes, map<string,int> & genomeToPopulation, set<string> &addedGenomes,
-               stringstream & f, int generationLevel, int siblingLevel, const char *parentGenome)
+int printTree(GenomeBranch *pGenomeBranch, set<string> & livingGenomes, map<string,int> & genomeToPopulation, set<string> &addedGenomes,
+               stringstream & f, int generationLevel, int siblingLevel, const char *parentGenome, int minPopulation)
 {
+	int result = 1;
+	
     int x = siblingLevel * critter_width * 1.25;
     int y = generationLevel * (critter_height + 50);
     
-    string &genome = pParentGenome->genome;
+    string &genome = pGenomeBranch->genome;
     bool alive = false;
     
     f << "<div id='critter_" << toHTMLGenome(genome) << "' class='critter";
@@ -108,7 +145,7 @@ void printTree(ParentGenome *pParentGenome, set<string> & livingGenomes, map<str
     }
     
     f << "' style='left:" << x << "px;top:" << y << "px' data-generation=" << generationLevel
-        << " data-turn-appeared=" << pParentGenome->turnAppeared << " data-genome='" << toHTMLGenome(genome) << "'";
+        << " data-turn-appeared=" << pGenomeBranch->turnAppeared << " data-genome='" << toHTMLGenome(genome) << "'";
     
     if (parentGenome != NULL) {
         f << " data-parent-genome='" << toHTMLGenome(parentGenome) << "'";
@@ -126,12 +163,13 @@ void printTree(ParentGenome *pParentGenome, set<string> & livingGenomes, map<str
                 ch = 'a' + ((ch & eInstructionMask) - eInstructionPhotosynthesize);
             }
             else {
-                if (ch & eAlways)
-                    ch = 0;
-                else if (ch & eIf)
-                    ch = 'Y';
-                else
-                    ch = 'N';
+				eSegmentExecutionType execType = Genome::getExecType(ch);
+				switch (execType) {
+					default:
+					case eAlways:	ch = 0; break;
+					case eIf:		ch = 'Y'; break;
+					case eNotIf:	ch = 'N'; break;
+				}
             }
             if (ch != 0) {
                 f << "<div class='segment segment_";
@@ -151,10 +189,11 @@ void printTree(ParentGenome *pParentGenome, set<string> & livingGenomes, map<str
         f << "<p class='population'><i>EXTINCT</i></p>";
     }
     f << "</div>" << '\n';
+	
+
+	vector<GenomeBranch*> children;
     
-    vector<ParentGenome*> children;
-    
-    for (vector<ParentGenome*>::const_iterator i = pParentGenome->getDescendants().begin(); i != pParentGenome->getDescendants().end(); i++) {
+    for (vector<GenomeBranch*>::const_iterator i = pGenomeBranch->getDescendants().begin(); i != pGenomeBranch->getDescendants().end(); i++) {
         if (addedGenomes.find((*i)->genome) != addedGenomes.end()) {
             continue;
         }
@@ -166,9 +205,16 @@ void printTree(ParentGenome *pParentGenome, set<string> & livingGenomes, map<str
     }
     sort(children.begin(), children.end(), compareDecendantsFunc);
     
-    for (vector<ParentGenome*>::iterator i = children.begin(); i != children.end(); i++) {
-        printTree(*i, livingGenomes, genomeToPopulation, addedGenomes, f, generationLevel + 1, siblingLevel++, genome.c_str());
+    for (vector<GenomeBranch*>::iterator i = children.begin(); i != children.end(); i++) {
+		if ((*i)->getDescendants().size() == 0) {
+			if (genomeToPopulation[(*i)->genome] < minPopulation)
+				return siblingLevel;
+		}
+        int maxSibs = printTree(*i, livingGenomes, genomeToPopulation, addedGenomes, f, generationLevel + 1, siblingLevel++, genome.c_str(), minPopulation);
+		if (maxSibs > siblingLevel)
+			siblingLevel = maxSibs;
     }
+	return siblingLevel;
 }
 
 std::string replaceAll(std::string str, const std::string& from, const std::string& to);
@@ -193,116 +239,145 @@ inline std::string toString(float x) {
     return buffer;
 }
 
-static void addGenomeToTree(SphereWorld & world, string genome, map<string,ParentGenome*> & genomesToAncestors, set<string>& addedGenomes, ParentGenome * pChild = NULL);
-static void addGenomeToTree(SphereWorld & world, string genome, map<string,ParentGenome*> & genomesToAncestors, set<string>& addedGenomes, ParentGenome * pChild)
+static void addGenomeToTree(SphereWorld & world, string genome, map<string,GenomeBranch*> & genomesToNode, GenomeBranch * pChild = NULL);
+static void addGenomeToTree(SphereWorld & world, string genome, map<string,GenomeBranch*> & genomesToNode, GenomeBranch * pChild)
 {
-    ParentGenome * pDescendant = genomesToAncestors[genome];
+    GenomeBranch * pDescendant = genomesToNode[genome];
 
-    if (addedGenomes.find(genome) == addedGenomes.end()) {
-        addedGenomes.insert(genome);
-        
-        if (pDescendant == NULL) {
-            
-            pDescendant = new ParentGenome();
-            pDescendant->genome = genome;
-            genomesToAncestors[genome] = pDescendant;
+	if (pDescendant == NULL) {
+		
+		pDescendant = new GenomeBranch();
+		pDescendant->genome = genome;
+		genomesToNode[genome] = pDescendant;
 
-            const char *pGenome = genome.c_str();
-            pDescendant->turnAppeared = world.getFirstTurn(pGenome);
-            
-            string parentGenome = world.getParentGenome(pGenome);
-            if (parentGenome.length() > 0)
-                addGenomeToTree(world, parentGenome, genomesToAncestors, addedGenomes, pDescendant);
-        }
-        
-    }
-    if (pChild != NULL) {
+		const char *pGenome = genome.c_str();
+		pDescendant->turnAppeared = world.getFirstTurn(pGenome);
+		
+		string parentGenome = world.getParentGenome(pGenome);
+		if (parentGenome.length() > 0) {
+			addGenomeToTree(world, parentGenome, genomesToNode, pDescendant);
+		}
+	}
+
+	if (pChild != NULL) {
         pDescendant->addDescendant(pChild);
         pChild->parent = pDescendant;
     }
     
 }
-
-ParentGenome * getTree(SphereWorld & world, int maxSpecies = 5);
-ParentGenome * getTree(SphereWorld & world, int maxSpecies) {
+GenomeBranch * getTree(SphereWorld & world, int maxSpecies = TOP_N_CRITTERS);
+GenomeBranch * getTree(SphereWorld & world, int maxSpecies) {
     
-    map<string,ParentGenome*> genomesToAncestors;
+    map<string,GenomeBranch*> genomesToNode;
     
     vector<pair<string,int> > & topSpecies = world.getTopSpecies();
     if (maxSpecies <= 0) {
         maxSpecies = topSpecies.size();
     }
     
-    set<string> alreadyAdded;
-    
-    for (int i = 0; (i < topSpecies.size()) && (i < maxSpecies); i++) {
+	string topGenome;
+	topGenome += eInstructionPhotosynthesize;
+
+	
+	int numEndGenomes = 0;
+	
+	int minPopulation = 0;
+	
+    for (int i = 0; i < topSpecies.size() && i < maxSpecies; i++) {
         string genome = topSpecies[i].first;
         
-        addGenomeToTree(world, genome, genomesToAncestors, alreadyAdded);
-    }
-    
-    string top;
-    top += eInstructionPhotosynthesize;
-    ParentGenome * pTop = genomesToAncestors[top];
-    pTop->turnAppeared = 0;
-    return pTop;
-}
+        addGenomeToTree(world, genome, genomesToNode);
+		
+		/*
+		if (! world.hasChildGenomes(genome.c_str()))
+			++numEndGenomes;
+		
+		if (numEndGenomes >= maxSpecies) {
+			break;
+		}
+		 */
+	}
 
-/**
- * sss: my attempt to clean up the childToParentGenomes map so it doesn't get outrageously large.
- */
-void addTreeToSet(ParentGenome * genome, set<string> & genomes);
-void addTreeToSet(ParentGenome * parent, set<string> & genomes) {
-    genomes.insert(parent->genome);
-    for (vector<ParentGenome*>::const_iterator i = parent->getDescendants().begin(); i != parent->getDescendants().end(); i++) {
-        addTreeToSet(*i, genomes);
-    }
-}
+    GenomeBranch * pTop = genomesToNode[topGenome];
+	if (pTop == NULL)
+		return NULL;
+	
+	/*
+	vector<GenomeBranch*> endNodes;
+	pTop->getEndNodes(endNodes);
+	while (endNodes.size() > maxSpecies) {
+		GenomeBranch * removeNode = endNodes[endNodes.size()-1];
+		
+		while (removeNode->parent->getDescendants().size() == 1) {
+			GenomeBranch * newParent = removeNode->parent;
+			newParent->removeDescendant(removeNode);
+			removeNode = newParent;
+		}
+		
+		endNodes.erase(--endNodes.end());
+	}
+	*/
 
-void prune(SphereWorld & world, std::map<std::string, std::string> & childToParentGenomes);
-void prune(SphereWorld & world, std::map<std::string, std::string> & childToParentGenomes){
+	pTop->turnAppeared = 0;
 
-    return;
-    set<string> & livingGenomes = world.getLivingGenomes();
-    set<string> unprunableGenomes;
-    string photoSynthesize;
-    photoSynthesize +=eInstructionPhotosynthesize;
-    unprunableGenomes.insert(photoSynthesize);
-    
-    for (set<string>::iterator i = livingGenomes.begin(); i != livingGenomes.end(); i++) {
-        string genome = *i;
-        while(unprunableGenomes.find(genome) == unprunableGenomes.end()) {
-            unprunableGenomes.insert(genome);
-            genome = childToParentGenomes[genome];
-            if (genome.length() == 0) {
-                break;
-            }
-        }
-    }
-    
-    std::list< std::map<string,string>::iterator > iteratorList;
-    for (map<string,string>::iterator i = childToParentGenomes.begin(); i != childToParentGenomes.end(); i++) {
-        if (unprunableGenomes.find(i->first) == unprunableGenomes.end() && unprunableGenomes.find(i->second) == unprunableGenomes.end()) {
-            iteratorList.push_back(i);
-        }
-    }
-    
-    for(std::list< std::map<string,string>::iterator >::iterator i = iteratorList.begin(); i != iteratorList.end(); i++ ){
-        childToParentGenomes.erase(*i);
-    }
+
+	/*
+	// verify that the top species are in the tree
+	for (int i = 0; (i < topSpecies.size()) && (i < maxSpecies); i++) {
+		string genome = topSpecies[i].first;
+		
+		printf("looking for genome: %s\nParents: ", toHTMLGenome(genome).c_str());
+		deque<string> parents;
+		while (true) {
+			genome = world.getParentGenome(genome.c_str());
+			if (genome.length() == 0)
+				break;
+			parents.push_front(genome);
+			printf("%s ", toHTMLGenome(genome).c_str());
+		}
+		printf("\n\nNow searching from top down\n");
+		
+		
+		GenomeBranch * node = pTop;
+		for (int j = 0; j < parents.size(); j++) {
+			if (j == 0) {
+				assert(node->genome == parents[j]);
+				continue;
+			}
+			node = node->getDescendant(parents[j]);
+			if (node != NULL) {
+				printf("Node %s has descendant %s\n", toHTMLGenome(node->genome).c_str(), toHTMLGenome(parents[j]).c_str());
+			}
+
+			assert(node != NULL);
+		}
+		genome = topSpecies[i].first;
+		assert(node->genome == genome || node->getDescendant(genome) != NULL);
+	}
+	 */
+	
+	return pTop;
 }
 
 void Main::handleGenealogy()
 {
     LockWorldMutex m;
-    ParentGenome * pTree = getTree(world);
+    GenomeBranch * pTree = getTree(world);
+	if (pTree == NULL)
+		return;
     set<string> livingGenomes;
     map<string,int> genomeToPopulation;
     
     std::vector<std::pair<std::string,int> > & topSpecies = world.getTopSpecies();
-    for (int i = 0; i < topSpecies.size(); i++) {
+
+	int minPopulation = 0;
+	for (int i = 0; i < topSpecies.size(); i++) {
         livingGenomes.insert(topSpecies[i].first);
         genomeToPopulation[topSpecies[i].first] = topSpecies[i].second;
+
+		if (i < TOP_N_CRITTERS) {
+			minPopulation = topSpecies[i].second;
+		}
     }
 
     string genealogyPath = getenv("HOME");
@@ -332,7 +407,7 @@ void Main::handleGenealogy()
         critter_width = MIN_CRITTER_WIDTH;
 
     set<string> addedGenomes;
-    printTree(pTree, livingGenomes, genomeToPopulation, addedGenomes, treeStream);
+	printTree(pTree, livingGenomes, genomeToPopulation, addedGenomes, treeStream, 0, 0, NULL, minPopulation);
     
     contents = replaceAll(contents, string("[[generation_height]]"), toString(critter_height * 1.4f));
     contents = replaceAll(contents, string("[[turn_height_multiplier]]"), toString(.1f));
