@@ -377,12 +377,13 @@ void Main::resetWorld()
 		
 	}
     else if (false) {
-      genome += (char)(eInstructionPhotosynthesize | eAlways);
         genome += (char)(eInstructionPhotosynthesize | eAlways);
         genome += (char)(eInstructionPhotosynthesize | eAlways);
+/*        genome += (char)(eInstructionPhotosynthesize | eAlways);
         genome += (char)(eInstructionPhotosynthesize | eAlways);
         genome += (char)(eInstructionPhotosynthesize | eAlways);
         genome += (char)(eInstructionTurnRight | eAlways);
+        genome += (char)(eInstructionMove | eAlways);*/
         genome += (char)(eInstructionMove | eAlways);
 
 
@@ -626,7 +627,7 @@ Rectangle Main :: getRectangleForPoint(Vector3 pt, float renderSize, float offse
         return Rectangle(); // cheap backface clipping
                     
     // we use an orthogonal projection, but with some fakery to make it look more 3D
-    float cellSize = (Parameters::instance.getMoveDistance() * pt.z * 400 + 3)  * mUIScale;
+    float cellSize = (Parameters::instance.getCellSize() * pt.z * 400 + 3)  * mUIScale;
     float x = ((pt.x) * (pt.z/5 + 1)) * .98;
     float y = ((pt.y) * (pt.z/5 + 1)) * .98;
 	float multSize = (1.0f + (mViewScale - 1.0f) / 6.0f) * .98f;
@@ -768,7 +769,7 @@ void Main::renderCritters(float elapsedTime) {
                         draw(iSpotlight, spotlight, src, color);
                     }
 
-                    float cellSize = (Parameters::instance.getMoveDistance() * pt.z * 400 + 3)  * mUIScale;
+                    float cellSize = (Parameters::instance.getCellSize() * pt.z * 400 + 3)  * mUIScale;
                     float alpha = 1;
                         
                     if (agent.mStatus == eAlive)
@@ -808,7 +809,7 @@ void Main::renderCritters(float elapsedTime) {
                         if (!useGenomeColorMapping && agent.mStatus == eAlive) {
                             char instruction = agent.mGenome.getInstruction(j);
                             if (InstructionSet::instructionSupportsConditions(instruction)) {
-                                char execType = agent.mGenome.getExecType(j);
+                                eSegmentExecutionType execType = agent.mGenome.getExecType(j);
                                 int iExecType = 0;
                                 if (execType == eIf)
                                     iExecType = iSegmentIf;

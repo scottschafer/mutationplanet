@@ -26,7 +26,7 @@
 Parameters Parameters :: instance;
 
 Parameters :: Parameters() {
-	speed = 10;
+	speed = 4;
 	mutationPercent = 15;
 
 	reset();
@@ -34,7 +34,7 @@ Parameters :: Parameters() {
 
 // The sphere is 2 in diameter (-1 to 1), and the move distance represents the distance a move operation
 // will move a critter. This also determines segment size, vision, etc.
-float Parameters::getMoveDistance()
+float Parameters::getCellSize()
 {
     return (cellSize + 1) * .002f;
 }

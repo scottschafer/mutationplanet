@@ -78,7 +78,7 @@ void Agent::initialize(Vector3 pt, const char * pGenome, bool allowMutation)
 		setAllowMutate();
 	mSpawnLocation = pt;
 	// establish initial move vector
-	float moveDistance = Parameters::instance.getMoveDistance();
+	float moveDistance = Parameters::instance.getCellSize();
 	
 	mMoveVector.x = (float(rand()) / float(RAND_MAX)) * moveDistance;
 	mMoveVector.y = (float(rand()) / float(RAND_MAX)) * moveDistance;
@@ -469,7 +469,7 @@ void Agent :: die(SphereWorld *pWorld, bool andBecomeFood)
 		{
 			pWorld->addFood(foodPoints[i]);
 			
-			float distance = Parameters::instance.getMoveDistance() / 2;
+			float distance = Parameters::instance.getCellSize() / 2;
 			SphereEntityPtr entities[5];
 			int nearbyResults = pWorld->getNearbyEntities(foodPoints[i], distance, entities, sizeof(entities)/sizeof(entities[0]));
 			if (nearbyResults > 0)
@@ -516,26 +516,30 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
 
 	Vector3 newLocation;
 	Vector3 moveVector;
-	if (mNumSegments < 2 || mSegments[mNumSegments-2].mLocation == mSegments[mNumSegments-1].mLocation)
+    
+    float cellSize = Parameters::instance.getCellSize();
+    
+	if (mNumSegments > 1 && mSegments[mNumSegments-2].mLocation == mSegments[mNumSegments-1].mLocation) {
 		moveVector = mMoveVector;
-	else
+    }
+	else {
 		moveVector = mMoveVector / 2;
+    }
 	
 	newLocation = headLocation + moveVector;
 	
 	newLocation.normalize();
 	mMoveVector = newLocation - headLocation;
 	mMoveVector.normalize();
-	mMoveVector *= Parameters::instance.getMoveDistance();
+	mMoveVector *= cellSize;
 	
 	SphereEntityPtr entities[16];
-	float moveDistance = Parameters::instance.getMoveDistance();
 	
-	float headSize = moveDistance;
+	float headSize = cellSize;
 	if (andEat)
 		headSize *= Parameters::instance.mouthSize;
 	
-	float occludeDist = moveDistance * .8f;
+	float occludeDist = cellSize * .8f;
 	
 	Vector3 oldHeadLocation = mSegments[0].mLocation;
 	Vector3 oldTailLocation = mSegments[mNumSegments-1].mLocation;
@@ -543,49 +547,47 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
 	Vector3 newLocations[MAX_SEGMENTS];
 	
 #if 1
-	
-#if USE_SQUARED_DISTANCE
-	float segmentMaxFriedenberg = moveVector.lengthSquared() * 2.0f;
-#else
-	float segmentMaxFriedenberg = moveVector.length();
-#endif
+	float segmentMaxFriedenberg = cellSize;
 	float segmentMinFriedenberg = segmentMaxFriedenberg / 20;
 	
 	newLocations[0] = newLocation;
 	for (int i = 1; i < mNumSegments; i++) {
-		Vector3 delta = mSegments[i].mLocation - newLocations[i-1];
-#if USE_SQUARED_DISTANCE
-		float deltaDistance = delta.lengthSquared();
-#else
+        
+        /*
+          (0,0)
+          (0,3)
+         
+         delta = (0,-3), deltaDistance = 3
+         */
+        
+		Vector3 delta = newLocations[i-1] - mSegments[i].mLocation;
 		float deltaDistance = delta.length();
-#endif
-		if (deltaDistance > segmentMaxFriedenberg) {
-			delta *= segmentMaxFriedenberg / deltaDistance;
-			float newDistance = delta.length();
-			newLocations[i] = newLocations[i-1] + delta;
+		if (deltaDistance > cellSize) {
+            delta.normalize();
+            delta *= cellSize;
+//            delta *= segmentMaxFriedenberg / deltaDistance;
+            //delta.normalize();
+            //delta *= segmentMaxFriedenberg;
+ 			///delta *= segmentMaxFriedenberg / deltaDistance;
+            
+			newLocations[i] = newLocations[i-1] - delta;
+            newLocations[i].normalize();
 		}
 		else {
 			newLocations[i] = mSegments[i].mLocation;
 		}
 	}
 	
+#if 0
 	if (getIsAnchored()) {
-#if USE_SQUARED_DISTANCE
-		float deltaTail = (newLocations[mNumSegments-1] - oldTailLocation).lengthSquared();
-#else
 		float deltaTail = (newLocations[mNumSegments-1] - oldTailLocation).length();
-#endif
 		
 		if (deltaTail > segmentMinFriedenberg) {
 			newLocations[mNumSegments-1] = oldTailLocation;
 			
 			for (int i = (mNumSegments-2); i >= 0 ; i--) {
 				Vector3 delta = newLocations[i] - newLocations[i+1];
-#if USE_SQUARED_DISTANCE
-				float deltaDistance = delta.lengthSquared();
-#else
 				float deltaDistance = delta.length();
-#endif
 				
 				if (deltaDistance > segmentMaxFriedenberg) {
 					delta *= segmentMaxFriedenberg / deltaDistance;
@@ -600,7 +602,8 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
 			}
 		}
 	}
-
+#endif
+    
 #else
 	for (int i = (mNumSegments - 1); i > 0; i--)
 		newLocations[i] = mSegments[i-1].mLocation;
@@ -747,9 +750,9 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
 	
 	mSleep += Parameters::instance.extraCyclesForMove;
 	if (mNumSegments > 2) {
-		float testDist = moveDistance * .75f;
+		float testDist = cellSize * .75f;
 		bool useOldMoveMethod = false;
-		useOldMoveMethod = true;
+		//useOldMoveMethod = true;
 		for (int i = 1; i < mNumSegments; i++)
 		{
 			if (mSegments[i].mLocation != newLocations[i])
@@ -757,7 +760,7 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
 				
 				if (pWorld->getNearbyEntities(newLocations[i], testDist, entities, 1, this) > 0)
 				{
-					useOldMoveMethod = true;
+					//useOldMoveMethod = true;
 					break;
 				}
 			}
@@ -837,7 +840,7 @@ void Agent::move(SphereWorld * pWorld, bool andEat)
 		// segment on top of it
 		if (Parameters::instance.allowSelfOverlap && mSegments[i].mType == eInstructionPhotosynthesize && ! mSegments[i].mIsOccluded)
 		{
-			int numEntities = pWorld->getNearbyEntities(&mSegments[i], moveDistance / 2, entities);
+			int numEntities = pWorld->getNearbyEntities(&mSegments[i], cellSize / 2, entities);
 			if (numEntities) {
 				mSegments[i].mIsOccluded = true;
 				if (mSegments[i].mType == eInstructionPhotosynthesize)
@@ -871,12 +874,12 @@ void Agent::turn(int a)
 	
 	rotMat.transformPoint(&mMoveVector);
 	mMoveVector.normalize();
-	mMoveVector *= Parameters::instance.getMoveDistance();
+	mMoveVector *= Parameters::instance.getCellSize();
 }
 
 void Agent::orientTowardsPole()
 {
-	float moveDistance = Parameters::instance.getMoveDistance();
+	float moveDistance = Parameters::instance.getCellSize();
 	
 	Vector3 head = mSegments[0].mLocation;
 	Vector3 pole(0,(head.y > 0) ? 1 : -1, 0);
@@ -907,7 +910,7 @@ bool Agent::testIsFacingFood(SphereWorld *pWorld, float distMultiplier)
 	Vector3 lookVector = mMoveVector;
 	float lookDistance = lookVector.length();
 	
-	float lookRadius = Parameters::instance.getMoveDistance();// * Parameters::instance.mouthSize;
+	float lookRadius = Parameters::instance.getCellSize();// * Parameters::instance.mouthSize;
 	
 	for (int i = 0; i < visionDistance; i++)
 	{
@@ -974,7 +977,7 @@ bool Agent::testIsFacing(SphereWorld *pWorld, float distMultiplier, facingFuncti
 	Vector3 lookVector = mMoveVector;
 	float lookDistance = lookVector.length();
 	
-	float lookRadius = Parameters::instance.getMoveDistance();// * Parameters::instance.mouthSize;
+	float lookRadius = Parameters::instance.getCellSize();// * Parameters::instance.mouthSize;
 	
 	for (int i = 0; i < visionDistance; i++)
 	{
@@ -1071,7 +1074,7 @@ void Agent::spawnIfAble(SphereWorld * pWorld)
 	int numAttempts = 1;
 	SphereEntityPtr entities[24];
 	
-	float spawnSpread = Parameters::instance.getMoveDistance();
+	float spawnSpread = Parameters::instance.getCellSize();
 	float maxSpawnSpread = 2.0f;
 	float minSpawnSpread = 1.0f;
 	

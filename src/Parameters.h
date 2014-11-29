@@ -22,7 +22,7 @@ public:
 	Parameters();
 	//static void serialize(JSONSerializer &);
 
-    float getMoveDistance();
+    float getCellSize();
 	float getPhotosynthesizeBonus();
     void reset();
     

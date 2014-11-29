@@ -615,7 +615,7 @@ void SphereWorld::pruneTree(map<string, int> & mapSpeciesToCount) {
 void SphereWorld :: addFood(Vector3 point, bool canSprout /*= true */, float energy /* = 0 */, bool allowMutation /* = false */)
 {
     allowMutation = true;
-    float distance = Parameters::instance.getMoveDistance() / 2;
+    float distance = Parameters::instance.getCellSize() / 2;
     SphereEntityPtr entities[5];
     int nearbyResults = getNearbyEntities(point, distance, entities, sizeof(entities)/sizeof(entities[0]));
     if (nearbyResults > 0)
