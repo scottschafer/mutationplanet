@@ -58,7 +58,7 @@ public:
 	void setAllowFollow(bool allowFollow) { mAllowFollow = allowFollow; mTopCritterIndex = -1;}
 	bool isFollowing() { return mAllowFollow; }
     
-    void addFood(Vector3 point, bool canSprout = true, float energy = 0, bool allowMutation = false);
+    void addFood(Vector3 point, bool canSprout = true, float energy = 0, bool allowMutation = false, bool fromAbove = false);
 
     void registerMutation(const char * newGenome, const char * parentGenome);
     std::string getParentGenome(const char * genome);

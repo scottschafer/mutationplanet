@@ -277,7 +277,8 @@ int SphereWorld :: step()
     if (Parameters::instance.randomFood > 0) {
         if ((mCurrentTurn % 100) < Parameters::instance.randomFood) {
             extern Vector3 getRandomSpherePoint();
-            addFood(getRandomSpherePoint(), true);
+
+            addFood(getRandomSpherePoint(), true, 0, false, true);
         }
     }
 
@@ -612,7 +613,7 @@ void SphereWorld::pruneTree(map<string, int> & mapSpeciesToCount) {
         printf("---- total pruned count = %d\n", pruned);
 }
 
-void SphereWorld :: addFood(Vector3 point, bool canSprout /*= true */, float energy /* = 0 */, bool allowMutation /* = false */)
+void SphereWorld :: addFood(Vector3 point, bool canSprout /*= true */, float energy /* = 0 */, bool allowMutation /* = false */, bool fromAbove /* = false */)
 {
     allowMutation = true;
     float distance = Parameters::instance.getCellSize() / 2;
@@ -639,5 +640,8 @@ void SphereWorld :: addFood(Vector3 point, bool canSprout /*= true */, float ene
         pNewAgent->mEnergy = energy;
         pNewAgent->mDormant = canSprout ? Parameters::instance.deadCellDormancy : -1;
         pNewAgent->mSleep = -1;
+        if (fromAbove) {
+            pNewAgent->mSegments[0].mScale = 2.0f;
+        }
     }
 }

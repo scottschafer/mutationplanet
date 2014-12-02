@@ -195,7 +195,7 @@ private:
     CheckBox * _colorCodeSpecies;
     Slider* _speedSlider;
     Slider* _mutationSlider;
-    Slider* _cellSizeSlider;
+    //Slider* _cellSizeSlider;
     Slider* _randomFoodSlider;
     Slider* _barriersSlider;
 
@@ -205,7 +205,7 @@ private:
     Slider* _deadCellDormancySlider;
     Slider* _moveEnergyCostSlider;
     Slider* _moveAndEatEnergyCostSlider;
-    Slider* _mouthSizeSlider;
+    //Slider* _mouthSizeSlider;
 
     Slider* _baseSpawnEnergySlider;
     Slider* _extraSpawnEnergyPerSegmentSlider;
@@ -218,7 +218,8 @@ private:
     CheckBox * _allowSelfOverlap;
     CheckBox * _starveBecomeFood;
     CheckBox * _cannibals;
-	CheckBox * _allowOr;
+    CheckBox * _allowOr;
+    CheckBox * _useNaturalMovement;
 
     // insert form
     std::vector<Button*> mInsertInstructionButtons;

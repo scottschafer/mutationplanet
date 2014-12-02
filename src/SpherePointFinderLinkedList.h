@@ -18,8 +18,7 @@ using namespace gameplay;
 using namespace std;
 
 
-class SpherePointFinderLinkedList// : public BaseSpherePointFinder
-{
+class SpherePointFinderLinkedList{
 public:
     SpherePointFinderLinkedList();
     
@@ -33,10 +32,6 @@ public:
     int getNearbyEntities(SphereEntity * pNearEntity, float distance, SphereEntity **pResultArray, int maxResults = 16) {
         return getNearbyEntities(pNearEntity->mLocation, distance, pResultArray, maxResults, pNearEntity->mAgent);
     }
-    
-//    int getNearbyEntities(const Vector3 & location, float distance, SphereEntity **pResultArray, int maxResults = 16) {
-//        return getNearbyEntities(location.x, location.y, pNearEntity->mLocation.z, distance, pResultArray, maxResults, pNearEntity->mAgent);
-//    }
 
 private:
     SphereEntityPtr *mSphereEntities;

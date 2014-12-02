@@ -3,7 +3,7 @@
  Copyright (C) 2012, Scott Schafer, scott.schafer@gmail.com
  
  This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU Genekillatral Public License as published by
+ it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
  
@@ -174,7 +174,6 @@ void * Main :: threadFunction(void*)
 			static long elapsedTimeSinceTally = 0;
 			static long startSampleTurns = 0;
 
-			if (true)
 			{
 				LockWorldMutex m;
 
@@ -225,8 +224,8 @@ void * Main :: threadFunction(void*)
 		if (sleepMS > 0 && sleepMS < 1000) {
 			usleep(sleepMS * 1000);
 		}
-
     }
+    
     return NULL;
 }
 
@@ -358,7 +357,35 @@ void Main::resetWorld()
     int initialCount = 500;
     
 
-	if (/* DISABLES CODE */ (false)) {
+    if (false) {
+        genome += eInstructionPhotosynthesize;
+        for (int i = 0; i < 1000; i++) {
+            Agent *pAgent = world.createEmptyAgent();
+            pAgent->initialize(getRandomSpherePoint(), genome.c_str(), false);
+            world.addAgentToWorld(pAgent);
+        }
+        
+        genome = eInstructionMoveAndEat;
+        for (int i = 0; i < 100; i++) {
+            Agent *pAgent = world.createEmptyAgent();
+            pAgent->initialize(getRandomSpherePoint(), genome.c_str(), false);
+            world.addAgentToWorld(pAgent);
+        }
+    }
+    else if (false) {
+        genome += eInstructionPhotosynthesize;
+        Agent *pAgent = world.createEmptyAgent();
+        pAgent->initialize(Vector3(.1,0,1).normalize(), genome.c_str(), false);
+        world.addAgentToWorld(pAgent);
+        
+        genome = eInstructionMove;
+        genome += eInstructionPhotosynthesize;
+        
+        pAgent = world.createEmptyAgent();
+        pAgent->initialize(Vector3(-.1,0,1).normalize(), genome.c_str(), false);
+        world.addAgentToWorld(pAgent);
+    }
+	else if (/* DISABLES CODE */ (false)) {
 		genome += (char)(eInstructionTestSeeFood | eNotIf);
 		for (int i = 0; i < 1000; i++) {
 			Agent *pAgent = world.createEmptyAgent();
@@ -741,8 +768,15 @@ void Main::renderCritters(float elapsedTime) {
                     bool isPhotosynthesize = pEntity->mType == eInstructionPhotosynthesize;
                         
                     Vector3 pt = pEntity->mLocation;
+                    pt *= pEntity->mScale;
 
                     Rectangle dst = getRectangleForPoint(pt, renderSize, offsetX, offsetY);
+                    if (pEntity->mScale > 1.0f && pass == 1) {
+                        pEntity->mScale *= 1.0f - (pEntity->mScale / 100.0f);
+                        if (pEntity->mScale < 1.0f)
+                            pEntity->mScale = 1.0f;
+                    }
+                    
                     if (dst.width == 0)
                         continue;
 
@@ -1124,7 +1158,7 @@ void Main::createUI()
 	_photoSynthesizeEnergyGainSlider = createSliderControl(_formAdvanced, "photoSynthesizeEnergyGain", "Photosynthesis:", 1.0f, 5.0f);
     _moveEnergyCostSlider = createSliderControl(_formAdvanced, "moveEnergyCost", "Move:", 0, 5);
     _moveAndEatEnergyCostSlider = createSliderControl(_formAdvanced, "moveAndEatEnergyCost", "Move & eat:", 0, 15);
-    _mouthSizeSlider = createSliderControl(_formAdvanced, "mouthSize", "Mouth size:", .75f, 4.0f);
+//    _mouthSizeSlider = createSliderControl(_formAdvanced, "mouthSize", "Mouth size:", .75f, 4.0f);
 
     _lookDistanceSlider = createSliderControl(_formAdvanced,"lookDistance", "Vision range:", 1, 100);
 
@@ -1136,8 +1170,9 @@ void Main::createUI()
 
 	_starveBecomeFood = createCheckboxControl(_formAdvanced, "Starve => food");
 	_cannibals = createCheckboxControl(_formAdvanced, "Allow cannibalism");
-
-	_cellSizeSlider = createSliderControl(_formMain, "cellSize", "Cell size:", 1, 10, 1);
+    _useNaturalMovement = createCheckboxControl(_formAdvanced, "Use natural movement");
+    
+//	_cellSizeSlider = createSliderControl(_formMain, "cellSize", "Cell size:", 1, 10, 1);
 
     _formMain->setConsumeInputEvents(false);
     _formAdvanced->setConsumeInputEvents(false);
@@ -1235,8 +1270,8 @@ void Main::controlEvent(Control* control, EventType evt)
                 Parameters::instance.mutationPercent = _mutationSlider->getValue();
             else if (control == _randomFoodSlider)
                 Parameters::instance.randomFood = _randomFoodSlider->getValue();
-            else if (control == _cellSizeSlider)
-                Parameters::instance.cellSize = _cellSizeSlider->getValue();
+//            else if (control == _cellSizeSlider)
+//                Parameters::instance.cellSize = _cellSizeSlider->getValue();
             else if (control == _photoSynthesizeEnergyGainSlider)
                 Parameters::instance.photoSynthesizeEnergyGain = _photoSynthesizeEnergyGainSlider->getValue();
 			else if (control == _deadCellDormancySlider)
@@ -1245,8 +1280,8 @@ void Main::controlEvent(Control* control, EventType evt)
                 Parameters::instance.moveEnergyCost = _moveEnergyCostSlider->getValue();
             else if (control == _moveAndEatEnergyCostSlider)
                 Parameters::instance.moveAndEatEnergyCost = _moveAndEatEnergyCostSlider->getValue();
-			else if (control == _mouthSizeSlider)
-				Parameters::instance.mouthSize = _mouthSizeSlider->getValue();
+//			else if (control == _mouthSizeSlider)
+//				Parameters::instance.mouthSize = _mouthSizeSlider->getValue();
             else if (control == _baseSpawnEnergySlider)
                 Parameters::instance.baseSpawnEnergy = _baseSpawnEnergySlider->getValue();
             else if (control == _extraSpawnEnergyPerSegmentSlider)
@@ -1265,6 +1300,8 @@ void Main::controlEvent(Control* control, EventType evt)
 				Parameters::instance.turnToFoodAfterDeath = _starveBecomeFood->isChecked();
 			else if (control == _cannibals)
 				Parameters::instance.cannibals = _cannibals->isChecked();
+            else if (control == _useNaturalMovement)
+                Parameters::instance.useNaturalMovement = _useNaturalMovement->isChecked();
 			else if (control == _barriersSlider)
 				onBarriers();
 			else if (control == _followCritter)
@@ -1326,12 +1363,14 @@ void Main::setControlValues()
     _speedSlider->setValue(Parameters::instance.speed);
     _mutationSlider->setValue(Parameters::instance.mutationPercent);
     _randomFoodSlider->setValue(Parameters::instance.randomFood);
-    _cellSizeSlider->setValue(Parameters::instance.cellSize);
+//    _cellSizeSlider->setValue(Parameters::instance.cellSize);
     _photoSynthesizeEnergyGainSlider->setValue(Parameters::instance.photoSynthesizeEnergyGain);
 	_deadCellDormancySlider->setValue(Parameters::instance.deadCellDormancy);
     _moveEnergyCostSlider->setValue(Parameters::instance.moveEnergyCost);
     _moveAndEatEnergyCostSlider->setValue(Parameters::instance.moveAndEatEnergyCost);
-    _mouthSizeSlider->setValue(Parameters::instance.mouthSize);
+    _useNaturalMovement->setChecked(Parameters::instance.useNaturalMovement);
+
+//    _mouthSizeSlider->setValue(Parameters::instance.mouthSize);
     _extraSpawnEnergyPerSegmentSlider->setValue(Parameters::instance.extraSpawnEnergyPerSegment);
     _lookDistanceSlider->setValue(Parameters::instance.lookDistance);
     _allowSelfOverlap->setChecked(Parameters::instance.allowSelfOverlap);

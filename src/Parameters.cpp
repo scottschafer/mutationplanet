@@ -46,6 +46,7 @@ float Parameters::getPhotosynthesizeBonus()
 
 void Parameters :: reset()
 {
+    moveCellSizeFraction = .5f;
     moveEnergyCost = 1.0f;
 	moveAndEatEnergyCost = .5f;
     photoSynthesizeEnergyGain = 2.0f;
@@ -60,6 +61,7 @@ void Parameters :: reset()
     cellSize = 4;
     extraCyclesForMove = 15;
     allowSelfOverlap = false;
+    useNaturalMovement = true;
     lookDistance = 30;
 	randomFood = 0;
 

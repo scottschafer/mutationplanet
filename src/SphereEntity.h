@@ -58,10 +58,10 @@ public:
 		mAgent = NULL;
 		mWorld = NULL;
 		mInserted = false;
+        mScale = 1.0f;
 	}
     
-    SphereEntity(Vector3 location, char type, Agent *pAgent = NULL)
-    {
+    SphereEntity(Vector3 location, char type, Agent *pAgent = NULL) {
         mLocation = location;
         mType = type;
         mAgent = pAgent;
@@ -69,8 +69,10 @@ public:
 		mAgent = NULL;
 		mWorld = NULL;
 		mInserted = false;
+        mScale = 1.0f;
     }
     
+    float   mScale;
 	bool	mInserted;
     Agent * mAgent;
     int     mSegmentIndex;

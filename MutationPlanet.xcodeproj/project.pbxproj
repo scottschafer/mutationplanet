@@ -14,12 +14,17 @@
 		42049B5C16ADBB61005DD1F9 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42049B5616ADBB61005DD1F9 /* QuartzCore.framework */; };
 		42049B5D16ADBB61005DD1F9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42049B5716ADBB61005DD1F9 /* UIKit.framework */; };
 		42049B5F16ADBBF5005DD1F9 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 42049B5E16ADBBF5005DD1F9 /* libz.dylib */; };
-		42049B6116ADBC0F005DD1F9 /* libbullet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42049B6016ADBC0F005DD1F9 /* libbullet.a */; };
+		42049B6116ADBC0F005DD1F9 /* libbullet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42049B6016ADBC0F005DD1F9 /* libbullet.a */; settings = {ATTRIBUTES = (Weak, ); }; };
+		42049B6316ADBC30005DD1F9 /* libbullet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42049B6216ADBC30005DD1F9 /* libbullet.a */; };
+		42049B6516ADBC47005DD1F9 /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42049B6416ADBC47005DD1F9 /* liblua.a */; };
+		42049B6A16ADBC63005DD1F9 /* libogg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42049B6616ADBC63005DD1F9 /* libogg.a */; };
+		42049B6B16ADBC63005DD1F9 /* libvorbis.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42049B6716ADBC63005DD1F9 /* libvorbis.a */; };
 		42049B6F16ADBC7A005DD1F9 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42049B6E16ADBC7A005DD1F9 /* libpng.a */; };
 		42049B7116ADBC8B005DD1F9 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42049B7016ADBC8B005DD1F9 /* libpng.a */; };
 		42049B7316ADBCAB005DD1F9 /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42049B7216ADBCAB005DD1F9 /* liblua.a */; };
 		42049B7816ADBCC3005DD1F9 /* libogg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42049B7416ADBCC3005DD1F9 /* libogg.a */; };
 		42049B7916ADBCC3005DD1F9 /* libvorbis.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42049B7516ADBCC3005DD1F9 /* libvorbis.a */; };
+		42049B7D16ADBCDB005DD1F9 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 42049B7C16ADBCDB005DD1F9 /* Default-568h@2x.png */; };
 		421090FA1829A5AE00761E40 /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 421090F91829A5AE00761E40 /* GameKit.framework */; };
 		421090FC1829A5BF00761E40 /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 421090FB1829A5BF00761E40 /* GameKit.framework */; };
 		421539CA16ADC583001308A3 /* libgameplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 421539C916ADC583001308A3 /* libgameplay.a */; };
@@ -32,43 +37,40 @@
 		42C9331D1491A6750098216A /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C9331C1491A6750098216A /* QuartzCore.framework */; };
 		42C9331F1491A67F0098216A /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C9331E1491A67F0098216A /* OpenAL.framework */; };
 		42C9332F1491A78D0098216A /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C9332D1491A7810098216A /* libz.dylib */; };
-		584E3D1219D1C5DD00F1BE3A /* Main_Genealogy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 584E3D1119D1C5DD00F1BE3A /* Main_Genealogy.cpp */; };
-		584E3D1319D1C5DD00F1BE3A /* Main_Genealogy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 584E3D1119D1C5DD00F1BE3A /* Main_Genealogy.cpp */; };
-		58C9800319D2411D0050BF8A /* ZYWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 58C97FFD19D2411D0050BF8A /* ZYWebView.mm */; };
-		58C9800419D2411D0050BF8A /* ZYWebView_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 58C97FFF19D2411D0050BF8A /* ZYWebView_iOS.mm */; };
-		58C9800519D2411D0050BF8A /* ZYWebView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58C9800019D2411D0050BF8A /* ZYWebView.cpp */; };
-		58C9800A19D245020050BF8A /* libgameplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BDBFA85C188347B000342B78 /* libgameplay.a */; };
-		58C9801219D31F990050BF8A /* MutationPlanet-ios.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5B61612E14CCC24D0073B857 /* MutationPlanet-ios.plist */; };
-		58F348D119CCBE3D00CB4967 /* Main_SaveLoad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F348D019CCBE3D00CB4967 /* Main_SaveLoad.cpp */; };
-		58F348D219CCBE3D00CB4967 /* Main_SaveLoad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F348D019CCBE3D00CB4967 /* Main_SaveLoad.cpp */; };
-		58F34AD119CCBE5D00CB4967 /* Agent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F348D319CCBE5C00CB4967 /* Agent.cpp */; };
-		58F34AD219CCBE5D00CB4967 /* Agent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F348D319CCBE5C00CB4967 /* Agent.cpp */; };
-		58F34AD319CCBE5D00CB4967 /* arcball.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F348D519CCBE5C00CB4967 /* arcball.cpp */; };
-		58F34AD419CCBE5D00CB4967 /* arcball.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F348D519CCBE5C00CB4967 /* arcball.cpp */; };
-		58F34AD519CCBE5D00CB4967 /* Genome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F348D919CCBE5C00CB4967 /* Genome.cpp */; };
-		58F34AD619CCBE5D00CB4967 /* Genome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F348D919CCBE5C00CB4967 /* Genome.cpp */; };
-		58F34AD719CCBE5D00CB4967 /* InstructionSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F348DC19CCBE5C00CB4967 /* InstructionSet.cpp */; };
-		58F34AD819CCBE5D00CB4967 /* InstructionSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F348DC19CCBE5C00CB4967 /* InstructionSet.cpp */; };
-		58F34AD919CCBE5D00CB4967 /* Main_InsertCritter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F348DE19CCBE5C00CB4967 /* Main_InsertCritter.cpp */; };
-		58F34ADA19CCBE5D00CB4967 /* Main_InsertCritter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F348DE19CCBE5C00CB4967 /* Main_InsertCritter.cpp */; };
-		58F34ADB19CCBE5D00CB4967 /* Parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F348DF19CCBE5C00CB4967 /* Parameters.cpp */; };
-		58F34ADC19CCBE5D00CB4967 /* Parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F348DF19CCBE5C00CB4967 /* Parameters.cpp */; };
-		58F34E5B19CCBE5D00CB4967 /* ScalableSlider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F34AC319CCBE5D00CB4967 /* ScalableSlider.cpp */; };
-		58F34E5C19CCBE5D00CB4967 /* ScalableSlider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F34AC319CCBE5D00CB4967 /* ScalableSlider.cpp */; };
-		58F34E5D19CCBE5D00CB4967 /* SpherePointFinderLinkedList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F34AC619CCBE5D00CB4967 /* SpherePointFinderLinkedList.cpp */; };
-		58F34E5E19CCBE5D00CB4967 /* SpherePointFinderLinkedList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F34AC619CCBE5D00CB4967 /* SpherePointFinderLinkedList.cpp */; };
-		58F34E6119CCBE5D00CB4967 /* SphereWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F34ACA19CCBE5D00CB4967 /* SphereWorld.cpp */; };
-		58F34E6219CCBE5D00CB4967 /* SphereWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F34ACA19CCBE5D00CB4967 /* SphereWorld.cpp */; };
-		58F34E6519CCBE5D00CB4967 /* UtilsRandom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F34ACE19CCBE5D00CB4967 /* UtilsRandom.cpp */; };
-		58F34E6619CCBE5D00CB4967 /* UtilsRandom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F34ACE19CCBE5D00CB4967 /* UtilsRandom.cpp */; };
-		58F34E6B19CCBE9400CB4967 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F34E6919CCBE9400CB4967 /* Main.cpp */; };
-		58F34E6C19CCBE9400CB4967 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58F34E6919CCBE9400CB4967 /* Main.cpp */; };
 		5B61612614CCC24C0073B857 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 42C932ED1491A4CB0098216A /* icon.png */; };
 		5B61612714CCC24C0073B857 /* res in Resources */ = {isa = PBXBuildFile; fileRef = 42C932F21491A53E0098216A /* res */; };
-		76E14A311A24D20B009C95D7 /* libbullet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 76E14A301A24D20B009C95D7 /* libbullet.a */; };
-		76E14A331A24D210009C95D7 /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 76E14A321A24D210009C95D7 /* liblua.a */; };
-		76E14A351A24D21A009C95D7 /* libogg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 76E14A341A24D21A009C95D7 /* libogg.a */; };
-		76E14A371A24D220009C95D7 /* libvorbis.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 76E14A361A24D220009C95D7 /* libvorbis.a */; };
+		76F183211A2BD60B00CD7E49 /* Agent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F182FE1A2BD60B00CD7E49 /* Agent.cpp */; };
+		76F183221A2BD60B00CD7E49 /* Agent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F182FE1A2BD60B00CD7E49 /* Agent.cpp */; };
+		76F183231A2BD60B00CD7E49 /* arcball.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F183001A2BD60B00CD7E49 /* arcball.cpp */; };
+		76F183241A2BD60B00CD7E49 /* arcball.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F183001A2BD60B00CD7E49 /* arcball.cpp */; };
+		76F183251A2BD60B00CD7E49 /* Genome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F183031A2BD60B00CD7E49 /* Genome.cpp */; };
+		76F183261A2BD60B00CD7E49 /* Genome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F183031A2BD60B00CD7E49 /* Genome.cpp */; };
+		76F183271A2BD60B00CD7E49 /* InstructionSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F183051A2BD60B00CD7E49 /* InstructionSet.cpp */; };
+		76F183281A2BD60B00CD7E49 /* InstructionSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F183051A2BD60B00CD7E49 /* InstructionSet.cpp */; };
+		76F183291A2BD60B00CD7E49 /* Main_Genealogy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F183071A2BD60B00CD7E49 /* Main_Genealogy.cpp */; };
+		76F1832A1A2BD60B00CD7E49 /* Main_Genealogy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F183071A2BD60B00CD7E49 /* Main_Genealogy.cpp */; };
+		76F1832B1A2BD60B00CD7E49 /* Main_InsertCritter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F183081A2BD60B00CD7E49 /* Main_InsertCritter.cpp */; };
+		76F1832C1A2BD60B00CD7E49 /* Main_InsertCritter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F183081A2BD60B00CD7E49 /* Main_InsertCritter.cpp */; };
+		76F1832D1A2BD60B00CD7E49 /* Main_SaveLoad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F183091A2BD60B00CD7E49 /* Main_SaveLoad.cpp */; };
+		76F1832E1A2BD60B00CD7E49 /* Main_SaveLoad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F183091A2BD60B00CD7E49 /* Main_SaveLoad.cpp */; };
+		76F1832F1A2BD60B00CD7E49 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F1830A1A2BD60B00CD7E49 /* Main.cpp */; };
+		76F183301A2BD60B00CD7E49 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F1830A1A2BD60B00CD7E49 /* Main.cpp */; };
+		76F183311A2BD60B00CD7E49 /* Parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F1830C1A2BD60B00CD7E49 /* Parameters.cpp */; };
+		76F183321A2BD60B00CD7E49 /* Parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F1830C1A2BD60B00CD7E49 /* Parameters.cpp */; };
+		76F183331A2BD60B00CD7E49 /* ScalableSlider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F1830E1A2BD60B00CD7E49 /* ScalableSlider.cpp */; };
+		76F183341A2BD60B00CD7E49 /* ScalableSlider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F1830E1A2BD60B00CD7E49 /* ScalableSlider.cpp */; };
+		76F183351A2BD60B00CD7E49 /* SpherePointFinderLinkedList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F183111A2BD60B00CD7E49 /* SpherePointFinderLinkedList.cpp */; };
+		76F183361A2BD60B00CD7E49 /* SpherePointFinderLinkedList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F183111A2BD60B00CD7E49 /* SpherePointFinderLinkedList.cpp */; };
+		76F183371A2BD60B00CD7E49 /* SphereWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F183131A2BD60B00CD7E49 /* SphereWorld.cpp */; };
+		76F183381A2BD60B00CD7E49 /* SphereWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F183131A2BD60B00CD7E49 /* SphereWorld.cpp */; };
+		76F183391A2BD60B00CD7E49 /* UtilsRandom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F183151A2BD60B00CD7E49 /* UtilsRandom.cpp */; };
+		76F1833A1A2BD60B00CD7E49 /* UtilsRandom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F183151A2BD60B00CD7E49 /* UtilsRandom.cpp */; };
+		76F1833E1A2BD60B00CD7E49 /* ZYWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 76F1831B1A2BD60B00CD7E49 /* ZYWebView.mm */; };
+		76F183401A2BD60B00CD7E49 /* ZYWebView_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 76F1831D1A2BD60B00CD7E49 /* ZYWebView_iOS.mm */; };
+		76F183421A2BD60B00CD7E49 /* ZYWebView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76F1831E1A2BD60B00CD7E49 /* ZYWebView.cpp */; };
+		76F183461A2BD7E300CD7E49 /* icon1024.png in Resources */ = {isa = PBXBuildFile; fileRef = 76F183451A2BD7E300CD7E49 /* icon1024.png */; };
+		76F183481A2BD7FA00CD7E49 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 76F183471A2BD7FA00CD7E49 /* Images.xcassets */; };
+		BDBFA8611883491700342B78 /* libgameplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BDBFA85E188347B000342B78 /* libgameplay.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -103,16 +105,17 @@
 		42049B5616ADBB61005DD1F9 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/QuartzCore.framework; sourceTree = DEVELOPER_DIR; };
 		42049B5716ADBB61005DD1F9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		42049B5E16ADBBF5005DD1F9 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/usr/lib/libz.dylib; sourceTree = DEVELOPER_DIR; };
-		42049B6016ADBC0F005DD1F9 /* libbullet.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbullet.a; path = "../external-deps/bullet/lib/ios/armv7/libbullet.a"; sourceTree = "<group>"; };
-		42049B6216ADBC30005DD1F9 /* libbullet.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbullet.a; path = "../external-deps/bullet/lib/macosx/libbullet.a"; sourceTree = "<group>"; };
-		42049B6416ADBC47005DD1F9 /* liblua.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblua.a; path = "../external-deps/lua/lib/macosx/liblua.a"; sourceTree = "<group>"; };
-		42049B6616ADBC63005DD1F9 /* libogg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libogg.a; path = "../external-deps/oggvorbis/lib/macosx/libogg.a"; sourceTree = "<group>"; };
-		42049B6716ADBC63005DD1F9 /* libvorbis.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvorbis.a; path = "../external-deps/oggvorbis/lib/macosx/libvorbis.a"; sourceTree = "<group>"; };
-		42049B6E16ADBC7A005DD1F9 /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng.a; path = "../external-deps/png/lib/macosx/libpng.a"; sourceTree = "<group>"; };
-		42049B7016ADBC8B005DD1F9 /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng.a; path = "../external-deps/png/lib/ios/armv7/libpng.a"; sourceTree = "<group>"; };
-		42049B7216ADBCAB005DD1F9 /* liblua.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblua.a; path = "../external-deps/lua/lib/ios/armv7/liblua.a"; sourceTree = "<group>"; };
-		42049B7416ADBCC3005DD1F9 /* libogg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libogg.a; path = "../external-deps/oggvorbis/lib/ios/armv7/libogg.a"; sourceTree = "<group>"; };
-		42049B7516ADBCC3005DD1F9 /* libvorbis.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvorbis.a; path = "../external-deps/oggvorbis/lib/ios/armv7/libvorbis.a"; sourceTree = "<group>"; };
+		42049B6016ADBC0F005DD1F9 /* libbullet.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbullet.a; path = "../gameplay/external-deps/bullet/lib/ios/armv7/libbullet.a"; sourceTree = "<group>"; };
+		42049B6216ADBC30005DD1F9 /* libbullet.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbullet.a; path = "../gameplay/external-deps/bullet/lib/macosx/libbullet.a"; sourceTree = "<group>"; };
+		42049B6416ADBC47005DD1F9 /* liblua.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblua.a; path = "../gameplay/external-deps/lua/lib/macosx/liblua.a"; sourceTree = "<group>"; };
+		42049B6616ADBC63005DD1F9 /* libogg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libogg.a; path = "../gameplay/external-deps/oggvorbis/lib/macosx/libogg.a"; sourceTree = "<group>"; };
+		42049B6716ADBC63005DD1F9 /* libvorbis.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvorbis.a; path = "../gameplay/external-deps/oggvorbis/lib/macosx/libvorbis.a"; sourceTree = "<group>"; };
+		42049B6E16ADBC7A005DD1F9 /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng.a; path = "../gameplay/external-deps/png/lib/macosx/libpng.a"; sourceTree = "<group>"; };
+		42049B7016ADBC8B005DD1F9 /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng.a; path = "../gameplay/external-deps/png/lib/ios/armv7/libpng.a"; sourceTree = "<group>"; };
+		42049B7216ADBCAB005DD1F9 /* liblua.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblua.a; path = "../gameplay/external-deps/lua/lib/ios/armv7/liblua.a"; sourceTree = "<group>"; };
+		42049B7416ADBCC3005DD1F9 /* libogg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libogg.a; path = "../gameplay/external-deps/oggvorbis/lib/ios/armv7/libogg.a"; sourceTree = "<group>"; };
+		42049B7516ADBCC3005DD1F9 /* libvorbis.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvorbis.a; path = "../gameplay/external-deps/oggvorbis/lib/ios/armv7/libvorbis.a"; sourceTree = "<group>"; };
+		42049B7C16ADBCDB005DD1F9 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		421090F91829A5AE00761E40 /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
 		421090FB1829A5BF00761E40 /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/GameKit.framework; sourceTree = DEVELOPER_DIR; };
 		421539C916ADC583001308A3 /* libgameplay.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgameplay.a; path = "~/Library/Developer/Xcode/DerivedData/gameplay-exiunaubxxjndaapmcqkaoeboiob/Build/Products/Debug/libgameplay.a"; sourceTree = "<group>"; };
@@ -127,47 +130,44 @@
 		42C9331C1491A6750098216A /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		42C9331E1491A67F0098216A /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
 		42C9332D1491A7810098216A /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
-		584E3D1119D1C5DD00F1BE3A /* Main_Genealogy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main_Genealogy.cpp; sourceTree = "<group>"; };
-		58C97FFB19D2411D0050BF8A /* ZYWebView_Android.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ZYWebView_Android.cpp; sourceTree = "<group>"; };
-		58C97FFD19D2411D0050BF8A /* ZYWebView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ZYWebView.mm; sourceTree = "<group>"; };
-		58C97FFE19D2411D0050BF8A /* ZYWebView_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZYWebView_iOS.h; sourceTree = "<group>"; };
-		58C97FFF19D2411D0050BF8A /* ZYWebView_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ZYWebView_iOS.mm; sourceTree = "<group>"; };
-		58C9800019D2411D0050BF8A /* ZYWebView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ZYWebView.cpp; sourceTree = "<group>"; };
-		58C9800119D2411D0050BF8A /* ZYWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZYWebView.h; sourceTree = "<group>"; };
-		58C9800619D243D40050BF8A /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.0.sdk/System/Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
-		58F348D019CCBE3D00CB4967 /* Main_SaveLoad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main_SaveLoad.cpp; sourceTree = "<group>"; };
-		58F348D319CCBE5C00CB4967 /* Agent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Agent.cpp; sourceTree = "<group>"; };
-		58F348D419CCBE5C00CB4967 /* Agent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Agent.h; sourceTree = "<group>"; };
-		58F348D519CCBE5C00CB4967 /* arcball.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = arcball.cpp; sourceTree = "<group>"; };
-		58F348D619CCBE5C00CB4967 /* arcball.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = arcball.h; sourceTree = "<group>"; };
-		58F348D819CCBE5C00CB4967 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
-		58F348D919CCBE5C00CB4967 /* Genome.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Genome.cpp; sourceTree = "<group>"; };
-		58F348DA19CCBE5C00CB4967 /* Genome.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Genome.h; sourceTree = "<group>"; };
-		58F348DC19CCBE5C00CB4967 /* InstructionSet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InstructionSet.cpp; sourceTree = "<group>"; };
-		58F348DD19CCBE5C00CB4967 /* InstructionSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InstructionSet.h; sourceTree = "<group>"; };
-		58F348DE19CCBE5C00CB4967 /* Main_InsertCritter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main_InsertCritter.cpp; sourceTree = "<group>"; };
-		58F348DF19CCBE5C00CB4967 /* Parameters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Parameters.cpp; sourceTree = "<group>"; };
-		58F348E019CCBE5C00CB4967 /* Parameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Parameters.h; sourceTree = "<group>"; };
-		58F34AC319CCBE5D00CB4967 /* ScalableSlider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScalableSlider.cpp; sourceTree = "<group>"; };
-		58F34AC419CCBE5D00CB4967 /* ScalableSlider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScalableSlider.h; sourceTree = "<group>"; };
-		58F34AC519CCBE5D00CB4967 /* SphereEntity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphereEntity.h; sourceTree = "<group>"; };
-		58F34AC619CCBE5D00CB4967 /* SpherePointFinderLinkedList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpherePointFinderLinkedList.cpp; sourceTree = "<group>"; };
-		58F34AC719CCBE5D00CB4967 /* SpherePointFinderLinkedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpherePointFinderLinkedList.h; sourceTree = "<group>"; };
-		58F34ACA19CCBE5D00CB4967 /* SphereWorld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SphereWorld.cpp; sourceTree = "<group>"; };
-		58F34ACB19CCBE5D00CB4967 /* SphereWorld.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphereWorld.h; sourceTree = "<group>"; };
-		58F34ACE19CCBE5D00CB4967 /* UtilsRandom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UtilsRandom.cpp; sourceTree = "<group>"; };
-		58F34ACF19CCBE5D00CB4967 /* UtilsRandom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UtilsRandom.h; sourceTree = "<group>"; };
-		58F34E6919CCBE9400CB4967 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cpp; sourceTree = "<group>"; };
-		58F34E6A19CCBE9400CB4967 /* Main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Main.h; sourceTree = "<group>"; };
 		5B61611214CCC2200073B857 /* MutationPlanet-macosx.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MutationPlanet-macosx.plist"; sourceTree = "<group>"; };
 		5B61612C14CCC24C0073B857 /* MutationPlanet-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MutationPlanet-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B61612E14CCC24D0073B857 /* MutationPlanet-ios.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MutationPlanet-ios.plist"; sourceTree = "<group>"; };
-		5BC4E77F150F879E00CBE1C0 /* gameplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gameplay.xcodeproj; path = ../gameplay/gameplay.xcodeproj; sourceTree = SOURCE_ROOT; };
-		5BC4E849150F911D00CBE1C0 /* shaders */ = {isa = PBXFileReference; lastKnownFileType = text; name = shaders; path = ../gameplay/res/shaders; sourceTree = SOURCE_ROOT; };
-		76E14A301A24D20B009C95D7 /* libbullet.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbullet.a; path = "../GamePlay/external-deps/bullet/lib/macosx/libbullet.a"; sourceTree = "<group>"; };
-		76E14A321A24D210009C95D7 /* liblua.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblua.a; path = "../GamePlay/external-deps/lua/lib/macosx/liblua.a"; sourceTree = "<group>"; };
-		76E14A341A24D21A009C95D7 /* libogg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libogg.a; path = "../GamePlay/external-deps/oggvorbis/lib/macosx/libogg.a"; sourceTree = "<group>"; };
-		76E14A361A24D220009C95D7 /* libvorbis.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvorbis.a; path = "../GamePlay/external-deps/oggvorbis/lib/macosx/libvorbis.a"; sourceTree = "<group>"; };
+		5BC4E77F150F879E00CBE1C0 /* gameplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gameplay.xcodeproj; path = ../gameplay/gameplay/gameplay.xcodeproj; sourceTree = SOURCE_ROOT; };
+		5BC4E849150F911D00CBE1C0 /* shaders */ = {isa = PBXFileReference; lastKnownFileType = text; name = shaders; path = ../gameplay/gameplay/res/shaders; sourceTree = SOURCE_ROOT; };
+		76F182FE1A2BD60B00CD7E49 /* Agent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Agent.cpp; sourceTree = "<group>"; };
+		76F182FF1A2BD60B00CD7E49 /* Agent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Agent.h; sourceTree = "<group>"; };
+		76F183001A2BD60B00CD7E49 /* arcball.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = arcball.cpp; sourceTree = "<group>"; };
+		76F183011A2BD60B00CD7E49 /* arcball.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = arcball.h; sourceTree = "<group>"; };
+		76F183021A2BD60B00CD7E49 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
+		76F183031A2BD60B00CD7E49 /* Genome.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Genome.cpp; sourceTree = "<group>"; };
+		76F183041A2BD60B00CD7E49 /* Genome.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Genome.h; sourceTree = "<group>"; };
+		76F183051A2BD60B00CD7E49 /* InstructionSet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InstructionSet.cpp; sourceTree = "<group>"; };
+		76F183061A2BD60B00CD7E49 /* InstructionSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InstructionSet.h; sourceTree = "<group>"; };
+		76F183071A2BD60B00CD7E49 /* Main_Genealogy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main_Genealogy.cpp; sourceTree = "<group>"; };
+		76F183081A2BD60B00CD7E49 /* Main_InsertCritter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main_InsertCritter.cpp; sourceTree = "<group>"; };
+		76F183091A2BD60B00CD7E49 /* Main_SaveLoad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main_SaveLoad.cpp; sourceTree = "<group>"; };
+		76F1830A1A2BD60B00CD7E49 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cpp; sourceTree = "<group>"; };
+		76F1830B1A2BD60B00CD7E49 /* Main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Main.h; sourceTree = "<group>"; };
+		76F1830C1A2BD60B00CD7E49 /* Parameters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Parameters.cpp; sourceTree = "<group>"; };
+		76F1830D1A2BD60B00CD7E49 /* Parameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Parameters.h; sourceTree = "<group>"; };
+		76F1830E1A2BD60B00CD7E49 /* ScalableSlider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScalableSlider.cpp; sourceTree = "<group>"; };
+		76F1830F1A2BD60B00CD7E49 /* ScalableSlider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScalableSlider.h; sourceTree = "<group>"; };
+		76F183101A2BD60B00CD7E49 /* SphereEntity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphereEntity.h; sourceTree = "<group>"; };
+		76F183111A2BD60B00CD7E49 /* SpherePointFinderLinkedList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpherePointFinderLinkedList.cpp; sourceTree = "<group>"; };
+		76F183121A2BD60B00CD7E49 /* SpherePointFinderLinkedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpherePointFinderLinkedList.h; sourceTree = "<group>"; };
+		76F183131A2BD60B00CD7E49 /* SphereWorld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SphereWorld.cpp; sourceTree = "<group>"; };
+		76F183141A2BD60B00CD7E49 /* SphereWorld.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphereWorld.h; sourceTree = "<group>"; };
+		76F183151A2BD60B00CD7E49 /* UtilsRandom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UtilsRandom.cpp; sourceTree = "<group>"; };
+		76F183161A2BD60B00CD7E49 /* UtilsRandom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UtilsRandom.h; sourceTree = "<group>"; };
+		76F183191A2BD60B00CD7E49 /* ZYWebView_Android.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ZYWebView_Android.cpp; sourceTree = "<group>"; };
+		76F1831B1A2BD60B00CD7E49 /* ZYWebView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ZYWebView.mm; sourceTree = "<group>"; };
+		76F1831C1A2BD60B00CD7E49 /* ZYWebView_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZYWebView_iOS.h; sourceTree = "<group>"; };
+		76F1831D1A2BD60B00CD7E49 /* ZYWebView_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ZYWebView_iOS.mm; sourceTree = "<group>"; };
+		76F1831E1A2BD60B00CD7E49 /* ZYWebView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ZYWebView.cpp; sourceTree = "<group>"; };
+		76F1831F1A2BD60B00CD7E49 /* ZYWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZYWebView.h; sourceTree = "<group>"; };
+		76F183451A2BD7E300CD7E49 /* icon1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon1024.png; sourceTree = "<group>"; };
+		76F183471A2BD7FA00CD7E49 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "MutationPlanet-macosx/Images.xcassets"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,13 +176,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				421539CA16ADC583001308A3 /* libgameplay.a in Frameworks */,
-				76E14A311A24D20B009C95D7 /* libbullet.a in Frameworks */,
-				76E14A331A24D210009C95D7 /* liblua.a in Frameworks */,
+				42049B6316ADBC30005DD1F9 /* libbullet.a in Frameworks */,
+				42049B6516ADBC47005DD1F9 /* liblua.a in Frameworks */,
 				42049B6F16ADBC7A005DD1F9 /* libpng.a in Frameworks */,
-				76E14A351A24D21A009C95D7 /* libogg.a in Frameworks */,
-				76E14A371A24D220009C95D7 /* libvorbis.a in Frameworks */,
-				42C9332F1491A78D0098216A /* libz.dylib in Frameworks */,
 				421090FA1829A5AE00761E40 /* GameKit.framework in Frameworks */,
+				42049B6A16ADBC63005DD1F9 /* libogg.a in Frameworks */,
+				42049B6B16ADBC63005DD1F9 /* libvorbis.a in Frameworks */,
+				42C9332F1491A78D0098216A /* libz.dylib in Frameworks */,
 				424CC03C161FCBDD00577827 /* IOKit.framework in Frameworks */,
 				42C932C11491A0DB0098216A /* Cocoa.framework in Frameworks */,
 				42C9331D1491A6750098216A /* QuartzCore.framework in Frameworks */,
@@ -195,7 +195,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58C9800A19D245020050BF8A /* libgameplay.a in Frameworks */,
+				BDBFA8611883491700342B78 /* libgameplay.a in Frameworks */,
 				42049B6116ADBC0F005DD1F9 /* libbullet.a in Frameworks */,
 				42049B7316ADBCAB005DD1F9 /* liblua.a in Frameworks */,
 				42049B7116ADBC8B005DD1F9 /* libpng.a in Frameworks */,
@@ -218,6 +218,9 @@
 		42C932B11491A0DB0098216A = {
 			isa = PBXGroup;
 			children = (
+				76F183471A2BD7FA00CD7E49 /* Images.xcassets */,
+				76F183451A2BD7E300CD7E49 /* icon1024.png */,
+				42049B7C16ADBCDB005DD1F9 /* Default-568h@2x.png */,
 				5B61611214CCC2200073B857 /* MutationPlanet-macosx.plist */,
 				5B61612E14CCC24D0073B857 /* MutationPlanet-ios.plist */,
 				42C932ED1491A4CB0098216A /* icon.png */,
@@ -242,11 +245,6 @@
 		42C932BF1491A0DB0098216A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				76E14A361A24D220009C95D7 /* libvorbis.a */,
-				76E14A341A24D21A009C95D7 /* libogg.a */,
-				76E14A321A24D210009C95D7 /* liblua.a */,
-				76E14A301A24D20B009C95D7 /* libbullet.a */,
-				58C9800619D243D40050BF8A /* WebKit.framework */,
 				5B61613A14CCC3590073B857 /* MacOSX */,
 				5B61613914CCC3560073B857 /* iOS */,
 			);
@@ -256,32 +254,32 @@
 		42C932C61491A0DB0098216A /* src */ = {
 			isa = PBXGroup;
 			children = (
-				58C97FF919D2411D0050BF8A /* webview */,
-				58F348D819CCBE5C00CB4967 /* Constants.h */,
-				58F34E6919CCBE9400CB4967 /* Main.cpp */,
-				58F348D019CCBE3D00CB4967 /* Main_SaveLoad.cpp */,
-				584E3D1119D1C5DD00F1BE3A /* Main_Genealogy.cpp */,
-				58F348DE19CCBE5C00CB4967 /* Main_InsertCritter.cpp */,
-				58F34E6A19CCBE9400CB4967 /* Main.h */,
-				58F348D319CCBE5C00CB4967 /* Agent.cpp */,
-				58F348D419CCBE5C00CB4967 /* Agent.h */,
-				58F348D519CCBE5C00CB4967 /* arcball.cpp */,
-				58F348D619CCBE5C00CB4967 /* arcball.h */,
-				58F348D919CCBE5C00CB4967 /* Genome.cpp */,
-				58F348DA19CCBE5C00CB4967 /* Genome.h */,
-				58F348DC19CCBE5C00CB4967 /* InstructionSet.cpp */,
-				58F348DD19CCBE5C00CB4967 /* InstructionSet.h */,
-				58F348DF19CCBE5C00CB4967 /* Parameters.cpp */,
-				58F348E019CCBE5C00CB4967 /* Parameters.h */,
-				58F34AC319CCBE5D00CB4967 /* ScalableSlider.cpp */,
-				58F34AC419CCBE5D00CB4967 /* ScalableSlider.h */,
-				58F34AC519CCBE5D00CB4967 /* SphereEntity.h */,
-				58F34AC619CCBE5D00CB4967 /* SpherePointFinderLinkedList.cpp */,
-				58F34AC719CCBE5D00CB4967 /* SpherePointFinderLinkedList.h */,
-				58F34ACA19CCBE5D00CB4967 /* SphereWorld.cpp */,
-				58F34ACB19CCBE5D00CB4967 /* SphereWorld.h */,
-				58F34ACE19CCBE5D00CB4967 /* UtilsRandom.cpp */,
-				58F34ACF19CCBE5D00CB4967 /* UtilsRandom.h */,
+				76F182FE1A2BD60B00CD7E49 /* Agent.cpp */,
+				76F182FF1A2BD60B00CD7E49 /* Agent.h */,
+				76F183001A2BD60B00CD7E49 /* arcball.cpp */,
+				76F183011A2BD60B00CD7E49 /* arcball.h */,
+				76F183021A2BD60B00CD7E49 /* Constants.h */,
+				76F183031A2BD60B00CD7E49 /* Genome.cpp */,
+				76F183041A2BD60B00CD7E49 /* Genome.h */,
+				76F183051A2BD60B00CD7E49 /* InstructionSet.cpp */,
+				76F183061A2BD60B00CD7E49 /* InstructionSet.h */,
+				76F183071A2BD60B00CD7E49 /* Main_Genealogy.cpp */,
+				76F183081A2BD60B00CD7E49 /* Main_InsertCritter.cpp */,
+				76F183091A2BD60B00CD7E49 /* Main_SaveLoad.cpp */,
+				76F1830A1A2BD60B00CD7E49 /* Main.cpp */,
+				76F1830B1A2BD60B00CD7E49 /* Main.h */,
+				76F1830C1A2BD60B00CD7E49 /* Parameters.cpp */,
+				76F1830D1A2BD60B00CD7E49 /* Parameters.h */,
+				76F1830E1A2BD60B00CD7E49 /* ScalableSlider.cpp */,
+				76F1830F1A2BD60B00CD7E49 /* ScalableSlider.h */,
+				76F183101A2BD60B00CD7E49 /* SphereEntity.h */,
+				76F183111A2BD60B00CD7E49 /* SpherePointFinderLinkedList.cpp */,
+				76F183121A2BD60B00CD7E49 /* SpherePointFinderLinkedList.h */,
+				76F183131A2BD60B00CD7E49 /* SphereWorld.cpp */,
+				76F183141A2BD60B00CD7E49 /* SphereWorld.h */,
+				76F183151A2BD60B00CD7E49 /* UtilsRandom.cpp */,
+				76F183161A2BD60B00CD7E49 /* UtilsRandom.h */,
+				76F183171A2BD60B00CD7E49 /* webview */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -294,35 +292,6 @@
 				F1F49B8716AD8C30008715A2 /* iOS */,
 			);
 			name = Libraries;
-			sourceTree = "<group>";
-		};
-		58C97FF919D2411D0050BF8A /* webview */ = {
-			isa = PBXGroup;
-			children = (
-				58C97FFA19D2411D0050BF8A /* android */,
-				58C97FFC19D2411D0050BF8A /* ios */,
-				58C9800019D2411D0050BF8A /* ZYWebView.cpp */,
-				58C9800119D2411D0050BF8A /* ZYWebView.h */,
-			);
-			path = webview;
-			sourceTree = "<group>";
-		};
-		58C97FFA19D2411D0050BF8A /* android */ = {
-			isa = PBXGroup;
-			children = (
-				58C97FFB19D2411D0050BF8A /* ZYWebView_Android.cpp */,
-			);
-			path = android;
-			sourceTree = "<group>";
-		};
-		58C97FFC19D2411D0050BF8A /* ios */ = {
-			isa = PBXGroup;
-			children = (
-				58C97FFD19D2411D0050BF8A /* ZYWebView.mm */,
-				58C97FFE19D2411D0050BF8A /* ZYWebView_iOS.h */,
-				58C97FFF19D2411D0050BF8A /* ZYWebView_iOS.mm */,
-			);
-			path = ios;
 			sourceTree = "<group>";
 		};
 		5B61613914CCC3560073B857 /* iOS */ = {
@@ -359,6 +328,35 @@
 				5BC4E849150F911D00CBE1C0 /* shaders */,
 			);
 			name = GamePlay;
+			sourceTree = "<group>";
+		};
+		76F183171A2BD60B00CD7E49 /* webview */ = {
+			isa = PBXGroup;
+			children = (
+				76F183181A2BD60B00CD7E49 /* android */,
+				76F1831A1A2BD60B00CD7E49 /* ios */,
+				76F1831E1A2BD60B00CD7E49 /* ZYWebView.cpp */,
+				76F1831F1A2BD60B00CD7E49 /* ZYWebView.h */,
+			);
+			path = webview;
+			sourceTree = "<group>";
+		};
+		76F183181A2BD60B00CD7E49 /* android */ = {
+			isa = PBXGroup;
+			children = (
+				76F183191A2BD60B00CD7E49 /* ZYWebView_Android.cpp */,
+			);
+			path = android;
+			sourceTree = "<group>";
+		};
+		76F1831A1A2BD60B00CD7E49 /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				76F1831B1A2BD60B00CD7E49 /* ZYWebView.mm */,
+				76F1831C1A2BD60B00CD7E49 /* ZYWebView_iOS.h */,
+				76F1831D1A2BD60B00CD7E49 /* ZYWebView_iOS.mm */,
+			);
+			path = ios;
 			sourceTree = "<group>";
 		};
 		BDBFA857188347B000342B78 /* Products */ = {
@@ -444,7 +442,7 @@
 		42C932B31491A0DB0098216A /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0600;
+				LastUpgradeCheck = 0610;
 			};
 			buildConfigurationList = 42C932B61491A0DB0098216A /* Build configuration list for PBXProject "MutationPlanet" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -452,7 +450,6 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
-				Base,
 			);
 			mainGroup = 42C932B11491A0DB0098216A;
 			productRefGroup = 42C932BD1491A0DB0098216A /* Products */;
@@ -494,8 +491,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				42C932EE1491A4CB0098216A /* icon.png in Resources */,
+				76F183481A2BD7FA00CD7E49 /* Images.xcassets in Resources */,
 				428F7BDE15CB131A009ED24C /* game.config in Resources */,
 				42C932F31491A53E0098216A /* res in Resources */,
+				76F183461A2BD7E300CD7E49 /* icon1024.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -505,7 +504,7 @@
 			files = (
 				5B61612614CCC24C0073B857 /* icon.png in Resources */,
 				5B61612714CCC24C0073B857 /* res in Resources */,
-				58C9801219D31F990050BF8A /* MutationPlanet-ios.plist in Resources */,
+				42049B7D16ADBCDB005DD1F9 /* Default-568h@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -523,7 +522,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "rsync -rau ../gameplay/res/shaders ${SRCROOT}/res\nrsync -rau ../gameplay/res/ui ${SRCROOT}/res\ntouch -cm ${SRCROOT}/res";
+			shellScript = "rsync -rau ../gameplay/gameplay/res/shaders ${SRCROOT}/res\nrsync -rau ../gameplay/gameplay/res/ui ${SRCROOT}/res\ncp -rf ../gameplay/gameplay/res/logo_powered_white.png ${SRCROOT}/res\ntouch -cm ${SRCROOT}/res";
 		};
 		5B61612414CCC24C0073B857 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -536,7 +535,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "rsync -rau ../gameplay/res/shaders ${SRCROOT}/res\nrsync -rau ../gameplay/res/ui ${SRCROOT}/res\ncp -rf ../gameplay/res/logo_powered_white.png ${SRCROOT}/res\ntouch -cm ${SRCROOT}/res";
+			shellScript = "rsync -rau ../gameplay/gameplay/res/shaders ${SRCROOT}/res\nrsync -rau ../gameplay/gameplay/res/ui ${SRCROOT}/res\ncp -rf ../gameplay/gameplay/res/logo_powered_white.png ${SRCROOT}/res\ntouch -cm ${SRCROOT}/res";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -545,19 +544,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58F34AD319CCBE5D00CB4967 /* arcball.cpp in Sources */,
-				584E3D1219D1C5DD00F1BE3A /* Main_Genealogy.cpp in Sources */,
-				58F348D119CCBE3D00CB4967 /* Main_SaveLoad.cpp in Sources */,
-				58F34E6119CCBE5D00CB4967 /* SphereWorld.cpp in Sources */,
-				58F34AD519CCBE5D00CB4967 /* Genome.cpp in Sources */,
-				58F34AD919CCBE5D00CB4967 /* Main_InsertCritter.cpp in Sources */,
-				58F34E5B19CCBE5D00CB4967 /* ScalableSlider.cpp in Sources */,
-				58F34AD719CCBE5D00CB4967 /* InstructionSet.cpp in Sources */,
-				58F34E6B19CCBE9400CB4967 /* Main.cpp in Sources */,
-				58F34ADB19CCBE5D00CB4967 /* Parameters.cpp in Sources */,
-				58F34E5D19CCBE5D00CB4967 /* SpherePointFinderLinkedList.cpp in Sources */,
-				58F34E6519CCBE5D00CB4967 /* UtilsRandom.cpp in Sources */,
-				58F34AD119CCBE5D00CB4967 /* Agent.cpp in Sources */,
+				76F183391A2BD60B00CD7E49 /* UtilsRandom.cpp in Sources */,
+				76F183211A2BD60B00CD7E49 /* Agent.cpp in Sources */,
+				76F183331A2BD60B00CD7E49 /* ScalableSlider.cpp in Sources */,
+				76F183271A2BD60B00CD7E49 /* InstructionSet.cpp in Sources */,
+				76F183371A2BD60B00CD7E49 /* SphereWorld.cpp in Sources */,
+				76F183351A2BD60B00CD7E49 /* SpherePointFinderLinkedList.cpp in Sources */,
+				76F183251A2BD60B00CD7E49 /* Genome.cpp in Sources */,
+				76F183311A2BD60B00CD7E49 /* Parameters.cpp in Sources */,
+				76F1832D1A2BD60B00CD7E49 /* Main_SaveLoad.cpp in Sources */,
+				76F1832B1A2BD60B00CD7E49 /* Main_InsertCritter.cpp in Sources */,
+				76F183231A2BD60B00CD7E49 /* arcball.cpp in Sources */,
+				76F1832F1A2BD60B00CD7E49 /* Main.cpp in Sources */,
+				76F183291A2BD60B00CD7E49 /* Main_Genealogy.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -565,22 +564,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58F34AD419CCBE5D00CB4967 /* arcball.cpp in Sources */,
-				584E3D1319D1C5DD00F1BE3A /* Main_Genealogy.cpp in Sources */,
-				58F348D219CCBE3D00CB4967 /* Main_SaveLoad.cpp in Sources */,
-				58F34E6219CCBE5D00CB4967 /* SphereWorld.cpp in Sources */,
-				58C9800419D2411D0050BF8A /* ZYWebView_iOS.mm in Sources */,
-				58F34AD619CCBE5D00CB4967 /* Genome.cpp in Sources */,
-				58F34ADA19CCBE5D00CB4967 /* Main_InsertCritter.cpp in Sources */,
-				58F34E5C19CCBE5D00CB4967 /* ScalableSlider.cpp in Sources */,
-				58C9800519D2411D0050BF8A /* ZYWebView.cpp in Sources */,
-				58F34AD819CCBE5D00CB4967 /* InstructionSet.cpp in Sources */,
-				58C9800319D2411D0050BF8A /* ZYWebView.mm in Sources */,
-				58F34E6C19CCBE9400CB4967 /* Main.cpp in Sources */,
-				58F34ADC19CCBE5D00CB4967 /* Parameters.cpp in Sources */,
-				58F34E5E19CCBE5D00CB4967 /* SpherePointFinderLinkedList.cpp in Sources */,
-				58F34E6619CCBE5D00CB4967 /* UtilsRandom.cpp in Sources */,
-				58F34AD219CCBE5D00CB4967 /* Agent.cpp in Sources */,
+				76F1833A1A2BD60B00CD7E49 /* UtilsRandom.cpp in Sources */,
+				76F183221A2BD60B00CD7E49 /* Agent.cpp in Sources */,
+				76F183341A2BD60B00CD7E49 /* ScalableSlider.cpp in Sources */,
+				76F183281A2BD60B00CD7E49 /* InstructionSet.cpp in Sources */,
+				76F183421A2BD60B00CD7E49 /* ZYWebView.cpp in Sources */,
+				76F183381A2BD60B00CD7E49 /* SphereWorld.cpp in Sources */,
+				76F183361A2BD60B00CD7E49 /* SpherePointFinderLinkedList.cpp in Sources */,
+				76F183261A2BD60B00CD7E49 /* Genome.cpp in Sources */,
+				76F183321A2BD60B00CD7E49 /* Parameters.cpp in Sources */,
+				76F1832E1A2BD60B00CD7E49 /* Main_SaveLoad.cpp in Sources */,
+				76F1832C1A2BD60B00CD7E49 /* Main_InsertCritter.cpp in Sources */,
+				76F183241A2BD60B00CD7E49 /* arcball.cpp in Sources */,
+				76F1833E1A2BD60B00CD7E49 /* ZYWebView.mm in Sources */,
+				76F183301A2BD60B00CD7E49 /* Main.cpp in Sources */,
+				76F183401A2BD60B00CD7E49 /* ZYWebView_iOS.mm in Sources */,
+				76F1832A1A2BD60B00CD7E49 /* Main_Genealogy.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -626,12 +625,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_PKGINFO_FILE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-				);
 				INFOPLIST_FILE = "MutationPlanet-macosx.plist";
-				LIBRARY_SEARCH_PATHS = "../external-deps/bullet/lib/ios";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -665,12 +659,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_PKGINFO_FILE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-				);
 				INFOPLIST_FILE = "MutationPlanet-macosx.plist";
-				LIBRARY_SEARCH_PATHS = "../external-deps/bullet/lib/ios";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -681,42 +670,31 @@
 		42C932DB1491A0DB0098216A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
-				CLANG_CXX_LIBRARY = "compiler-default";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
-				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					_TIMESPEC_DEFINED,
-					_DEBUG,
-					DEBUG,
-				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
-					../GamePlay/gameplay/src,
-					"../GamePlay/external-deps/bullet/include",
-					"../GamePlay/external-deps/lua/include",
-					"../GamePlay/external-deps/png/include",
-					"../GamePlay/external-deps/oggvorbis/include",
+					../gameplay/gameplay/src,
+					"../gameplay/external-deps/bullet/include",
+					"../gameplay/external-deps/lua/include",
+					"../gameplay/external-deps/png/include",
+					"../gameplay/external-deps/oggvorbis/include",
 				);
 				INFOPLIST_FILE = "MutationPlanet-macosx.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"../GamePlay/external-deps/bullet/lib/macosx",
-					"../GamePlay/external-deps/lua/lib/macosx",
-					"../GamePlay/external-deps/png/lib/macosx",
-					"../GamePlay/external-deps/oggvorbis/lib/macosx",
-					"$(PROJECT_DIR)/src/pthread/Pre-built.2/lib/x64",
-					"$(PROJECT_DIR)/src/pthread/Pre-built.2/lib/x86",
-					"$(PROJECT_DIR)/src/pthread",
-					"$(PROJECT_DIR)/src/pthread/QueueUserAPCEx/user",
+					"../gameplay/external-deps/bullet/lib/macosx",
+					"../gameplay/external-deps/lua/lib/macosx",
+					"../gameplay/external-deps/png/lib/macosx",
+					"../gameplay/external-deps/oggvorbis/lib/macosx",
+					../GamePlay/Libararies/MacOSX,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = "";
-				VALID_ARCHS = "i386 x86_64";
+				VALID_ARCHS = i386;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -724,36 +702,28 @@
 		42C932DC1491A0DB0098216A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
-				CLANG_CXX_LIBRARY = "compiler-default";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
-				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREPROCESSOR_DEFINITIONS = _TIMESPEC_DEFINED;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
-					../GamePlay/gameplay/src,
-					"../GamePlay/external-deps/bullet/include",
-					"../GamePlay/external-deps/lua/include",
-					"../GamePlay/external-deps/png/include",
-					"../GamePlay/external-deps/oggvorbis/include",
+					../gameplay/gameplay/src,
+					"../gameplay/external-deps/bullet/include",
+					"../gameplay/external-deps/lua/include",
+					"../gameplay/external-deps/png/include",
+					"../gameplay/external-deps/oggvorbis/include",
 				);
 				INFOPLIST_FILE = "MutationPlanet-macosx.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"../GamePlay/external-deps/bullet/lib/macosx",
-					"../GamePlay/external-deps/lua/lib/macosx",
-					"../GamePlay/external-deps/png/lib/macosx",
-					"../GamePlay/external-deps/oggvorbis/lib/macosx",
-					"$(PROJECT_DIR)/src/pthread/Pre-built.2/lib/x64",
-					"$(PROJECT_DIR)/src/pthread/Pre-built.2/lib/x86",
-					"$(PROJECT_DIR)/src/pthread",
-					"$(PROJECT_DIR)/src/pthread/QueueUserAPCEx/user",
+					"../gameplay/external-deps/bullet/lib/macosx",
+					"../gameplay/external-deps/lua/lib/macosx",
+					"../gameplay/external-deps/png/lib/macosx",
+					"../gameplay/external-deps/oggvorbis/lib/macosx",
+					../GamePlay/Libararies/MacOSX,
 				);
-				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = "";
 				VALID_ARCHS = "i386 x86_64";
@@ -771,24 +741,20 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
-					../gameplay/src,
-					"../external-deps/bullet/include",
-					"../external-deps/lua/include",
-					"../external-deps/png/include",
-					"../external-deps/oggvorbis/include",
+					../gameplay/gameplay/src,
+					"../gameplay/external-deps/bullet/include",
+					"../gameplay/external-deps/lua/include",
+					"../gameplay/external-deps/png/include",
+					"../gameplay/external-deps/oggvorbis/include",
 				);
 				INFOPLIST_FILE = "MutationPlanet-ios.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"../external-deps/bullet/lib/ios/$(CURRENT_ARCH)\"",
-					"\"../external-deps/lua/lib/ios/$(CURRENT_ARCH)\"",
-					"\"../external-deps/png/lib/ios/$(CURRENT_ARCH)\"",
-					"\"../external-deps/oggvorbis/lib/ios/$(CURRENT_ARCH)\"",
-					"$(PROJECT_DIR)/src/pthread/Pre-built.2/lib/x64",
-					"$(PROJECT_DIR)/src/pthread/Pre-built.2/lib/x86",
-					"$(PROJECT_DIR)/src/pthread",
-					"$(PROJECT_DIR)/src/pthread/QueueUserAPCEx/user",
+					"\"../gameplay/external-deps/bullet/lib/ios/$(CURRENT_ARCH)\"",
+					"\"../gameplay/external-deps/lua/lib/ios/$(CURRENT_ARCH)\"",
+					"\"../gameplay/external-deps/png/lib/ios/$(CURRENT_ARCH)\"",
+					"\"../gameplay/external-deps/oggvorbis/lib/ios/$(CURRENT_ARCH)\"",
 				);
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 2;
@@ -808,24 +774,20 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
-					../gameplay/src,
-					"../external-deps/bullet/include",
-					"../external-deps/lua/include",
-					"../external-deps/png/include",
-					"../external-deps/oggvorbis/include",
+					../gameplay/gameplay/src,
+					"../gameplay/external-deps/bullet/include",
+					"../gameplay/external-deps/lua/include",
+					"../gameplay/external-deps/png/include",
+					"../gameplay/external-deps/oggvorbis/include",
 				);
 				INFOPLIST_FILE = "MutationPlanet-ios.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"../external-deps/bullet/lib/ios/$(CURRENT_ARCH)",
-					"../external-deps/lua/lib/ios/$(CURRENT_ARCH)",
-					"../external-deps/png/lib/ios/$(CURRENT_ARCH)",
-					"../external-deps/oggvorbis/lib/ios/$(CURRENT_ARCH)",
-					"$(PROJECT_DIR)/src/pthread/Pre-built.2/lib/x64",
-					"$(PROJECT_DIR)/src/pthread/Pre-built.2/lib/x86",
-					"$(PROJECT_DIR)/src/pthread",
-					"$(PROJECT_DIR)/src/pthread/QueueUserAPCEx/user",
+					"\"../gameplay/external-deps/bullet/lib/ios/$(CURRENT_ARCH)\"",
+					"\"../gameplay/external-deps/lua/lib/ios/$(CURRENT_ARCH)\"",
+					"\"../gameplay/external-deps/png/lib/ios/$(CURRENT_ARCH)\"",
+					"\"../gameplay/external-deps/oggvorbis/lib/ios/$(CURRENT_ARCH)\"",
 				);
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 2;

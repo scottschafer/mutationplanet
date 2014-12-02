@@ -36,7 +36,6 @@ public:
     float moveAndEatEnergyCost;
     float moveEnergyCost;
     float photoSynthesizeEnergyGain;
-    //float photoSynthesizeBonus;
     float digestionEfficiency;
     float biteStrength;
 	float unexecutedTurnCost;
@@ -54,6 +53,8 @@ public:
     // moving
     int extraCyclesForMove;
     bool allowSelfOverlap;
+    bool useNaturalMovement;
+    float moveCellSizeFraction;
     
     // looking
     int lookDistance;
